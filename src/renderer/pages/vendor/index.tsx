@@ -180,6 +180,7 @@ const VendorPage = () => {
             key="default"
             vendor={defaultConfig}
             isActive={activeVendorId === 'default'}
+            onEdit={() => handleEdit(defaultConfig)}
             onSetActive={() => handleActivate('default')}
           />
         )}

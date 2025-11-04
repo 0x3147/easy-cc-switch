@@ -52,7 +52,7 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorC
 
           {/* 操作按钮 */}
           <Stack direction="row" spacing={1} alignItems="center">
-            {!vendor.isDefault && onEdit && (
+            {onEdit && (
               <IconButton size="small" onClick={onEdit} color="primary">
                 <FontAwesomeIcon icon={faPencil} size="sm" />
               </IconButton>

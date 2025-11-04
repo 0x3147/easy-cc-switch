@@ -54,10 +54,11 @@ const VendorConfigDialog = ({
 
     setSaving(true)
     try {
-      // 保持原有的 id 和 name
+      // 保持原有的 id，但允许修改 name
       const updatedConfig: VendorConfig = {
         ...config,
         ...formData,
+        name: formData.name || config.name,
         token: formData.token || '',
         baseUrl: formData.baseUrl || ''
       }
@@ -83,6 +84,16 @@ const VendorConfigDialog = ({
       <DialogContent>
         <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* 基础配置 */}
+          <TextField
+            label="供应商名称"
+            value={formData.name || ''}
+            onChange={handleChange('name')}
+            fullWidth
+            required
+            placeholder="例如：默认配置"
+            helperText="自定义供应商名称"
+          />
+
           <TextField
             label="API Token"
             value={formData.token || ''}
@@ -175,7 +186,7 @@ const VendorConfigDialog = ({
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!formData.token || !formData.baseUrl || saving}
+          disabled={!formData.name || !formData.token || !formData.baseUrl || saving}
         >
           {saving ? '保存中...' : '保存'}
         </Button>
