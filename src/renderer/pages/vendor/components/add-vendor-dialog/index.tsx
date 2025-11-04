@@ -22,7 +22,7 @@ import {
   Link
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp, faFire } from '@fortawesome/free-solid-svg-icons'
 import type { VendorConfig } from '@/shared/types/vendor'
 
 interface AddVendorDialogProps {
@@ -54,12 +54,12 @@ const PRESET_VENDORS = {
     sonnetModel: undefined,
     haikuModel: undefined
   },
-  qwen: {
-    name: 'Qwen',
-    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    opusModel: undefined,
-    sonnetModel: undefined,
-    haikuModel: undefined
+  idealab: {
+    name: 'IdealAB',
+    baseUrl: ' https://idealab.alibaba-inc.com/api/openai/v1/chat/completions',
+    opusModel: 'qwen3-coder-plus',
+    sonnetModel: 'qwen3-coder-plus',
+    haikuModel: 'qwen3-coder-plus'
   }
 } as const
 
@@ -158,7 +158,13 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
           <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
             <Tab label="手动配置" />
-            <Tab label="快捷配置" />
+            <Tab
+              icon={
+                <FontAwesomeIcon icon={faFire} style={{ color: '#ff6b35', fontSize: '16px' }} />
+              }
+              iconPosition="end"
+              label="快捷配置"
+            />
           </Tabs>
         </Box>
         {/* 手动配置 Tab */}
@@ -287,7 +293,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                 <MenuItem value="zhipu">智谱(GLM)</MenuItem>
                 <MenuItem value="moonshot">月之暗面(KIMI)</MenuItem>
                 <MenuItem value="minimax">MINIMAX</MenuItem>
-                <MenuItem value="qwen">Qwen</MenuItem>
+                <MenuItem value="idealab">idealab</MenuItem>
               </Select>
             </FormControl>
 
@@ -350,6 +356,24 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
               </Box>
             )}
 
+            {/* IdealAB 官方文档链接 */}
+            {quickVendor === 'idealab' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  如何获取API TOKEN？
+                </Typography>
+                <Link
+                  href="https://idealab.alibaba-inc.com/ideaTalk#/aistudio/manage/personalResource"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  variant="body2"
+                >
+                  查看IdealAB官方文档
+                </Link>
+              </Box>
+            )}
+
             {/* API Base URL（只读，自动填入） */}
             <TextField
               label="API Base URL"
@@ -402,6 +426,33 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   fullWidth
                   disabled
                   helperText="月之暗面快速模型配置"
+                />
+              </>
+            )}
+
+            {/* IdealAB 特有的模型配置 */}
+            {quickVendor === 'idealab' && (
+              <>
+                <TextField
+                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText="IdealAB Opus 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText="IdealAB Sonnet 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText="IdealAB Haiku 模型配置"
                 />
               </>
             )}
