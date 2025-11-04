@@ -3,6 +3,9 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+// 设置应用名称（macOS 程序坞和系统中显示）
+app.name = 'EasyCCSwitch'
+
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
