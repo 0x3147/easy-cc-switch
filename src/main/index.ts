@@ -1,7 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { registerAllHandlers } from './ipc-handler'
 
 // 设置应用名称（macOS 程序坞和系统中显示）
 app.name = 'EasyCCSwitch'
@@ -54,30 +55,8 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
-  // 窗口控制 IPC
-  ipcMain.on('window-minimize', () => {
-    const window = BrowserWindow.getFocusedWindow()
-    if (window) window.minimize()
-  })
-
-  ipcMain.on('window-maximize', () => {
-    const window = BrowserWindow.getFocusedWindow()
-    if (window) {
-      if (window.isMaximized()) {
-        window.unmaximize()
-      } else {
-        window.maximize()
-      }
-    }
-  })
-
-  ipcMain.on('window-close', () => {
-    const window = BrowserWindow.getFocusedWindow()
-    if (window) window.close()
-  })
+  // 注册所有 IPC 事件处理器
+  registerAllHandlers()
 
   createWindow()
 

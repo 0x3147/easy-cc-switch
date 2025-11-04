@@ -1,12 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { WINDOW_CHANNELS } from '../shared/ipc-channels'
 
 // Custom APIs for renderer
 const api = {
   // 窗口控制
-  windowMinimize: () => ipcRenderer.send('window-minimize'),
-  windowMaximize: () => ipcRenderer.send('window-maximize'),
-  windowClose: () => ipcRenderer.send('window-close'),
+  windowMinimize: () => ipcRenderer.send(WINDOW_CHANNELS.MINIMIZE),
+  windowMaximize: () => ipcRenderer.send(WINDOW_CHANNELS.MAXIMIZE),
+  windowClose: () => ipcRenderer.send(WINDOW_CHANNELS.CLOSE),
   // 获取平台
   getPlatform: () => process.platform
 }
