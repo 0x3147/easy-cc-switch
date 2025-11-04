@@ -3,8 +3,8 @@ import { readFile, writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { homedir } from 'os'
 import { existsSync } from 'fs'
-import { VENDOR_CHANNELS } from '../../shared/ipc-channels'
-import type { ClaudeSettings, VendorConfig, AddVendorRequest } from '../../shared/types/vendor'
+import { VENDOR_CHANNELS } from '@/shared/ipc-channels'
+import type { ClaudeSettings, VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 import { vendorStore } from '../store/vendor-store'
 
 /**

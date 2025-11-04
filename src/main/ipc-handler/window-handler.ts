@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron'
-import { WINDOW_CHANNELS } from '../../shared/ipc-channels'
+import { WINDOW_CHANNELS } from '@/shared/ipc-channels'
 
 /**
  * 注册窗口控制相关的 IPC 事件处理器

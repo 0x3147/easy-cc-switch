@@ -1,5 +1,5 @@
 import Store from 'electron-store'
-import type { VendorConfig } from '../../shared/types/vendor'
+import type { VendorConfig } from '@/shared/types/vendor'
 
 /**
  * Store 数据结构

@@ -36,7 +36,7 @@
     "classnames": "^2.5.1",
     "dayjs": "^1.11.19",
     "electron-log": "^5.4.3",
-    "electron-store": "^11.0.2",
+    "electron-store": "^8.2.0",
     "electron-updater": "^6.3.9",
     "normalize.css": "^8.0.1",
     "react-router-dom": "^6.30.1"

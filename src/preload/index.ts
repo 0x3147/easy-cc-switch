@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { WINDOW_CHANNELS, VENDOR_CHANNELS } from '../shared/ipc-channels'
-import type { VendorConfig, AddVendorRequest } from '../shared/types/vendor'
+import { WINDOW_CHANNELS, VENDOR_CHANNELS } from '@/shared/ipc-channels'
+import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 
 // Custom APIs for renderer
 const api = {

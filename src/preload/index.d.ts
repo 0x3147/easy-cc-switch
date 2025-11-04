@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { VendorConfig, AddVendorRequest } from '../shared/types/vendor'
+import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 
 interface API {
   windowMinimize: () => void
