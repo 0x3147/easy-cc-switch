@@ -43,7 +43,9 @@ export const VENDOR_CHANNELS = {
   /** 更新供应商配置 */
   UPDATE_VENDOR: 'vendor-update-vendor',
   /** 激活供应商配置 */
-  ACTIVATE_VENDOR: 'vendor-activate-vendor'
+  ACTIVATE_VENDOR: 'vendor-activate-vendor',
+  /** 获取当前激活的供应商 ID */
+  GET_ACTIVE_VENDOR_ID: 'vendor-get-active-vendor-id'
 } as const
 
 /**

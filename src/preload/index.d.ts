@@ -13,6 +13,7 @@ interface API {
   deleteVendor: (id: string) => Promise<boolean>
   updateVendor: (id: string, updates: Partial<VendorConfig>) => Promise<boolean>
   activateVendor: (id: string) => Promise<boolean>
+  getActiveVendorId: () => Promise<string | null>
 }
 
 declare global {

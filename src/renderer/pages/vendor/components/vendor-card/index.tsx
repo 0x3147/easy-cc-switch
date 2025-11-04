@@ -57,7 +57,7 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorC
                 <FontAwesomeIcon icon={faPencil} size="sm" />
               </IconButton>
             )}
-            {!vendor.isDefault && onDelete && (
+            {onDelete && (
               <IconButton size="small" onClick={onDelete} color="error">
                 <FontAwesomeIcon icon={faTrash} size="sm" />
               </IconButton>

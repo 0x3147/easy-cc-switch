@@ -20,7 +20,8 @@ const api = {
   deleteVendor: (id: string) => ipcRenderer.invoke(VENDOR_CHANNELS.DELETE_VENDOR, id),
   updateVendor: (id: string, updates: Partial<VendorConfig>) =>
     ipcRenderer.invoke(VENDOR_CHANNELS.UPDATE_VENDOR, id, updates),
-  activateVendor: (id: string) => ipcRenderer.invoke(VENDOR_CHANNELS.ACTIVATE_VENDOR, id)
+  activateVendor: (id: string) => ipcRenderer.invoke(VENDOR_CHANNELS.ACTIVATE_VENDOR, id),
+  getActiveVendorId: () => ipcRenderer.invoke(VENDOR_CHANNELS.GET_ACTIVE_VENDOR_ID)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

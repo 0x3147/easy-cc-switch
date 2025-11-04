@@ -164,6 +164,7 @@ export function registerVendorHandler() {
   // 激活供应商配置
   ipcMain.handle(VENDOR_CHANNELS.ACTIVATE_VENDOR, async (_, id: string) => {
     try {
+      // 从 store 中获取供应商配置
       const vendors = vendorStore.getAllVendors()
       const vendor = vendors.find((v) => v.id === id)
 
@@ -171,6 +172,7 @@ export function registerVendorHandler() {
         return false
       }
 
+      // 将配置写入 .claude/settings.json
       const success = await saveClaudeConfig(vendor)
       if (success) {
         vendorStore.setActiveVendorId(id)
@@ -180,5 +182,10 @@ export function registerVendorHandler() {
       console.error('激活供应商配置失败:', error)
       return false
     }
+  })
+
+  // 获取当前激活的供应商 ID
+  ipcMain.handle(VENDOR_CHANNELS.GET_ACTIVE_VENDOR_ID, async () => {
+    return vendorStore.getActiveVendorId()
   })
 }

@@ -9,7 +9,6 @@ import type { VendorConfig } from '@/shared/types/vendor'
 
 const VendorPage = () => {
   const [vendors, setVendors] = useState<VendorConfig[]>([])
-  const [defaultConfig, setDefaultConfig] = useState<VendorConfig | null>(null)
   const [activeVendorId, setActiveVendorId] = useState<string | null>(null)
   const [editingVendor, setEditingVendor] = useState<VendorConfig | null>(null)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
@@ -27,17 +26,29 @@ const VendorPage = () => {
 
   const loadData = async () => {
     try {
-      // 加载默认配置（从 .claude/settings.json 读取）
-      const claudeConfig = await window.api.getClaudeConfig()
-      if (claudeConfig) {
-        setDefaultConfig(claudeConfig)
-        // 如果存在默认配置，默认就是已激活状态
-        setActiveVendorId('default')
-      }
-
-      // 加载所有用户添加的供应商配置
+      // 加载所有供应商配置
       const allVendors = await window.api.getAllVendors()
       setVendors(allVendors)
+
+      // 如果 store 为空，尝试从 .claude/settings.json 导入默认配置
+      if (allVendors.length === 0) {
+        const claudeConfig = await window.api.getClaudeConfig()
+        if (claudeConfig) {
+          // 将默认配置添加到 store 并立即激活
+          await window.api.addVendor({
+            config: claudeConfig,
+            applyImmediately: true // 立即激活，这样会同时保存激活状态
+          })
+          // 重新加载
+          const updatedVendors = await window.api.getAllVendors()
+          setVendors(updatedVendors)
+          setActiveVendorId(claudeConfig.id)
+        }
+      } else {
+        // 从 store 中恢复激活状态
+        const activeId = await window.api.getActiveVendorId()
+        setActiveVendorId(activeId)
+      }
     } catch (error) {
       console.error('加载数据失败:', error)
     }
@@ -81,6 +92,7 @@ const VendorPage = () => {
   const handleUpdate = async (config: VendorConfig) => {
     try {
       const success = await window.api.updateVendor(config.id, config)
+
       if (success) {
         setSnackbar({
           open: true,
@@ -174,18 +186,7 @@ const VendorPage = () => {
       </Typography>
 
       <Stack spacing={2}>
-        {/* 默认配置卡片 */}
-        {defaultConfig && (
-          <VendorCard
-            key="default"
-            vendor={defaultConfig}
-            isActive={activeVendorId === 'default'}
-            onEdit={() => handleEdit(defaultConfig)}
-            onSetActive={() => handleActivate('default')}
-          />
-        )}
-
-        {/* 用户添加的供应商卡片 */}
+        {/* 供应商卡片列表 */}
         {vendors.map((vendor) => (
           <VendorCard
             key={vendor.id}
