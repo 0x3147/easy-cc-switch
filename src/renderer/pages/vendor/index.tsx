@@ -31,6 +31,8 @@ const VendorPage = () => {
       const claudeConfig = await window.api.getClaudeConfig()
       if (claudeConfig) {
         setDefaultConfig(claudeConfig)
+        // 如果存在默认配置，默认就是已激活状态
+        setActiveVendorId('default')
       }
 
       // 加载所有用户添加的供应商配置
