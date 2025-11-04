@@ -9,20 +9,20 @@ import {
   ListItemText
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBoxesStacked, faNetworkWired } from '@fortawesome/free-solid-svg-icons'
+import { faCode, faRobot } from '@fortawesome/free-solid-svg-icons'
 import TitleBar from '../../components/title-bar'
 
 const drawerWidth = 240
 
 const menuItems = [
   {
-    text: '供应商配置',
-    icon: faBoxesStacked,
+    text: 'Claude Code供应商',
+    icon: faCode,
     path: '/vendor'
   },
   {
-    text: 'Sub Agent配置',
-    icon: faNetworkWired,
+    text: 'Codex供应商',
+    icon: faRobot,
     path: '/sub-agent'
   }
 ]

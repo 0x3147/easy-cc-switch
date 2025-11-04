@@ -184,10 +184,10 @@ const VendorPage = () => {
       >
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-            供应商配置
+            Claude Code供应商配置
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            配置不同的 API 供应商，切换使用不同的服务
+            配置不同的 Claude Code API 供应商，切换使用不同的服务
           </Typography>
         </Box>
 
