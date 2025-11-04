@@ -1,16 +1,17 @@
-import { Card, CardContent, Box, Typography, Button, Chip, Stack } from '@mui/material'
+import { Card, CardContent, Box, Typography, Button, Chip, Stack, IconButton } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPencil, faCheck } from '@fortawesome/free-solid-svg-icons'
-import type { VendorInfo } from '../../../../../shared/types/vendor'
+import { faPencil, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
+import type { VendorConfig } from '@/shared/types/vendor'
 
 interface VendorCardProps {
-  vendor: VendorInfo
+  vendor: VendorConfig
   isActive: boolean
-  onEdit: () => void
+  onEdit?: () => void
   onSetActive: () => void
+  onDelete?: () => void
 }
 
-const VendorCard = ({ vendor, isActive, onEdit, onSetActive }: VendorCardProps) => {
+const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorCardProps) => {
   return (
     <Card
       elevation={0}
@@ -26,9 +27,7 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive }: VendorCardProps) 
       }}
     >
       <CardContent sx={{ p: 3 }}>
-        {' '}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          {' '}
           {/* 信息区域 */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -47,19 +46,22 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive }: VendorCardProps) 
                 whiteSpace: 'nowrap'
               }}
             >
-              {vendor.config?.baseUrl || vendor.defaultUrl}
+              {vendor.baseUrl}
             </Typography>
           </Box>
+
           {/* 操作按钮 */}
-          <Stack direction="row" spacing={1}>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<FontAwesomeIcon icon={faPencil} />}
-              onClick={onEdit}
-            >
-              编辑
-            </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {!vendor.isDefault && onEdit && (
+              <IconButton size="small" onClick={onEdit} color="primary">
+                <FontAwesomeIcon icon={faPencil} size="sm" />
+              </IconButton>
+            )}
+            {!vendor.isDefault && onDelete && (
+              <IconButton size="small" onClick={onDelete} color="error">
+                <FontAwesomeIcon icon={faTrash} size="sm" />
+              </IconButton>
+            )}
             <Button
               variant={isActive ? 'outlined' : 'contained'}
               size="small"

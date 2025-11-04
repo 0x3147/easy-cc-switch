@@ -33,7 +33,17 @@ export const VENDOR_CHANNELS = {
   /** 读取 Claude 配置 */
   GET_CLAUDE_CONFIG: 'vendor-get-claude-config',
   /** 保存 Claude 配置 */
-  SAVE_CLAUDE_CONFIG: 'vendor-save-claude-config'
+  SAVE_CLAUDE_CONFIG: 'vendor-save-claude-config',
+  /** 获取所有供应商配置 */
+  GET_ALL_VENDORS: 'vendor-get-all-vendors',
+  /** 添加供应商配置 */
+  ADD_VENDOR: 'vendor-add-vendor',
+  /** 删除供应商配置 */
+  DELETE_VENDOR: 'vendor-delete-vendor',
+  /** 更新供应商配置 */
+  UPDATE_VENDOR: 'vendor-update-vendor',
+  /** 激活供应商配置 */
+  ACTIVATE_VENDOR: 'vendor-activate-vendor'
 } as const
 
 /**

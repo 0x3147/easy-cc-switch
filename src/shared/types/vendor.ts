@@ -28,6 +28,10 @@ export interface ClaudeSettings {
  * 供应商配置表单数据
  */
 export interface VendorConfig {
+  /** 供应商 ID */
+  id: string
+  /** 供应商名称（用户自定义） */
+  name: string
   /** API Token */
   token: string
   /** API 基础 URL */
@@ -40,20 +44,16 @@ export interface VendorConfig {
   sonnetModel?: string
   /** 默认 Haiku 模型（可选） */
   haikuModel?: string
+  /** 是否为默认配置（从 .claude/settings.json 读取） */
+  isDefault?: boolean
 }
 
 /**
- * 供应商信息
+ * 添加供应商配置的请求参数
  */
-export interface VendorInfo {
-  /** 供应商 ID */
-  id: string
-  /** 供应商名称 */
-  name: string
-  /** 供应商 Logo URL */
-  logo: string
-  /** 默认 URL */
-  defaultUrl: string
-  /** 当前配置 */
-  config?: VendorConfig
+export interface AddVendorRequest {
+  /** 供应商配置 */
+  config: VendorConfig
+  /** 是否立即生效 */
+  applyImmediately: boolean
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Dialog,
   DialogTitle,
@@ -10,82 +10,85 @@ import {
   Collapse,
   IconButton,
   Typography,
-  Divider
+  Divider,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons'
 import type { VendorConfig } from '@/shared/types/vendor'
 
-interface VendorConfigDialogProps {
+interface AddVendorDialogProps {
   open: boolean
-  vendorName: string
-  config: VendorConfig | null
   onClose: () => void
-  onSave: (config: VendorConfig) => Promise<void>
+  onAdd: (config: VendorConfig, applyImmediately: boolean) => Promise<void>
 }
 
-const VendorConfigDialog = ({
-  open,
-  vendorName,
-  config,
-  onClose,
-  onSave
-}: VendorConfigDialogProps) => {
-  const [formData, setFormData] = useState<Partial<VendorConfig>>({
+const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
+  const [formData, setFormData] = useState<Omit<VendorConfig, 'id'>>({
+    name: '',
     token: '',
     baseUrl: ''
   })
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [applyImmediately, setApplyImmediately] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    if (config) {
-      setFormData(config)
-    } else {
-      setFormData({
-        token: '',
-        baseUrl: ''
-      })
-    }
-  }, [config, open])
-
-  const handleSave = async () => {
-    if (!config) return
-
+  const handleAdd = async () => {
     setSaving(true)
     try {
-      // 保持原有的 id 和 name
-      const updatedConfig: VendorConfig = {
-        ...config,
+      // 生成唯一 ID
+      const config: VendorConfig = {
         ...formData,
-        token: formData.token || '',
-        baseUrl: formData.baseUrl || ''
+        id: `vendor_${Date.now()}`
       }
-      await onSave(updatedConfig)
-      onClose()
+      await onAdd(config, applyImmediately)
+      handleClose()
     } catch (error) {
-      console.error('保存配置失败:', error)
+      console.error('添加供应商失败:', error)
     } finally {
       setSaving(false)
     }
   }
 
-  const handleChange = (field: keyof VendorConfig) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: e.target.value
-    }))
+  const handleClose = () => {
+    setFormData({
+      name: '',
+      token: '',
+      baseUrl: ''
+    })
+    setShowAdvanced(false)
+    setApplyImmediately(false)
+    onClose()
   }
 
+  const handleChange =
+    (field: keyof Omit<VendorConfig, 'id'>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: e.target.value
+      }))
+    }
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>编辑 {vendorName} 配置</DialogTitle>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle>添加供应商配置</DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* 基础配置 */}
           <TextField
+            label="供应商名称"
+            value={formData.name}
+            onChange={handleChange('name')}
+            fullWidth
+            required
+            placeholder="例如：我的 Claude API"
+            helperText="自定义供应商名称"
+          />
+
+          <TextField
             label="API Token"
-            value={formData.token || ''}
+            value={formData.token}
             onChange={handleChange('token')}
             fullWidth
             required
@@ -95,7 +98,7 @@ const VendorConfigDialog = ({
 
           <TextField
             label="API Base URL"
-            value={formData.baseUrl || ''}
+            value={formData.baseUrl}
             onChange={handleChange('baseUrl')}
             fullWidth
             required
@@ -166,22 +169,33 @@ const VendorConfigDialog = ({
               </Box>
             </Collapse>
           </Box>
+
+          {/* 立即生效选项 */}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={applyImmediately}
+                onChange={(e) => setApplyImmediately(e.target.checked)}
+              />
+            }
+            label="立即生效（将配置写入 ~/.claude/settings.json）"
+          />
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} disabled={saving}>
+        <Button onClick={handleClose} disabled={saving}>
           取消
         </Button>
         <Button
-          onClick={handleSave}
+          onClick={handleAdd}
           variant="contained"
-          disabled={!formData.token || !formData.baseUrl || saving}
+          disabled={!formData.name || !formData.token || !formData.baseUrl || saving}
         >
-          {saving ? '保存中...' : '保存'}
+          {saving ? '添加中...' : '添加'}
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
 
-export default VendorConfigDialog
+export default AddVendorDialog
