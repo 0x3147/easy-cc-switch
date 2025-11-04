@@ -32,7 +32,11 @@ async function readClaudeConfig(): Promise<VendorConfig | null> {
     // 提取需要的配置
     return {
       token: settings.env.ANTHROPIC_AUTH_TOKEN || '',
-      baseUrl: settings.env.ANTHROPIC_BASE_URL || ''
+      baseUrl: settings.env.ANTHROPIC_BASE_URL || '',
+      apiTimeout: settings.env.API_TIMEOUT_MS,
+      opusModel: settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL,
+      sonnetModel: settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL,
+      haikuModel: settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL
     }
   } catch (error) {
     console.error('读取 Claude 配置失败:', error)
@@ -74,6 +78,20 @@ async function saveClaudeConfig(config: VendorConfig): Promise<boolean> {
     // 更新配置
     settings.env.ANTHROPIC_AUTH_TOKEN = config.token
     settings.env.ANTHROPIC_BASE_URL = config.baseUrl
+
+    // 更新可选配置
+    if (config.apiTimeout !== undefined) {
+      settings.env.API_TIMEOUT_MS = config.apiTimeout
+    }
+    if (config.opusModel !== undefined) {
+      settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL = config.opusModel
+    }
+    if (config.sonnetModel !== undefined) {
+      settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL = config.sonnetModel
+    }
+    if (config.haikuModel !== undefined) {
+      settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = config.haikuModel
+    }
 
     // 写入文件
     await writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
