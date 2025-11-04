@@ -10,6 +10,8 @@ function createWindow(): void {
     height: 670,
     show: false,
     autoHideMenuBar: true,
+    frame: false, // 无边框窗口
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -51,6 +53,28 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // 窗口控制 IPC
+  ipcMain.on('window-minimize', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) window.minimize()
+  })
+
+  ipcMain.on('window-maximize', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) {
+      if (window.isMaximized()) {
+        window.unmaximize()
+      } else {
+        window.maximize()
+      }
+    }
+  })
+
+  ipcMain.on('window-close', () => {
+    const window = BrowserWindow.getFocusedWindow()
+    if (window) window.close()
+  })
 
   createWindow()
 
