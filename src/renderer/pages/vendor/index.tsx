@@ -178,12 +178,24 @@ const VendorPage = () => {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-        供应商配置
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-        配置不同的 API 供应商，切换使用不同的服务
-      </Typography>
+      {/* 标题和添加按钮 */}
+      <Box
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}
+      >
+        <Box>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
+            供应商配置
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+            配置不同的 API 供应商，切换使用不同的服务
+          </Typography>
+        </Box>
+
+        {/* 添加按钮 */}
+        <Fab color="primary" aria-label="add" size="medium" onClick={() => setAddDialogOpen(true)}>
+          <FontAwesomeIcon icon={faPlus} />
+        </Fab>
+      </Box>
 
       <Stack spacing={2}>
         {/* 供应商卡片列表 */}
@@ -198,16 +210,6 @@ const VendorPage = () => {
           />
         ))}
       </Stack>
-
-      {/* 添加按钮 */}
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: 'fixed', bottom: 32, right: 32 }}
-        onClick={() => setAddDialogOpen(true)}
-      >
-        <FontAwesomeIcon icon={faPlus} />
-      </Fab>
 
       {/* 添加供应商对话框 */}
       <AddVendorDialog
