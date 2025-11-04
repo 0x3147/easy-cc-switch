@@ -27,8 +27,19 @@ export const APP_CHANNELS = {
 } as const
 
 /**
+ * 供应商配置相关 channel
+ */
+export const VENDOR_CHANNELS = {
+  /** 读取 Claude 配置 */
+  GET_CLAUDE_CONFIG: 'vendor-get-claude-config',
+  /** 保存 Claude 配置 */
+  SAVE_CLAUDE_CONFIG: 'vendor-save-claude-config'
+} as const
+
+/**
  * 所有 IPC channels 的联合类型
  */
 export type IpcChannel =
   | (typeof WINDOW_CHANNELS)[keyof typeof WINDOW_CHANNELS]
   | (typeof APP_CHANNELS)[keyof typeof APP_CHANNELS]
+  | (typeof VENDOR_CHANNELS)[keyof typeof VENDOR_CHANNELS]

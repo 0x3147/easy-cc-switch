@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { WINDOW_CHANNELS } from '../shared/ipc-channels'
+import { WINDOW_CHANNELS, VENDOR_CHANNELS } from '../shared/ipc-channels'
+import type { VendorConfig } from '../shared/types/vendor'
 
 // Custom APIs for renderer
 const api = {
@@ -9,7 +10,11 @@ const api = {
   windowMaximize: () => ipcRenderer.send(WINDOW_CHANNELS.MAXIMIZE),
   windowClose: () => ipcRenderer.send(WINDOW_CHANNELS.CLOSE),
   // 获取平台
-  getPlatform: () => process.platform
+  getPlatform: () => process.platform,
+  // 供应商配置
+  getClaudeConfig: () => ipcRenderer.invoke(VENDOR_CHANNELS.GET_CLAUDE_CONFIG),
+  saveClaudeConfig: (config: VendorConfig) =>
+    ipcRenderer.invoke(VENDOR_CHANNELS.SAVE_CLAUDE_CONFIG, config)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
