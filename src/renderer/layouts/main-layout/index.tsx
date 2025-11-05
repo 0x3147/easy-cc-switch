@@ -11,22 +11,29 @@ import {
   Collapse
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faCode,
-  faRobot,
-  faChevronDown,
-  faChevronUp,
-  faDownload,
-  faCog
-} from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronUp, faDownload, faCog } from '@fortawesome/free-solid-svg-icons'
 import TitleBar from '../../components/title-bar'
+import claudeLogo from '../../assets/images/claude-logo.svg'
+import openaiLogo from '../../assets/images/openai-logo.svg'
 
 const drawerWidth = 240
 
-const menuItems = [
+type MenuItem = {
+  text: string
+  iconType: 'image'
+  iconSrc: string
+  subItems: {
+    text: string
+    icon: any
+    path: string
+  }[]
+}
+
+const menuItems: MenuItem[] = [
   {
     text: 'Claude Code',
-    icon: faCode,
+    iconType: 'image' as const,
+    iconSrc: claudeLogo,
     subItems: [
       {
         text: '工具安装',
@@ -41,9 +48,21 @@ const menuItems = [
     ]
   },
   {
-    text: 'Codex 供应商',
-    icon: faRobot,
-    path: '/codex/vendor'
+    text: 'Codex',
+    iconType: 'image' as const,
+    iconSrc: openaiLogo,
+    subItems: [
+      {
+        text: '工具安装',
+        icon: faDownload,
+        path: '/codex/tool-install'
+      },
+      {
+        text: '供应商配置',
+        icon: faCog,
+        path: '/codex/vendor'
+      }
+    ]
   }
 ]
 
@@ -51,7 +70,8 @@ const MainLayout = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({
-    'Claude Code': true // 默认展开 Claude Code 菜单
+    'Claude Code': true, // 默认展开 Claude Code 菜单
+    Codex: false // 默认折叠 Codex 菜单
   })
 
   const handleMenuClick = (path: string) => {
@@ -90,44 +110,35 @@ const MainLayout = () => {
                 {/* 主菜单项 */}
                 <ListItem disablePadding sx={{ px: 1 }}>
                   <ListItemButton
-                    selected={!item.subItems && location.pathname === item.path}
                     onClick={() => {
                       if (item.subItems) {
                         handleToggleMenu(item.text)
-                      } else if (item.path) {
-                        handleMenuClick(item.path)
                       }
                     }}
                     sx={{
-                      borderRadius: 1,
-                      '&.Mui-selected': {
-                        backgroundColor: 'primary.main',
-                        color: 'primary.contrastText',
-                        '&:hover': {
-                          backgroundColor: 'primary.dark'
-                        },
-                        '& .MuiListItemIcon-root': {
-                          color: 'primary.contrastText'
-                        }
-                      }
+                      borderRadius: 1
                     }}
                   >
                     <ListItemIcon
                       sx={{
-                        minWidth: 40,
-                        color:
-                          !item.subItems && location.pathname === item.path
-                            ? 'inherit'
-                            : 'action.active'
+                        minWidth: 40
                       }}
                     >
-                      <FontAwesomeIcon icon={item.icon} />
+                      <Box
+                        component="img"
+                        src={item.iconSrc}
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          objectFit: 'contain'
+                        }}
+                      />
                     </ListItemIcon>
                     <ListItemText
                       primary={item.text}
                       primaryTypographyProps={{
                         fontSize: 14,
-                        fontWeight: !item.subItems && location.pathname === item.path ? 600 : 500
+                        fontWeight: 500
                       }}
                     />
                     {item.subItems && (
