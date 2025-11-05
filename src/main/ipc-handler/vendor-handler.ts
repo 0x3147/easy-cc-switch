@@ -50,6 +50,7 @@ async function readClaudeConfig(): Promise<VendorConfig | null> {
 
 /**
  * 保存 Claude 配置
+ * 注意：此函数会完全覆盖现有配置，确保不同供应商配置之间不会相互干扰
  */
 async function saveClaudeConfig(config: VendorConfig): Promise<boolean> {
   try {
@@ -61,29 +62,17 @@ async function saveClaudeConfig(config: VendorConfig): Promise<boolean> {
       await mkdir(claudeDir, { recursive: true })
     }
 
-    // 读取现有配置（如果存在）
-    let settings: ClaudeSettings = {
+    // 构建全新的配置对象（完全覆盖模式）
+    const settings: ClaudeSettings = {
       env: {
-        ANTHROPIC_AUTH_TOKEN: '',
-        ANTHROPIC_BASE_URL: '',
+        ANTHROPIC_AUTH_TOKEN: config.token,
+        ANTHROPIC_BASE_URL: config.baseUrl,
         CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: 1
       }
     }
 
-    if (existsSync(settingsPath)) {
-      try {
-        const content = await readFile(settingsPath, 'utf-8')
-        settings = JSON.parse(content)
-      } catch (error) {
-        console.warn('读取现有配置失败，将使用默认配置:', error)
-      }
-    }
-
-    // 更新配置
-    settings.env.ANTHROPIC_AUTH_TOKEN = config.token
-    settings.env.ANTHROPIC_BASE_URL = config.baseUrl
-
-    // 更新可选配置
+    // 只有当配置中明确提供了可选字段时，才添加到 settings 中
+    // 这样可以确保切换供应商时，旧的字段不会残留
     if (config.apiTimeout !== undefined) {
       settings.env.API_TIMEOUT_MS = config.apiTimeout
     }
@@ -97,7 +86,7 @@ async function saveClaudeConfig(config: VendorConfig): Promise<boolean> {
       settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = config.haikuModel
     }
 
-    // 写入文件
+    // 写入文件（完全覆盖）
     await writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
 
     return true
