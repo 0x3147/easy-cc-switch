@@ -2,6 +2,11 @@ import { Card, CardContent, Box, Typography, Button, Chip, Stack, IconButton } f
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
 import type { VendorConfig } from '@/shared/types/vendor'
+import claudeLogo from '@renderer/assets/images/claude-logo.svg'
+import zhipuLogo from '@renderer/assets/images/zhipu-color.svg'
+import moonshotLogo from '@renderer/assets/images/moonshot.svg'
+import minimaxLogo from '@renderer/assets/images/minimax-color.svg'
+import alibabaLogo from '@renderer/assets/images/alibaba-color.svg'
 
 interface VendorCardProps {
   vendor: VendorConfig
@@ -12,6 +17,22 @@ interface VendorCardProps {
 }
 
 const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorCardProps) => {
+  // 根据 vendorKey 获取对应的 logo
+  const getVendorLogo = () => {
+    switch (vendor.vendorKey) {
+      case 'zhipu':
+        return zhipuLogo
+      case 'moonshot':
+        return moonshotLogo
+      case 'minimax':
+        return minimaxLogo
+      case 'idealab':
+        return alibabaLogo
+      default:
+        return claudeLogo // 手动配置默认使用 Claude logo
+    }
+  }
+
   return (
     <Card
       elevation={0}
@@ -28,6 +49,18 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorC
     >
       <CardContent sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          {/* Logo */}
+          <Box
+            component="img"
+            src={getVendorLogo()}
+            sx={{
+              width: 32,
+              height: 32,
+              objectFit: 'contain',
+              flexShrink: 0
+            }}
+          />
+
           {/* 信息区域 */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>

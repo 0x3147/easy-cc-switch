@@ -24,6 +24,10 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronDown, faChevronUp, faFire } from '@fortawesome/free-solid-svg-icons'
 import type { VendorConfig } from '@/shared/types/vendor'
+import zhipuLogo from '@renderer/assets/images/zhipu-color.svg'
+import moonshotLogo from '@renderer/assets/images/moonshot.svg'
+import minimaxLogo from '@renderer/assets/images/minimax-color.svg'
+import alibabaLogo from '@renderer/assets/images/alibaba-color.svg'
 
 interface AddVendorDialogProps {
   open: boolean
@@ -35,6 +39,7 @@ interface AddVendorDialogProps {
 const PRESET_VENDORS = {
   zhipu: {
     name: '智谱',
+    logo: zhipuLogo,
     baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
     opusModel: 'glm-4.6',
     sonnetModel: 'glm-4.6',
@@ -42,6 +47,7 @@ const PRESET_VENDORS = {
   },
   moonshot: {
     name: '月之暗面',
+    logo: moonshotLogo,
     baseUrl: 'https://api.kimi.com/coding',
     opusModel: 'kimi-for-coding',
     sonnetModel: 'kimi-for-coding',
@@ -49,6 +55,7 @@ const PRESET_VENDORS = {
   },
   minimax: {
     name: 'MINIMAX',
+    logo: minimaxLogo,
     baseUrl: 'https://api.minimax.chat/v1',
     opusModel: undefined,
     sonnetModel: undefined,
@@ -56,6 +63,7 @@ const PRESET_VENDORS = {
   },
   idealab: {
     name: 'IdealAB',
+    logo: alibabaLogo,
     baseUrl: ' https://idealab.alibaba-inc.com/api/openai/v1/chat/completions',
     opusModel: 'qwen3-coder-plus',
     sonnetModel: 'qwen3-coder-plus',
@@ -101,6 +109,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
           name: quickConfigName || preset.name,
           token: quickToken,
           baseUrl: preset.baseUrl,
+          vendorKey: quickVendor, // 添加 vendorKey 标识
           ...(preset.opusModel && { opusModel: preset.opusModel }),
           ...(preset.sonnetModel && { sonnetModel: preset.sonnetModel }),
           ...(preset.haikuModel && { haikuModel: preset.haikuModel })
@@ -290,10 +299,46 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                 label="供应商"
                 onChange={(e) => setQuickVendor(e.target.value as PresetVendorKey)}
               >
-                <MenuItem value="zhipu">智谱(GLM)</MenuItem>
-                <MenuItem value="moonshot">月之暗面(KIMI)</MenuItem>
-                <MenuItem value="minimax">MINIMAX</MenuItem>
-                <MenuItem value="idealab">idealab</MenuItem>
+                <MenuItem value="zhipu">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={zhipuLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>智谱(GLM)</span>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="moonshot">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={moonshotLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>月之暗面(KIMI)</span>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="minimax">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={minimaxLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>MINIMAX</span>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="idealab">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={alibabaLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>idealab</span>
+                  </Box>
+                </MenuItem>
               </Select>
             </FormControl>
 
