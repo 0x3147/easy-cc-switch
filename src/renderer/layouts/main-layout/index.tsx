@@ -31,19 +31,19 @@ const menuItems = [
       {
         text: '工具安装',
         icon: faDownload,
-        path: '/tool-install'
+        path: '/claude-code/tool-install'
       },
       {
         text: '供应商配置',
         icon: faCog,
-        path: '/vendor'
+        path: '/claude-code/vendor'
       }
     ]
   },
   {
-    text: 'Codex供应商',
+    text: 'Codex 供应商',
     icon: faRobot,
-    path: '/sub-agent'
+    path: '/codex/vendor'
   }
 ]
 

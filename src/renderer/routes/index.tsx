@@ -1,8 +1,8 @@
 import { HashRouter, useRoutes, RouteObject, Navigate } from 'react-router-dom'
 import MainLayout from '../layouts/main-layout'
-import ToolInstall from '../pages/tool-install'
-import VendorPage from '../pages/vendor'
-import SubAgentPage from '../pages/sub-agent'
+import ClaudeCodeToolInstall from '../pages/claude-code/tool-install'
+import ClaudeCodeVendor from '../pages/claude-code/vendor'
+import CodexVendor from '../pages/codex/vendor'
 
 const routes: RouteObject[] = [
   {
@@ -11,19 +11,19 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to="/tool-install" replace />
+        element: <Navigate to="/claude-code/tool-install" replace />
       },
       {
-        path: 'tool-install',
-        element: <ToolInstall />
+        path: 'claude-code/tool-install',
+        element: <ClaudeCodeToolInstall />
       },
       {
-        path: 'vendor',
-        element: <VendorPage />
+        path: 'claude-code/vendor',
+        element: <ClaudeCodeVendor />
       },
       {
-        path: 'sub-agent',
-        element: <SubAgentPage />
+        path: 'codex/vendor',
+        element: <CodexVendor />
       }
     ]
   }
