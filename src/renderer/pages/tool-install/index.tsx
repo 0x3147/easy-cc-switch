@@ -45,12 +45,7 @@ const ToolInstall = () => {
 
   // 检测平台和 Claude Code 安装状态
   useEffect(() => {
-    // 延迟一点执行，确保 API 已经准备好
-    const timer = setTimeout(() => {
-      detectPlatformAndStatus()
-    }, 100)
-
-    return () => clearTimeout(timer)
+    detectPlatformAndStatus()
   }, [])
 
   const detectPlatformAndStatus = async () => {
