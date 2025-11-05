@@ -96,12 +96,6 @@ const ToolInstall = () => {
     }
   }
 
-  const handleInstall = () => {
-    // 打开外部链接到官方安装指南
-    const installUrl = 'https://claude.ai/docs/installation'
-    window.open(installUrl, '_blank')
-  }
-
   const getInstallCommand = () => {
     if (platform === 'macos') {
       return nativeMethod === 'homebrew'
