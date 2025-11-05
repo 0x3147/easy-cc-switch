@@ -49,9 +49,22 @@ export const VENDOR_CHANNELS = {
 } as const
 
 /**
+ * 工具安装相关 channel
+ */
+export const TOOL_CHANNELS = {
+  /** 检测 Claude Code 安装状态 */
+  CHECK_CLAUDE_CODE: 'tool-check-claude-code',
+  /** 检测 Homebrew 安装状态（仅 macOS） */
+  CHECK_HOMEBREW: 'tool-check-homebrew',
+  /** 获取系统平台信息 */
+  GET_PLATFORM_INFO: 'tool-get-platform-info'
+} as const
+
+/**
  * 所有 IPC channels 的联合类型
  */
 export type IpcChannel =
   | (typeof WINDOW_CHANNELS)[keyof typeof WINDOW_CHANNELS]
   | (typeof APP_CHANNELS)[keyof typeof APP_CHANNELS]
   | (typeof VENDOR_CHANNELS)[keyof typeof VENDOR_CHANNELS]
+  | (typeof TOOL_CHANNELS)[keyof typeof TOOL_CHANNELS]

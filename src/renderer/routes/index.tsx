@@ -1,6 +1,6 @@
 import { HashRouter, useRoutes, RouteObject, Navigate } from 'react-router-dom'
 import MainLayout from '../layouts/main-layout'
-import ToolInstallPage from '../pages/tool-install'
+import ToolInstall from '../pages/tool-install'
 import VendorPage from '../pages/vendor'
 import SubAgentPage from '../pages/sub-agent'
 
@@ -15,7 +15,7 @@ const routes: RouteObject[] = [
       },
       {
         path: 'tool-install',
-        element: <ToolInstallPage />
+        element: <ToolInstall />
       },
       {
         path: 'vendor',

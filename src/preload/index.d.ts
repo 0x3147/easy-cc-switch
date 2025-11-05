@@ -1,5 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
+import type { PlatformInfo, ClaudeCodeCheckResult, HomebrewCheckResult } from '@/shared/types/tool'
 
 interface API {
   windowMinimize: () => void
@@ -14,6 +15,9 @@ interface API {
   updateVendor: (id: string, updates: Partial<VendorConfig>) => Promise<boolean>
   activateVendor: (id: string) => Promise<boolean>
   getActiveVendorId: () => Promise<string | null>
+  getPlatformInfo: () => Promise<PlatformInfo>
+  checkClaudeCode: () => Promise<ClaudeCodeCheckResult>
+  checkHomebrew: () => Promise<HomebrewCheckResult>
 }
 
 declare global {
