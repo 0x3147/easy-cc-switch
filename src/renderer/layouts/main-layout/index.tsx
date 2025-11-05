@@ -1,4 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 import {
   Box,
   Drawer,
@@ -6,19 +7,38 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  Collapse
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCode, faRobot } from '@fortawesome/free-solid-svg-icons'
+import {
+  faCode,
+  faRobot,
+  faChevronDown,
+  faChevronUp,
+  faDownload,
+  faCog
+} from '@fortawesome/free-solid-svg-icons'
 import TitleBar from '../../components/title-bar'
 
 const drawerWidth = 240
 
 const menuItems = [
   {
-    text: 'Claude Code供应商',
+    text: 'Claude Code',
     icon: faCode,
-    path: '/vendor'
+    subItems: [
+      {
+        text: '工具安装',
+        icon: faDownload,
+        path: '/tool-install'
+      },
+      {
+        text: '供应商配置',
+        icon: faCog,
+        path: '/vendor'
+      }
+    ]
   },
   {
     text: 'Codex供应商',
@@ -30,9 +50,19 @@ const menuItems = [
 const MainLayout = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({
+    'Claude Code': true // 默认展开 Claude Code 菜单
+  })
 
   const handleMenuClick = (path: string) => {
     navigate(path)
+  }
+
+  const handleToggleMenu = (menuText: string) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menuText]: !prev[menuText]
+    }))
   }
 
   return (
@@ -56,41 +86,106 @@ const MainLayout = () => {
         >
           <List sx={{ pt: 2 }}>
             {menuItems.map((item) => (
-              <ListItem key={item.path} disablePadding sx={{ px: 1 }}>
-                <ListItemButton
-                  selected={location.pathname === item.path}
-                  onClick={() => handleMenuClick(item.path)}
-                  sx={{
-                    borderRadius: 1,
-                    '&.Mui-selected': {
-                      backgroundColor: 'primary.main',
-                      color: 'primary.contrastText',
-                      '&:hover': {
-                        backgroundColor: 'primary.dark'
-                      },
-                      '& .MuiListItemIcon-root': {
-                        color: 'primary.contrastText'
+              <Box key={item.text}>
+                {/* 主菜单项 */}
+                <ListItem disablePadding sx={{ px: 1 }}>
+                  <ListItemButton
+                    selected={!item.subItems && location.pathname === item.path}
+                    onClick={() => {
+                      if (item.subItems) {
+                        handleToggleMenu(item.text)
+                      } else if (item.path) {
+                        handleMenuClick(item.path)
                       }
-                    }
-                  }}
-                >
-                  <ListItemIcon
+                    }}
                     sx={{
-                      minWidth: 40,
-                      color: location.pathname === item.path ? 'inherit' : 'action.active'
+                      borderRadius: 1,
+                      '&.Mui-selected': {
+                        backgroundColor: 'primary.main',
+                        color: 'primary.contrastText',
+                        '&:hover': {
+                          backgroundColor: 'primary.dark'
+                        },
+                        '& .MuiListItemIcon-root': {
+                          color: 'primary.contrastText'
+                        }
+                      }
                     }}
                   >
-                    <FontAwesomeIcon icon={item.icon} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.text}
-                    primaryTypographyProps={{
-                      fontSize: 14,
-                      fontWeight: location.pathname === item.path ? 600 : 400
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 40,
+                        color:
+                          !item.subItems && location.pathname === item.path
+                            ? 'inherit'
+                            : 'action.active'
+                      }}
+                    >
+                      <FontAwesomeIcon icon={item.icon} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontSize: 14,
+                        fontWeight: !item.subItems && location.pathname === item.path ? 600 : 500
+                      }}
+                    />
+                    {item.subItems && (
+                      <FontAwesomeIcon
+                        icon={openMenus[item.text] ? faChevronUp : faChevronDown}
+                        style={{ fontSize: '12px' }}
+                      />
+                    )}
+                  </ListItemButton>
+                </ListItem>
+
+                {/* 子菜单项 */}
+                {item.subItems && (
+                  <Collapse in={openMenus[item.text]} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      {item.subItems.map((subItem) => (
+                        <ListItem key={subItem.path} disablePadding sx={{ px: 1 }}>
+                          <ListItemButton
+                            selected={location.pathname === subItem.path}
+                            onClick={() => handleMenuClick(subItem.path)}
+                            sx={{
+                              pl: 4,
+                              borderRadius: 1,
+                              '&.Mui-selected': {
+                                backgroundColor: 'primary.main',
+                                color: 'primary.contrastText',
+                                '&:hover': {
+                                  backgroundColor: 'primary.dark'
+                                },
+                                '& .MuiListItemIcon-root': {
+                                  color: 'primary.contrastText'
+                                }
+                              }
+                            }}
+                          >
+                            <ListItemIcon
+                              sx={{
+                                minWidth: 36,
+                                color:
+                                  location.pathname === subItem.path ? 'inherit' : 'action.active'
+                              }}
+                            >
+                              <FontAwesomeIcon icon={subItem.icon} style={{ fontSize: '14px' }} />
+                            </ListItemIcon>
+                            <ListItemText
+                              primary={subItem.text}
+                              primaryTypographyProps={{
+                                fontSize: 13,
+                                fontWeight: location.pathname === subItem.path ? 600 : 400
+                              }}
+                            />
+                          </ListItemButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Collapse>
+                )}
+              </Box>
             ))}
           </List>
         </Drawer>
