@@ -61,6 +61,28 @@ export const TOOL_CHANNELS = {
 } as const
 
 /**
+ * Codex 供应商配置相关 channel
+ */
+export const CODEX_CHANNELS = {
+  /** 读取 Codex 配置 */
+  GET_CODEX_CONFIG: 'codex-get-config',
+  /** 保存 Codex 配置 */
+  SAVE_CODEX_CONFIG: 'codex-save-config',
+  /** 获取所有 Codex 供应商配置 */
+  GET_ALL_CODEX_VENDORS: 'codex-get-all-vendors',
+  /** 添加 Codex 供应商配置 */
+  ADD_CODEX_VENDOR: 'codex-add-vendor',
+  /** 删除 Codex 供应商配置 */
+  DELETE_CODEX_VENDOR: 'codex-delete-vendor',
+  /** 更新 Codex 供应商配置 */
+  UPDATE_CODEX_VENDOR: 'codex-update-vendor',
+  /** 激活 Codex 供应商配置 */
+  ACTIVATE_CODEX_VENDOR: 'codex-activate-vendor',
+  /** 获取当前激活的 Codex 供应商 ID */
+  GET_ACTIVE_CODEX_VENDOR_ID: 'codex-get-active-vendor-id'
+} as const
+
+/**
  * 所有 IPC channels 的联合类型
  */
 export type IpcChannel =
@@ -68,3 +90,4 @@ export type IpcChannel =
   | (typeof APP_CHANNELS)[keyof typeof APP_CHANNELS]
   | (typeof VENDOR_CHANNELS)[keyof typeof VENDOR_CHANNELS]
   | (typeof TOOL_CHANNELS)[keyof typeof TOOL_CHANNELS]
+  | (typeof CODEX_CHANNELS)[keyof typeof CODEX_CHANNELS]

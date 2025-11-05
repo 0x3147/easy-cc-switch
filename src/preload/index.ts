@@ -1,8 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { WINDOW_CHANNELS, VENDOR_CHANNELS, TOOL_CHANNELS } from '@/shared/ipc-channels'
+import {
+  WINDOW_CHANNELS,
+  VENDOR_CHANNELS,
+  TOOL_CHANNELS,
+  CODEX_CHANNELS
+} from '@/shared/ipc-channels'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 import type { PlatformInfo, ClaudeCodeCheckResult, HomebrewCheckResult } from '@/shared/types/tool'
+import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
 
 // Custom APIs for renderer
 const api = {
@@ -28,7 +34,19 @@ const api = {
   checkClaudeCode: (): Promise<ClaudeCodeCheckResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE),
   checkHomebrew: (): Promise<HomebrewCheckResult> =>
-    ipcRenderer.invoke(TOOL_CHANNELS.CHECK_HOMEBREW)
+    ipcRenderer.invoke(TOOL_CHANNELS.CHECK_HOMEBREW),
+  // Codex 供应商配置
+  getCodexConfig: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_CODEX_CONFIG),
+  saveCodexConfig: (config: CodexVendorConfig) =>
+    ipcRenderer.invoke(CODEX_CHANNELS.SAVE_CODEX_CONFIG, config),
+  getAllCodexVendors: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_ALL_CODEX_VENDORS),
+  addCodexVendor: (request: AddCodexVendorRequest) =>
+    ipcRenderer.invoke(CODEX_CHANNELS.ADD_CODEX_VENDOR, request),
+  deleteCodexVendor: (id: string) => ipcRenderer.invoke(CODEX_CHANNELS.DELETE_CODEX_VENDOR, id),
+  updateCodexVendor: (id: string, updates: Partial<CodexVendorConfig>) =>
+    ipcRenderer.invoke(CODEX_CHANNELS.UPDATE_CODEX_VENDOR, id, updates),
+  activateCodexVendor: (id: string) => ipcRenderer.invoke(CODEX_CHANNELS.ACTIVATE_CODEX_VENDOR, id),
+  getActiveCodexVendorId: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_ACTIVE_CODEX_VENDOR_ID)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
