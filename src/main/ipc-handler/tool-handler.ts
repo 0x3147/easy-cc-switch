@@ -32,11 +32,11 @@ export function registerToolHandlers() {
 
       let command: string
       if (platform === 'win32') {
-        // Windows: 检查 claude-code 命令是否可用
-        command = 'where claude-code'
+        // Windows: 检查 claude 命令是否可用
+        command = 'where claude'
       } else {
-        // macOS/Linux: 检查 claude-code 命令是否可用
-        command = 'which claude-code'
+        // macOS/Linux: 检查 claude 命令是否可用
+        command = 'which claude'
       }
 
       const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
@@ -45,7 +45,7 @@ export function registerToolHandlers() {
       if (path) {
         // 尝试获取版本号
         try {
-          const versionOutput = execSync('claude-code --version', {
+          const versionOutput = execSync('claude --version', {
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'ignore']
           })
