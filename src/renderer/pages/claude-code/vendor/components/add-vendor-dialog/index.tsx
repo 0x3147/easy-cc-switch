@@ -28,6 +28,7 @@ import zhipuLogo from '@renderer/assets/images/zhipu-color.svg'
 import moonshotLogo from '@renderer/assets/images/moonshot.svg'
 import minimaxLogo from '@renderer/assets/images/minimax-color.svg'
 import alibabaLogo from '@renderer/assets/images/alibaba-color.svg'
+import deepseekLogo from '@renderer/assets/images/deepseek-color.svg'
 
 interface AddVendorDialogProps {
   open: boolean
@@ -56,10 +57,10 @@ const PRESET_VENDORS = {
   minimax: {
     name: 'MINIMAX',
     logo: minimaxLogo,
-    baseUrl: 'https://api.minimax.chat/v1',
-    opusModel: undefined,
-    sonnetModel: undefined,
-    haikuModel: undefined
+    baseUrl: 'https://api.minimaxi.com/anthropic',
+    opusModel: 'MiniMax-M2',
+    sonnetModel: 'MiniMax-M2',
+    haikuModel: 'MiniMax-M2'
   },
   idealab: {
     name: 'IdealAB',
@@ -68,6 +69,14 @@ const PRESET_VENDORS = {
     opusModel: 'qwen3-coder-plus',
     sonnetModel: 'qwen3-coder-plus',
     haikuModel: 'qwen3-coder-plus'
+  },
+  deepseek: {
+    name: 'DeepSeek',
+    logo: deepseekLogo,
+    baseUrl: 'https://api.deepseek.com/anthropic',
+    opusModel: 'deepseek-chat',
+    sonnetModel: 'deepseek-chat',
+    haikuModel: 'deepseek-chat'
   }
 } as const
 
@@ -95,12 +104,6 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
       let config: VendorConfig
 
       if (tabValue === 0) {
-        // 手动配置
-        config = {
-          ...formData,
-          id: `vendor_${Date.now()}`
-        }
-      } else {
         // 快捷配置
         if (!quickVendor) return
         const preset = PRESET_VENDORS[quickVendor]
@@ -109,10 +112,16 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
           name: quickConfigName || preset.name,
           token: quickToken,
           baseUrl: preset.baseUrl,
-          vendorKey: quickVendor, // 添加 vendorKey 标识
+          vendorKey: quickVendor,
           ...(preset.opusModel && { opusModel: preset.opusModel }),
           ...(preset.sonnetModel && { sonnetModel: preset.sonnetModel }),
           ...(preset.haikuModel && { haikuModel: preset.haikuModel })
+        }
+      } else {
+        // 手动配置
+        config = {
+          ...formData,
+          id: `vendor_${Date.now()}`
         }
       }
 
@@ -151,11 +160,11 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
   // 检查是否可以提交
   const canSubmit = () => {
     if (tabValue === 0) {
-      // 手动配置：需要名称、token、baseUrl
-      return !saving && formData.name && formData.token && formData.baseUrl
-    } else {
       // 快捷配置：需要供应商、token
       return !saving && quickVendor && quickToken
+    } else {
+      // 手动配置：需要名称、token、baseUrl
+      return !saving && formData.name && formData.token && formData.baseUrl
     }
   }
 
@@ -166,7 +175,6 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
         {/* Tab 切换 */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
           <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
-            <Tab label="手动配置" />
             <Tab
               icon={
                 <FontAwesomeIcon icon={faFire} style={{ color: '#ff6b35', fontSize: '16px' }} />
@@ -174,10 +182,340 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
               iconPosition="end"
               label="快捷配置"
             />
+            <Tab label="手动配置" />
           </Tabs>
         </Box>
-        {/* 手动配置 Tab */}
+
+        {/* 快捷配置 Tab */}
         {tabValue === 0 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            {/* 供应商选择 */}
+            <FormControl fullWidth required>
+              <InputLabel id="quick-vendor-label">供应商</InputLabel>
+              <Select
+                labelId="quick-vendor-label"
+                value={quickVendor}
+                label="供应商"
+                onChange={(e) => setQuickVendor(e.target.value as PresetVendorKey)}
+              >
+                <MenuItem value="zhipu">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={zhipuLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>智谱(GLM)</span>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="moonshot">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={moonshotLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>月之暗面(KIMI)</span>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="minimax">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={minimaxLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>MINIMAX</span>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="idealab">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={alibabaLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>idealab</span>
+                  </Box>
+                </MenuItem>
+                <MenuItem value="deepseek">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={deepseekLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>DeepSeek</span>
+                  </Box>
+                </MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* 配置名称 */}
+            <TextField
+              label="配置名称"
+              value={quickConfigName}
+              onChange={(e) => setQuickConfigName(e.target.value)}
+              fullWidth
+              placeholder={
+                quickVendor ? `我的${PRESET_VENDORS[quickVendor].name}配置` : '例如：我的智谱配置'
+              }
+              helperText="留空将使用供应商名称作为配置名"
+            />
+
+            {/* API Token */}
+            <TextField
+              label="API Token"
+              value={quickToken}
+              onChange={(e) => setQuickToken(e.target.value)}
+              fullWidth
+              required
+              placeholder="请输入你的 API Token"
+              helperText="请输入对应供应商的 API 密钥"
+            />
+
+            {/* 智谱官方文档链接 */}
+            {quickVendor === 'zhipu' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  如何获取API TOKEN？
+                </Typography>
+                <Link
+                  href="https://bigmodel.cn/glm-coding?utm_source=bigModel&utm_medium=Special&utm_content=glm-code&utm_campaign=Platform_Ops&_channel_track_key=8BAeCdUS"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  variant="body2"
+                >
+                  查看智谱官方文档
+                </Link>
+              </Box>
+            )}
+
+            {/* 月之暗面官方文档链接 */}
+            {quickVendor === 'moonshot' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  如何获取API TOKEN？
+                </Typography>
+                <Link
+                  href="https://www.kimi.com/coding/docs/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  variant="body2"
+                >
+                  查看月之暗面官方文档
+                </Link>
+              </Box>
+            )}
+
+            {/* MINIMAX 官方文档链接 */}
+            {quickVendor === 'minimax' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  如何获取API TOKEN？
+                </Typography>
+                <Link
+                  href="https://platform.minimaxi.com/user-center/basic-information"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  variant="body2"
+                >
+                  查看MINIMAX官方文档
+                </Link>
+              </Box>
+            )}
+
+            {/* IdealAB 官方文档链接 */}
+            {quickVendor === 'idealab' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  如何获取API TOKEN？
+                </Typography>
+                <Link
+                  href="https://idealab.alibaba-inc.com/ideaTalk#/aistudio/manage/personalResource"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  variant="body2"
+                >
+                  查看IdealAB官方文档
+                </Link>
+              </Box>
+            )}
+
+            {/* DeepSeek 官方文档链接 */}
+            {quickVendor === 'deepseek' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  如何获取API TOKEN？
+                </Typography>
+                <Link
+                  href="https://platform.deepseek.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  variant="body2"
+                >
+                  查看DeepSeek官方文档
+                </Link>
+              </Box>
+            )}
+
+            {/* API Base URL（只读，自动填入） */}
+            <TextField
+              label="API Base URL"
+              value={quickVendor ? PRESET_VENDORS[quickVendor].baseUrl : ''}
+              fullWidth
+              disabled
+              helperText="根据所选供应商自动填入"
+            />
+
+            {/* 智谱特有的模型配置 */}
+            {quickVendor === 'zhipu' && (
+              <>
+                <TextField
+                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
+                  value="glm-4.6"
+                  fullWidth
+                  disabled
+                  helperText="智谱 Opus 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
+                  value="glm-4.6"
+                  fullWidth
+                  disabled
+                  helperText="智谱 Sonnet 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
+                  value="glm-4.5-air"
+                  fullWidth
+                  disabled
+                  helperText="智谱 Haiku 模型配置"
+                />
+              </>
+            )}
+
+            {/* 月之暗面特有的模型配置 */}
+            {quickVendor === 'moonshot' && (
+              <>
+                <TextField
+                  label="ANTHROPIC_MODEL"
+                  value="kimi-for-coding"
+                  fullWidth
+                  disabled
+                  helperText="月之暗面默认模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_SMALL_FAST_MODEL"
+                  value="kimi-for-coding"
+                  fullWidth
+                  disabled
+                  helperText="月之暗面快速模型配置"
+                />
+              </>
+            )}
+
+            {/* MINIMAX 特有的模型配置 */}
+            {quickVendor === 'minimax' && (
+              <>
+                <TextField
+                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
+                  value="MiniMax-M2"
+                  fullWidth
+                  disabled
+                  helperText="MINIMAX Opus 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
+                  value="MiniMax-M2"
+                  fullWidth
+                  disabled
+                  helperText="MINIMAX Sonnet 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
+                  value="MiniMax-M2"
+                  fullWidth
+                  disabled
+                  helperText="MINIMAX Haiku 模型配置"
+                />
+              </>
+            )}
+
+            {/* IdealAB 特有的模型配置 */}
+            {quickVendor === 'idealab' && (
+              <>
+                <TextField
+                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText="IdealAB Opus 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText="IdealAB Sonnet 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText="IdealAB Haiku 模型配置"
+                />
+              </>
+            )}
+
+            {/* DeepSeek 特有的模型配置 */}
+            {quickVendor === 'deepseek' && (
+              <>
+                <TextField
+                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
+                  value="deepseek-chat"
+                  fullWidth
+                  disabled
+                  helperText="DeepSeek Opus 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
+                  value="deepseek-chat"
+                  fullWidth
+                  disabled
+                  helperText="DeepSeek Sonnet 模型配置"
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
+                  value="deepseek-chat"
+                  fullWidth
+                  disabled
+                  helperText="DeepSeek Haiku 模型配置"
+                />
+              </>
+            )}
+
+            {/* 立即生效选项 */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={applyImmediately}
+                  onChange={(e) => setApplyImmediately(e.target.checked)}
+                />
+              }
+              label="立即生效"
+            />
+          </Box>
+        )}
+
+        {/* 手动配置 Tab */}
+        {tabValue === 1 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             {/* 基础配置 */}
             <TextField
@@ -282,235 +620,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   onChange={(e) => setApplyImmediately(e.target.checked)}
                 />
               }
-              label="立即生效（将配置写入 ~/.claude/settings.json）"
-            />
-          </Box>
-        )}
-
-        {/* 快捷配置 Tab */}
-        {tabValue === 1 && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-            {/* 供应商选择 */}
-            <FormControl fullWidth required>
-              <InputLabel id="quick-vendor-label">供应商</InputLabel>
-              <Select
-                labelId="quick-vendor-label"
-                value={quickVendor}
-                label="供应商"
-                onChange={(e) => setQuickVendor(e.target.value as PresetVendorKey)}
-              >
-                <MenuItem value="zhipu">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Box
-                      component="img"
-                      src={zhipuLogo}
-                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
-                    />
-                    <span>智谱(GLM)</span>
-                  </Box>
-                </MenuItem>
-                <MenuItem value="moonshot">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Box
-                      component="img"
-                      src={moonshotLogo}
-                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
-                    />
-                    <span>月之暗面(KIMI)</span>
-                  </Box>
-                </MenuItem>
-                <MenuItem value="minimax">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Box
-                      component="img"
-                      src={minimaxLogo}
-                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
-                    />
-                    <span>MINIMAX</span>
-                  </Box>
-                </MenuItem>
-                <MenuItem value="idealab">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Box
-                      component="img"
-                      src={alibabaLogo}
-                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
-                    />
-                    <span>idealab</span>
-                  </Box>
-                </MenuItem>
-              </Select>
-            </FormControl>
-
-            {/* 配置名称 */}
-            <TextField
-              label="配置名称"
-              value={quickConfigName}
-              onChange={(e) => setQuickConfigName(e.target.value)}
-              fullWidth
-              placeholder={
-                quickVendor ? `我的${PRESET_VENDORS[quickVendor].name}配置` : '例如：我的智谱配置'
-              }
-              helperText="留空将使用供应商名称作为配置名"
-            />
-
-            {/* API Token */}
-            <TextField
-              label="API Token"
-              value={quickToken}
-              onChange={(e) => setQuickToken(e.target.value)}
-              fullWidth
-              required
-              placeholder="请输入你的 API Token"
-              helperText="请输入对应供应商的 API 密钥"
-            />
-
-            {/* 智谱官方文档链接 */}
-            {quickVendor === 'zhipu' && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
-                <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
-                </Typography>
-                <Link
-                  href="https://bigmodel.cn/glm-coding?utm_source=bigModel&utm_medium=Special&utm_content=glm-code&utm_campaign=Platform_Ops&_channel_track_key=8BAeCdUS"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  underline="hover"
-                  variant="body2"
-                >
-                  查看智谱官方文档
-                </Link>
-              </Box>
-            )}
-
-            {/* 月之暗面官方文档链接 */}
-            {quickVendor === 'moonshot' && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
-                <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
-                </Typography>
-                <Link
-                  href="https://www.kimi.com/coding/docs/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  underline="hover"
-                  variant="body2"
-                >
-                  查看月之暗面官方文档
-                </Link>
-              </Box>
-            )}
-
-            {/* IdealAB 官方文档链接 */}
-            {quickVendor === 'idealab' && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
-                <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
-                </Typography>
-                <Link
-                  href="https://idealab.alibaba-inc.com/ideaTalk#/aistudio/manage/personalResource"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  underline="hover"
-                  variant="body2"
-                >
-                  查看IdealAB官方文档
-                </Link>
-              </Box>
-            )}
-
-            {/* API Base URL（只读，自动填入） */}
-            <TextField
-              label="API Base URL"
-              value={quickVendor ? PRESET_VENDORS[quickVendor].baseUrl : ''}
-              fullWidth
-              disabled
-              helperText="根据所选供应商自动填入"
-            />
-
-            {/* 智谱特有的模型配置 */}
-            {quickVendor === 'zhipu' && (
-              <>
-                <TextField
-                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
-                  value="glm-4.6"
-                  fullWidth
-                  disabled
-                  helperText="智谱 Opus 模型配置"
-                />
-                <TextField
-                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
-                  value="glm-4.6"
-                  fullWidth
-                  disabled
-                  helperText="智谱 Sonnet 模型配置"
-                />
-                <TextField
-                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
-                  value="glm-4.5-air"
-                  fullWidth
-                  disabled
-                  helperText="智谱 Haiku 模型配置"
-                />
-              </>
-            )}
-
-            {/* 月之暗面特有的模型配置 */}
-            {quickVendor === 'moonshot' && (
-              <>
-                <TextField
-                  label="ANTHROPIC_MODEL"
-                  value="kimi-for-coding"
-                  fullWidth
-                  disabled
-                  helperText="月之暗面默认模型配置"
-                />
-                <TextField
-                  label="ANTHROPIC_SMALL_FAST_MODEL"
-                  value="kimi-for-coding"
-                  fullWidth
-                  disabled
-                  helperText="月之暗面快速模型配置"
-                />
-              </>
-            )}
-
-            {/* IdealAB 特有的模型配置 */}
-            {quickVendor === 'idealab' && (
-              <>
-                <TextField
-                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
-                  value="qwen3-coder-plus"
-                  fullWidth
-                  disabled
-                  helperText="IdealAB Opus 模型配置"
-                />
-                <TextField
-                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
-                  value="qwen3-coder-plus"
-                  fullWidth
-                  disabled
-                  helperText="IdealAB Sonnet 模型配置"
-                />
-                <TextField
-                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
-                  value="qwen3-coder-plus"
-                  fullWidth
-                  disabled
-                  helperText="IdealAB Haiku 模型配置"
-                />
-              </>
-            )}
-
-            {/* 立即生效选项 */}
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={applyImmediately}
-                  onChange={(e) => setApplyImmediately(e.target.checked)}
-                />
-              }
-              label="立即生效（将配置写入 ~/.claude/settings.json）"
+              label="立即生效"
             />
           </Box>
         )}
