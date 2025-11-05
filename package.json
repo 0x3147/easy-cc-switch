@@ -5,6 +5,7 @@
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
+  "productName": "EasyCCSwitch",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -25,12 +26,21 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-regular-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
     "ahooks": "^3.9.6",
+    "classnames": "^2.5.1",
+    "dayjs": "^1.11.19",
+    "electron-log": "^5.4.3",
+    "electron-store": "^8.2.0",
     "electron-updater": "^6.3.9",
     "normalize.css": "^8.0.1",
-    "react-router-dom": "^6.30.1"
+    "react-router-dom": "^6.30.1",
+    "toml": "^3.0.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",

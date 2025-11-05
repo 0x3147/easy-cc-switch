@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: easy-cc-switch
+productName: EasyCCSwitch
 directories:
   buildResources: build
 files:

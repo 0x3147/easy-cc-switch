@@ -1,34 +1,206 @@
-# easy-cc-switch
+# EasyCCSwitch
 
-An Electron application with React and TypeScript
+<div align="center">
+  <h3>🚀 AI 编码工具供应商快速切换管理器</h3>
+  <p>一键管理 Claude Code 和 Codex 的多供应商配置</p>
+</div>
 
-## Recommended IDE Setup
+---
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## ✨ 特性
 
-## Project Setup
+### 🎯 核心功能
 
-### Install
+- **双工具支持**：同时管理 Claude Code 和 Codex 两款 AI 编码工具
+- **多供应商配置**：轻松切换智谱、月之暗面、MINIMAX、DeepSeek、IdealAB 等国产大模型
+- **快捷配置**：预设供应商模板，一键完成配置，无需手动填写 API 地址和模型参数
+- **自动检测**：智能检测工具安装状态，提供清晰的安装引导
+- **配置管理**：支持多配置保存、编辑、删除和一键启用
+- **立即生效**：可选择配置后立即写入工具配置文件
+
+### 🎨 用户体验
+
+- **Material-UI 设计**：现代化的界面设计，流畅的交互体验
+- **品牌化展示**：各供应商配置卡片带有官方 Logo 标识
+- **文档链接**：快速跳转到各供应商官方文档获取 API Token
+- **跨平台支持**：支持 macOS、Windows、Linux
+
+---
+
+## 📦 支持的供应商
+
+### Claude Code
+
+| 供应商                 | API Base URL                           | 支持模型             |
+| ---------------------- | -------------------------------------- | -------------------- |
+| 🔮 **智谱 (GLM)**      | `https://open.bigmodel.cn/api/paas/v4` | glm-4.6, glm-4.5-air |
+| 🌙 **月之暗面 (Kimi)** | `https://api.kimi.com/coding`          | kimi-for-coding      |
+| 🟣 **MINIMAX**         | `https://api.minimaxi.com/anthropic`   | MiniMax-M2           |
+| 🔵 **DeepSeek**        | `https://api.deepseek.com/anthropic`   | deepseek-chat        |
+| 🟠 **IdealAB**         | `https://idealab.alibaba-inc.com/...`  | qwen3-coder-plus     |
+| ⚙️ **手动配置**        | 自定义                                 | 自定义模型           |
+
+### Codex
+
+- 支持通过编辑 `~/.codex/config.toml` 和 `auth.json` 进行供应商配置
+- 完整的 TOML 格式配置管理
+
+---
+
+## 🖥️ 界面预览
+
+### 主要功能页面
+
+- **工具安装页面**：检测工具状态，提供安装引导
+- **供应商配置页面**：
+  - 快捷配置：选择预设供应商，输入 Token 即可
+  - 手动配置：完全自定义配置（适用于企业私有部署等场景）
+  - 配置卡片：清晰展示已添加的配置，支持编辑、删除、启用操作
+
+---
+
+## 🚀 快速开始
+
+### 前置要求
+
+- Node.js >= 18
+- npm >= 9
+
+### 安装
 
 ```bash
-$ npm install
+npm install
 ```
 
-### Development
+### 开发
 
 ```bash
-$ npm run dev
+npm run dev
 ```
 
-### Build
+### 构建
 
 ```bash
-# For windows
-$ npm run build:win
+# Windows
+npm run build:win
 
-# For macOS
-$ npm run build:mac
+# macOS
+npm run build:mac
 
-# For Linux
-$ npm run build:linux
+# Linux
+npm run build:linux
 ```
+
+---
+
+## 🛠️ 技术栈
+
+- **框架**: Electron 38 + React 18 + TypeScript 5
+- **构建工具**: Vite 7 + electron-vite
+- **UI 组件**: Material-UI (MUI) 7
+- **路由**: React Router 6
+- **图标**: Font Awesome 6
+- **状态管理**: React Hooks
+- **配置存储**: electron-store
+- **工具库**: ahooks, dayjs, classnames
+- **配置解析**: toml (用于 Codex 配置)
+
+---
+
+## 📂 项目结构
+
+```
+easy-cc-switch/
+├── src/
+│   ├── main/                 # Electron 主进程
+│   │   ├── index.ts         # 主进程入口
+│   │   ├── ipc-handler/     # IPC 通信处理器
+│   │   │   ├── vendor-handler.ts    # Claude 供应商配置
+│   │   │   ├── codex-handler.ts     # Codex 配置
+│   │   │   └── tool-handler.ts      # 工具检测
+│   │   └── store/           # 数据持久化
+│   ├── renderer/            # React 渲染进程
+│   │   ├── layouts/         # 布局组件
+│   │   ├── pages/           # 页面组件
+│   │   │   ├── claude-code/ # Claude Code 相关页面
+│   │   │   └── codex/       # Codex 相关页面
+│   │   ├── routes/          # 路由配置
+│   │   └── assets/          # 静态资源
+│   ├── preload/             # 预加载脚本
+│   └── shared/              # 共享类型定义
+└── package.json
+```
+
+---
+
+## 🔧 配置文件说明
+
+### Claude Code 配置
+
+配置文件位置: `~/.claude/settings.json`
+
+```json
+{
+  "ANTHROPIC_API_KEY": "your-api-key",
+  "ANTHROPIC_BASE_URL": "https://api.provider.com",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL": "model-name",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL": "model-name",
+  "ANTHROPIC_DEFAULT_HAIKU_MODEL": "model-name"
+}
+```
+
+### Codex 配置
+
+配置文件位置: `~/.codex/`
+
+- `config.toml`: 模型供应商信息
+- `auth.json`: API Key
+
+---
+
+## 💡 使用技巧
+
+1. **快速切换供应商**：在配置卡片上点击"启用"按钮即可一键切换
+2. **批量管理配置**：可以预先添加多个供应商配置，需要时快速切换
+3. **立即生效选项**：添加配置时勾选"立即生效"可自动写入工具配置文件
+4. **文档快速访问**：在快捷配置中可直接点击文档链接获取 API Token
+
+---
+
+## 📝 开发规范
+
+### 推荐 IDE
+
+- [VSCode](https://code.visualstudio.com/)
+- 插件: ESLint, Prettier, TypeScript
+
+### 代码规范
+
+- 使用 TypeScript 严格模式
+- 遵循 ESLint 和 Prettier 配置
+- 组件使用函数式组件 + Hooks
+- 使用 MUI 组件库构建 UI
+
+---
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+---
+
+## 📄 许可证
+
+MIT License
+
+---
+
+## 🙏 致谢
+
+感谢以下开源项目：
+
+- [Electron](https://www.electronjs.org/)
+- [React](https://react.dev/)
+- [Material-UI](https://mui.com/)
+- [Vite](https://vitejs.dev/)
+- [electron-vite](https://electron-vite.org/)

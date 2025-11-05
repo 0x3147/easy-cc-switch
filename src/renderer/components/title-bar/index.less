@@ -1,0 +1,257 @@
+// ============================================
+// TitleBar 组件样式
+// 专业的跨平台自定义标题栏设计
+// ============================================
+
+// 主容器样式
+.title-bar {
+  -webkit-app-region: drag;
+  background: transparent;
+  backdrop-filter: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &::before {
+    display: none;
+  }
+
+  // macOS 特定样式
+  &--darwin {
+    height: 36px;
+    border-bottom: none;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  // Windows/Linux 特定样式
+  &--windows {
+    height: 40px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+}
+
+// Toolbar 容器
+.title-bar__toolbar {
+  min-height: 36px;
+  height: 36px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+
+  &--windows {
+    min-height: 40px;
+    height: 40px;
+    padding: 0 0 0 16px;
+  }
+}
+
+// 交通灯按钮占位
+.title-bar__traffic-lights-spacer {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+// 标题文本
+.title-bar__title {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: rgba(60, 60, 67, 0.6);
+  user-select: none;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+
+  .title-bar--darwin & {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .title-bar--windows & {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  // 暗色主题支持
+  @media (prefers-color-scheme: dark) {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+// 右侧操作区占位（保持对称）
+.title-bar__actions-spacer {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+// 品牌区域（Windows/Linux）
+.title-bar__brand {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// 控制按钮容器
+.title-bar__controls {
+  display: flex;
+  align-items: stretch;
+  -webkit-app-region: no-drag;
+  height: 100%;
+  margin-left: auto;
+}
+
+// 控制按钮
+.title-bar__control-btn {
+  border-radius: 0 !important;
+  width: 46px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  &:hover::before {
+    opacity: 0.08;
+  }
+
+  &:active::before {
+    opacity: 0.12;
+  }
+
+  // 最小化按钮
+  &--minimize {
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    &:active {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  // 最大化按钮
+  &--maximize {
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    &:active {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  // 关闭按钮
+  &--close {
+    &:hover {
+      background-color: #e81123 !important;
+      color: #ffffff !important;
+
+      .title-bar__control-icon {
+        color: #ffffff;
+      }
+    }
+
+    &:active {
+      background-color: #c50d1c !important;
+    }
+  }
+
+  // 暗色主题
+  @media (prefers-color-scheme: dark) {
+    &--minimize,
+    &--maximize {
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+
+      &:active {
+        background-color: rgba(255, 255, 255, 0.12);
+      }
+    }
+  }
+}
+
+// 控制按钮图标
+.title-bar__control-icon {
+  font-size: 16px !important;
+  transition: all 0.15s ease;
+
+  .title-bar__control-btn--minimize & {
+    font-size: 16px !important;
+  }
+
+  .title-bar__control-btn--maximize & {
+    font-size: 14px !important;
+  }
+
+  .title-bar__control-btn--close & {
+    font-size: 16px !important;
+  }
+}
+
+// 暗色模式整体适配
+@media (prefers-color-scheme: dark) {
+  .title-bar {
+    background: transparent;
+    backdrop-filter: none;
+
+    &::before {
+      display: none;
+    }
+
+    &--darwin {
+      border-bottom: none;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+
+    &--windows {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// 高对比度优化
+@media (prefers-contrast: high) {
+  .title-bar {
+    &--darwin {
+      border-bottom-width: 2px;
+    }
+
+    &--windows {
+      border-bottom-width: 2px;
+    }
+  }
+
+  .title-bar__title {
+    font-weight: 700;
+  }
+}
+
+// 动画减弱模式
+@media (prefers-reduced-motion: reduce) {
+  .title-bar,
+  .title-bar__title,
+  .title-bar__control-btn,
+  .title-bar__control-icon {
+    transition: none !important;
+  }
+}

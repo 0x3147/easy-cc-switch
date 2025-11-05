@@ -1,8 +1,13 @@
+import { ThemeProvider, CssBaseline } from '@mui/material'
+import { lightTheme } from './theme'
+import AppRoutes from './routes'
+
 function App(): React.JSX.Element {
   return (
-    <>
-      <div>111</div>
-    </>
+    <ThemeProvider theme={lightTheme}>
+      <CssBaseline />
+      <AppRoutes />
+    </ThemeProvider>
   )
 }
 
