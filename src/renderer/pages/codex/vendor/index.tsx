@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react'
-import { Box, Typography, Stack, Alert, Snackbar, Fab } from '@mui/material'
+import {
+  Box,
+  Typography,
+  Stack,
+  Alert,
+  Snackbar,
+  Fab,
+  Paper,
+} from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faInbox } from '@fortawesome/free-solid-svg-icons'
 import CodexVendorCard from './components/codex-vendor-card'
 import CodexVendorConfigDialog from './components/codex-vendor-config-dialog'
 import type { CodexVendorConfig } from '@/shared/types/codex'
@@ -9,13 +17,15 @@ import type { CodexVendorConfig } from '@/shared/types/codex'
 const CodexVendorPage = () => {
   const [vendors, setVendors] = useState<CodexVendorConfig[]>([])
   const [activeVendorId, setActiveVendorId] = useState<string | null>(null)
-  const [editingVendor, setEditingVendor] = useState<CodexVendorConfig | null>(null)
+  const [editingVendor, setEditingVendor] = useState<CodexVendorConfig | null>(
+    null
+  )
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add')
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success' as 'success' | 'error'
+    severity: 'success' as 'success' | 'error',
   })
 
   // 初始化加载数据
@@ -36,7 +46,7 @@ const CodexVendorPage = () => {
           // 将默认配置添加到 store 并立即激活
           await window.api.addCodexVendor({
             config: codexConfig,
-            applyImmediately: true // 立即激活，这样会同时保存激活状态
+            applyImmediately: true, // 立即激活，这样会同时保存激活状态
           })
           // 重新加载
           const updatedVendors = await window.api.getAllCodexVendors()
@@ -65,7 +75,10 @@ const CodexVendorPage = () => {
     setDialogOpen(true)
   }
 
-  const handleSave = async (config: CodexVendorConfig, applyImmediately: boolean) => {
+  const handleSave = async (
+    config: CodexVendorConfig,
+    applyImmediately: boolean
+  ) => {
     try {
       let success = false
 
@@ -75,7 +88,7 @@ const CodexVendorPage = () => {
           setSnackbar({
             open: true,
             message: applyImmediately ? '添加成功并已生效！' : '添加成功！',
-            severity: 'success'
+            severity: 'success',
           })
           if (applyImmediately) {
             setActiveVendorId(config.id)
@@ -94,7 +107,7 @@ const CodexVendorPage = () => {
           setSnackbar({
             open: true,
             message: applyImmediately ? '更新成功并已生效！' : '更新成功！',
-            severity: 'success'
+            severity: 'success',
           })
         }
       }
@@ -105,7 +118,7 @@ const CodexVendorPage = () => {
         setSnackbar({
           open: true,
           message: '操作失败，请重试',
-          severity: 'error'
+          severity: 'error',
         })
       }
     } catch (error) {
@@ -113,7 +126,7 @@ const CodexVendorPage = () => {
       setSnackbar({
         open: true,
         message: '操作失败',
-        severity: 'error'
+        severity: 'error',
       })
     }
   }
@@ -129,14 +142,14 @@ const CodexVendorPage = () => {
         setSnackbar({
           open: true,
           message: '删除成功！',
-          severity: 'success'
+          severity: 'success',
         })
         await loadData()
       } else {
         setSnackbar({
           open: true,
           message: '删除失败，请重试',
-          severity: 'error'
+          severity: 'error',
         })
       }
     } catch (error) {
@@ -144,7 +157,7 @@ const CodexVendorPage = () => {
       setSnackbar({
         open: true,
         message: '删除失败',
-        severity: 'error'
+        severity: 'error',
       })
     }
   }
@@ -156,14 +169,14 @@ const CodexVendorPage = () => {
         setSnackbar({
           open: true,
           message: '已切换供应商！',
-          severity: 'success'
+          severity: 'success',
         })
         setActiveVendorId(id)
       } else {
         setSnackbar({
           open: true,
           message: '切换失败，请重试',
-          severity: 'error'
+          severity: 'error',
         })
       }
     } catch (error) {
@@ -171,7 +184,7 @@ const CodexVendorPage = () => {
       setSnackbar({
         open: true,
         message: '切换失败',
-        severity: 'error'
+        severity: 'error',
       })
     }
   }
@@ -180,7 +193,12 @@ const CodexVendorPage = () => {
     <Box sx={{ position: 'relative' }}>
       {/* 标题和添加按钮 */}
       <Box
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          mb: 1,
+        }}
       >
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
@@ -199,16 +217,43 @@ const CodexVendorPage = () => {
 
       <Stack spacing={2}>
         {/* 供应商卡片列表 */}
-        {vendors.map((vendor) => (
-          <CodexVendorCard
-            key={vendor.id}
-            vendor={vendor}
-            isActive={activeVendorId === vendor.id}
-            onEdit={() => handleEdit(vendor)}
-            onSetActive={() => handleActivate(vendor.id)}
-            onDelete={() => handleDelete(vendor.id)}
-          />
-        ))}
+        {vendors.length > 0 ? (
+          vendors.map((vendor) => (
+            <CodexVendorCard
+              key={vendor.id}
+              vendor={vendor}
+              isActive={activeVendorId === vendor.id}
+              onEdit={() => handleEdit(vendor)}
+              onSetActive={() => handleActivate(vendor.id)}
+              onDelete={() => handleDelete(vendor.id)}
+            />
+          ))
+        ) : (
+          // 空状态显示
+          <Paper
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              backgroundColor: 'background.paper',
+              borderRadius: 2,
+              border: '2px dashed',
+              borderColor: 'divider',
+            }}
+          >
+            <Box sx={{ mb: 2 }}>
+              <FontAwesomeIcon
+                icon={faInbox}
+                style={{ fontSize: '64px', color: '#bdbdbd', opacity: 0.6 }}
+              />
+            </Box>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              暂无供应商配置
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              点击右上角的 + 按钮添加您的第一个供应商配置
+            </Typography>
+          </Paper>
+        )}
       </Stack>
 
       {/* 添加/编辑供应商对话框 */}
