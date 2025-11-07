@@ -43,18 +43,22 @@ const EditMcpDialog = ({ open, server, onClose, onSave }: EditMcpDialogProps) =>
       setServerName(server.name)
 
       if (server.type === 'stdio') {
-        setCommand(server.config.command)
-        setArgs(server.config.args || [])
-        const envArray = Object.entries(server.config.env || {}).map(([key, value]) => ({
+        const stdioConfig = server.config as import('@/shared/types/mcp').StdioMcpServer
+        setCommand(stdioConfig.command)
+        setArgs(stdioConfig.args || [])
+        const envArray = Object.entries(stdioConfig.env || {}).map(([key, value]) => ({
           key,
-          value
+          value: String(value)
         }))
         setEnvVars(envArray)
       } else if (server.type === 'http' || server.type === 'sse') {
-        setUrl(server.config.url)
-        const headerArray = Object.entries(server.config.headers || {}).map(([key, value]) => ({
+        const httpConfig = server.config as
+          | import('@/shared/types/mcp').HttpMcpServer
+          | import('@/shared/types/mcp').SseMcpServer
+        setUrl(httpConfig.url)
+        const headerArray = Object.entries(httpConfig.headers || {}).map(([key, value]) => ({
           key,
-          value
+          value: String(value)
         }))
         setHeaders(headerArray)
       }
@@ -197,7 +201,14 @@ const EditMcpDialog = ({ open, server, onClose, onSave }: EditMcpDialogProps) =>
 
               {/* 参数列表 */}
               <Box sx={{ mb: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 1
+                  }}
+                >
                   <Typography variant="subtitle2">{t('mcp.arguments')}</Typography>
                   <Button
                     size="small"
@@ -226,9 +237,20 @@ const EditMcpDialog = ({ open, server, onClose, onSave }: EditMcpDialogProps) =>
 
               {/* 环境变量 */}
               <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 1
+                  }}
+                >
                   <Typography variant="subtitle2">{t('mcp.environmentVariables')}</Typography>
-                  <Button size="small" onClick={addEnvVar} startIcon={<FontAwesomeIcon icon={faPlus} />}>
+                  <Button
+                    size="small"
+                    onClick={addEnvVar}
+                    startIcon={<FontAwesomeIcon icon={faPlus} />}
+                  >
                     {t('mcp.add')}
                   </Button>
                 </Box>
@@ -271,9 +293,20 @@ const EditMcpDialog = ({ open, server, onClose, onSave }: EditMcpDialogProps) =>
 
               {/* Headers */}
               <Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 1
+                  }}
+                >
                   <Typography variant="subtitle2">{t('mcp.headers')}</Typography>
-                  <Button size="small" onClick={addHeader} startIcon={<FontAwesomeIcon icon={faPlus} />}>
+                  <Button
+                    size="small"
+                    onClick={addHeader}
+                    startIcon={<FontAwesomeIcon icon={faPlus} />}
+                  >
                     {t('mcp.add')}
                   </Button>
                 </Box>

@@ -56,6 +56,7 @@ export default defineConfig({
               }
               return 'vendor'
             }
+            return undefined
           },
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',

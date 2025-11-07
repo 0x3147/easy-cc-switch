@@ -1,5 +1,4 @@
 import { Card, CardContent, Box, Typography, Stack, IconButton, Chip } from '@mui/material'
-import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash, faServer, faGlobe, faBolt } from '@fortawesome/free-solid-svg-icons'
 import type { McpServerItem } from '@/shared/types/mcp'
@@ -11,8 +10,6 @@ interface McpCardProps {
 }
 
 const McpCard = ({ server, onEdit, onDelete }: McpCardProps) => {
-  const { t } = useTranslation()
-
   // 根据服务器类型获取图标和颜色
   const getTypeInfo = () => {
     switch (server.type) {
@@ -32,9 +29,13 @@ const McpCard = ({ server, onEdit, onDelete }: McpCardProps) => {
   // 获取服务器配置的简要描述
   const getDescription = () => {
     if (server.type === 'stdio') {
-      return `${server.config.command} ${server.config.args?.join(' ') || ''}`
+      const stdioConfig = server.config as import('@/shared/types/mcp').StdioMcpServer
+      return `${stdioConfig.command} ${stdioConfig.args?.join(' ') || ''}`
     } else if (server.type === 'http' || server.type === 'sse') {
-      return server.config.url
+      const httpConfig = server.config as
+        | import('@/shared/types/mcp').HttpMcpServer
+        | import('@/shared/types/mcp').SseMcpServer
+      return httpConfig.url
     }
     return ''
   }
@@ -68,7 +69,10 @@ const McpCard = ({ server, onEdit, onDelete }: McpCardProps) => {
               flexShrink: 0
             }}
           >
-            <FontAwesomeIcon icon={typeInfo.icon} style={{ fontSize: '20px', color: typeInfo.color }} />
+            <FontAwesomeIcon
+              icon={typeInfo.icon}
+              style={{ fontSize: '20px', color: typeInfo.color }}
+            />
           </Box>
 
           {/* 信息区域 */}

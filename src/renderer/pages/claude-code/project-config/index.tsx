@@ -5,7 +5,6 @@ import {
   Stack,
   Card,
   CardContent,
-  CardActions,
   Button,
   Chip,
   IconButton,
@@ -22,8 +21,7 @@ import {
   Folder as FolderIcon,
   Settings as SettingsIcon,
   Delete as DeleteIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon
+  CheckCircle as CheckCircleIcon
 } from '@mui/icons-material'
 import type { ClaudeProjectConfig } from '@/shared/types/claude-project'
 
@@ -150,7 +148,9 @@ export default function ProjectConfig() {
           {projects.map((project) => (
             <Card key={project.path}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                >
                   <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                     <FolderIcon sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
                     <Box sx={{ flex: 1 }}>
@@ -246,7 +246,14 @@ export default function ProjectConfig() {
                 />
               </Box>
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 1.5
+                }}
+              >
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                   MCP 服务器 ({Object.keys(selectedProject.mcpServers).length})
                 </Typography>
@@ -293,10 +300,7 @@ export default function ProjectConfig() {
                             </Typography>
                           </Box>
                           <Box sx={{ display: 'flex', gap: 0.5 }}>
-                            <IconButton
-                              size="small"
-                              onClick={() => handleEditMcp(name, config)}
-                            >
+                            <IconButton size="small" onClick={() => handleEditMcp(name, config)}>
                               <SettingsIcon fontSize="small" />
                             </IconButton>
                             <IconButton
@@ -316,7 +320,9 @@ export default function ProjectConfig() {
                         onClick={() => setMcpExpanded(!mcpExpanded)}
                         sx={{ mt: 1 }}
                       >
-                        {mcpExpanded ? '收起' : `展开更多 (${Object.keys(selectedProject.mcpServers).length - 3})`}
+                        {mcpExpanded
+                          ? '收起'
+                          : `展开更多 (${Object.keys(selectedProject.mcpServers).length - 3})`}
                       </Button>
                     )}
                   </>
@@ -364,7 +370,7 @@ export default function ProjectConfig() {
               margin: 0
             }}
           >
-{`{
+            {`{
   "playwright": {
     "type": "stdio",
     "command": "npx",
