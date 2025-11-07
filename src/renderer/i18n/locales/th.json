@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "การตั้งค่า",
+    "theme": {
+      "title": "การตั้งค่าธีม",
+      "light": "โหมดสว่าง",
+      "dark": "โหมดมืด",
+      "system": "ตามระบบ",
+      "description": "เลือกธีมรูปลักษณ์สำหรับแอป"
+    },
+    "language": {
+      "title": "การตั้งค่าภาษา",
+      "description": "เลือกภาษาแสดงผลสำหรับแอป",
+      "zh": "中文",
+      "en": "English",
+      "de": "Deutsch",
+      "fr": "Français",
+      "it": "Italiano",
+      "th": "ไทย",
+      "vi": "Tiếng Việt"
+    }
+  }
+}

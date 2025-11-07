@@ -4,6 +4,7 @@ import ClaudeCodeToolInstall from '../pages/claude-code/tool-install'
 import ClaudeCodeVendor from '../pages/claude-code/vendor'
 import CodexToolInstall from '../pages/codex/tool-install'
 import CodexVendor from '../pages/codex/vendor'
+import Settings from '../pages/settings'
 
 const routes: RouteObject[] = [
   {
@@ -29,6 +30,10 @@ const routes: RouteObject[] = [
       {
         path: 'codex/vendor',
         element: <CodexVendor />
+      },
+      {
+        path: 'settings',
+        element: <Settings />
       }
     ]
   }

@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "Cài đặt",
+    "theme": {
+      "title": "Cài đặt chủ đề",
+      "light": "Chế độ sáng",
+      "dark": "Chế độ tối",
+      "system": "Theo hệ thống",
+      "description": "Chọn chủ đề giao diện cho ứng dụng"
+    },
+    "language": {
+      "title": "Cài đặt ngôn ngữ",
+      "description": "Chọn ngôn ngữ hiển thị cho ứng dụng",
+      "zh": "中文",
+      "en": "English",
+      "de": "Deutsch",
+      "fr": "Français",
+      "it": "Italiano",
+      "th": "ไทย",
+      "vi": "Tiếng Việt"
+    }
+  }
+}

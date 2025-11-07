@@ -1,11 +1,12 @@
 import { ThemeProvider, CssBaseline } from '@mui/material'
 import { lightTheme, darkTheme } from './theme'
 import { ThemeContextProvider, useTheme } from './contexts/ThemeContext'
+import './i18n' // 初始化 i18n
 import AppRoutes from './routes'
 
 function AppContent(): React.JSX.Element {
-  const { mode } = useTheme()
-  const theme = mode === 'light' ? lightTheme : darkTheme
+  const { actualTheme } = useTheme()
+  const theme = actualTheme === 'light' ? lightTheme : darkTheme
 
   return (
     <ThemeProvider theme={theme}>

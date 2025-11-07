@@ -100,11 +100,14 @@ const MainLayout = () => {
               width: drawerWidth,
               boxSizing: 'border-box',
               position: 'relative',
-              borderRight: '1px solid rgba(0, 0, 0, 0.12)'
+              borderRight: '1px solid rgba(0, 0, 0, 0.12)',
+              display: 'flex',
+              flexDirection: 'column'
             }
           }}
         >
-          <List sx={{ pt: 2 }}>
+          {/* 主菜单区域 */}
+          <List sx={{ pt: 2, flex: 1 }}>
             {menuItems.map((item) => (
               <Box key={item.text}>
                 {/* 主菜单项 */}
@@ -198,6 +201,45 @@ const MainLayout = () => {
                 )}
               </Box>
             ))}
+          </List>
+
+          {/* 设置菜单 */}
+          <List sx={{ pb: 2 }}>
+            <ListItem disablePadding sx={{ px: 1 }}>
+              <ListItemButton
+                selected={location.pathname === '/settings'}
+                onClick={() => handleMenuClick('/settings')}
+                sx={{
+                  borderRadius: 1,
+                  '&.Mui-selected': {
+                    backgroundColor: 'primary.main',
+                    color: 'primary.contrastText',
+                    '&:hover': {
+                      backgroundColor: 'primary.dark'
+                    },
+                    '& .MuiListItemIcon-root': {
+                      color: 'primary.contrastText'
+                    }
+                  }
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 40,
+                    color: location.pathname === '/settings' ? 'inherit' : 'action.active'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCog} style={{ fontSize: '16px' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary="设置"
+                  primaryTypographyProps={{
+                    fontSize: 14,
+                    fontWeight: location.pathname === '/settings' ? 600 : 500
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
           </List>
         </Drawer>
 

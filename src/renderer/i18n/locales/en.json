@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "Settings",
+    "theme": {
+      "title": "Theme Settings",
+      "light": "Light Mode",
+      "dark": "Dark Mode",
+      "system": "Follow System",
+      "description": "Choose the appearance theme for the app"
+    },
+    "language": {
+      "title": "Language Settings",
+      "description": "Choose the display language for the app",
+      "zh": "中文",
+      "en": "English",
+      "de": "Deutsch",
+      "fr": "Français",
+      "it": "Italiano",
+      "th": "ไทย",
+      "vi": "Tiếng Việt"
+    }
+  }
+}

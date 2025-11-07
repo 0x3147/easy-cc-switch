@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "Impostazioni",
+    "theme": {
+      "title": "Impostazioni del tema",
+      "light": "Modalità chiara",
+      "dark": "Modalità scura",
+      "system": "Segui il sistema",
+      "description": "Scegli il tema dell'aspetto dell'app"
+    },
+    "language": {
+      "title": "Impostazioni della lingua",
+      "description": "Scegli la lingua di visualizzazione dell'app",
+      "zh": "中文",
+      "en": "English",
+      "de": "Deutsch",
+      "fr": "Français",
+      "it": "Italiano",
+      "th": "ไทย",
+      "vi": "Tiếng Việt"
+    }
+  }
+}

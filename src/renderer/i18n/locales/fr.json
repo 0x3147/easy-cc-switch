@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "Paramètres",
+    "theme": {
+      "title": "Paramètres du thème",
+      "light": "Mode clair",
+      "dark": "Mode sombre",
+      "system": "Suivre le système",
+      "description": "Choisissez le thème d'apparence de l'application"
+    },
+    "language": {
+      "title": "Paramètres de langue",
+      "description": "Choisissez la langue d'affichage de l'application",
+      "zh": "中文",
+      "en": "English",
+      "de": "Deutsch",
+      "fr": "Français",
+      "it": "Italiano",
+      "th": "ไทย",
+      "vi": "Tiếng Việt"
+    }
+  }
+}

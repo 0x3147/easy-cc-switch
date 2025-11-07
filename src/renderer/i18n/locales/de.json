@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "title": "Einstellungen",
+    "theme": {
+      "title": "Thema-Einstellungen",
+      "light": "Heller Modus",
+      "dark": "Dunkler Modus",
+      "system": "System folgen",
+      "description": "Wählen Sie das Erscheinungsbild der App"
+    },
+    "language": {
+      "title": "Spracheinstellungen",
+      "description": "Wählen Sie die Anzeigesprache für die App",
+      "zh": "中文",
+      "en": "English",
+      "de": "Deutsch",
+      "fr": "Français",
+      "it": "Italiano",
+      "th": "ไทย",
+      "vi": "Tiếng Việt"
+    }
+  }
+}
