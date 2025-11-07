@@ -47,7 +47,11 @@ export function registerToolHandlers() {
         command = 'which claude'
       }
 
-      const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      const output = execSync(command, {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000
+      })
       const path = output.trim().split('\n')[0] // 获取第一个结果
 
       if (path) {
@@ -55,7 +59,8 @@ export function registerToolHandlers() {
         try {
           const versionOutput = execSync('claude --version', {
             encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore']
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
           })
           const version = versionOutput.trim()
 
@@ -154,7 +159,8 @@ export function registerToolHandlers() {
 
       const output = execSync('which brew', {
         encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'ignore']
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000
       })
       const path = output.trim()
 
@@ -163,7 +169,8 @@ export function registerToolHandlers() {
         try {
           const versionOutput = execSync('brew --version', {
             encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore']
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
           })
           const version = versionOutput.trim().split('\n')[0].replace('Homebrew ', '')
 
@@ -200,7 +207,11 @@ export function registerToolHandlers() {
         command = 'which codex'
       }
 
-      const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      const output = execSync(command, {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000
+      })
       const path = output.trim().split('\n')[0] // 获取第一个结果
 
       if (path) {
@@ -208,7 +219,8 @@ export function registerToolHandlers() {
         try {
           const versionOutput = execSync('codex --version', {
             encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore']
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
           })
           const version = versionOutput.trim()
 
@@ -315,7 +327,11 @@ export function registerToolHandlers() {
         command = 'which node'
       }
 
-      const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      const output = execSync(command, {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000
+      })
       const path = output.trim().split('\n')[0] // 获取第一个结果
 
       if (path) {
@@ -323,7 +339,8 @@ export function registerToolHandlers() {
         try {
           const versionOutput = execSync('node --version', {
             encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore']
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
           })
           const version = versionOutput.trim() // 例如: v18.20.0
 
@@ -362,28 +379,16 @@ export function registerToolHandlers() {
         try {
           const output = execSync('where nvm', {
             encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore']
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
           })
           const path = output.trim().split('\n')[0]
 
           if (path) {
-            try {
-              const versionOutput = execSync('nvm version', {
-                encoding: 'utf-8',
-                stdio: ['pipe', 'pipe', 'ignore']
-              })
-              const version = versionOutput.trim()
-
-              return {
-                installed: true,
-                path,
-                version
-              }
-            } catch {
-              return {
-                installed: true,
-                path
-              }
+            // Windows 下不执行 nvm version，避免弹出 GUI 警告
+            return {
+              installed: true,
+              path
             }
           }
         } catch {
@@ -396,14 +401,15 @@ export function registerToolHandlers() {
 
         try {
           // 检查 nvm.sh 是否存在
-          execSync(`test -f ${nvmScript}`, { stdio: ['pipe', 'pipe', 'ignore'] })
+          execSync(`test -f ${nvmScript}`, { stdio: ['pipe', 'pipe', 'ignore'], timeout: 5000 })
 
           // 尝试获取版本号
           try {
             // 使用 bash -c 来加载 nvm 并获取版本
             const versionOutput = execSync(`bash -c "source ${nvmScript} && nvm --version"`, {
               encoding: 'utf-8',
-              stdio: ['pipe', 'pipe', 'ignore']
+              stdio: ['pipe', 'pipe', 'ignore'],
+              timeout: 5000
             })
             const version = versionOutput.trim()
 
@@ -439,12 +445,16 @@ export function registerToolHandlers() {
       if (platform === 'win32') {
         // Windows: 检查 claude.exe 进程，并验证输出包含进程名
         command = 'tasklist /FI "IMAGENAME eq claude.exe" /NH'
-        const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        const output = execSync(command, {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+          timeout: 5000
+        })
         return output.toLowerCase().includes('claude.exe')
       } else {
         // macOS/Linux: 使用 ps + grep 组合（pgrep 在某些系统上不可靠）
         command = 'ps -ax -o command | grep -E "^claude$"'
-        execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'], timeout: 5000 })
         return true
       }
     } catch {
@@ -518,15 +528,20 @@ export function registerToolHandlers() {
       let command: string
 
       if (platform === 'win32') {
-        // Windows: 检查 codex.exe 进程
-        command = 'tasklist /FI "IMAGENAME eq codex.exe"'
+        // Windows: 检查 codex.exe 进程，并验证输出包含进程名
+        command = 'tasklist /FI "IMAGENAME eq codex.exe" /NH'
+        const output = execSync(command, {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+          timeout: 5000
+        })
+        return output.toLowerCase().includes('codex.exe')
       } else {
-        // macOS/Linux: 使用 pgrep 检查 codex 进程
-        command = 'pgrep -x codex'
+        // macOS/Linux: 使用 ps + grep 组合（与 Claude Code 检测保持一致）
+        command = 'ps -ax -o command | grep -E "^codex$"'
+        execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'], timeout: 5000 })
+        return true
       }
-
-      execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
-      return true
     } catch {
       return false
     }
