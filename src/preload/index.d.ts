@@ -25,6 +25,7 @@ interface API {
   getActiveVendorId: () => Promise<string | null>
   getPlatformInfo: () => Promise<PlatformInfo>
   checkClaudeCode: () => Promise<ClaudeCodeCheckResult>
+  uninstallClaudeCode: () => Promise<{ success: boolean; message: string }>
   checkCodex: () => Promise<CodexCheckResult>
   uninstallCodex: () => Promise<{ success: boolean; message: string }>
   checkNodejs: () => Promise<NodeCheckResult>

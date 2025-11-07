@@ -40,6 +40,8 @@ const api = {
   getPlatformInfo: (): Promise<PlatformInfo> => ipcRenderer.invoke(TOOL_CHANNELS.GET_PLATFORM_INFO),
   checkClaudeCode: (): Promise<ClaudeCodeCheckResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE),
+  uninstallClaudeCode: (): Promise<{ success: boolean; message: string }> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.UNINSTALL_CLAUDE_CODE),
   checkCodex: (): Promise<CodexCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX),
   uninstallCodex: (): Promise<{ success: boolean; message: string }> =>
     ipcRenderer.invoke(TOOL_CHANNELS.UNINSTALL_CODEX),

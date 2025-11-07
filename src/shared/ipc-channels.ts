@@ -54,6 +54,8 @@ export const VENDOR_CHANNELS = {
 export const TOOL_CHANNELS = {
   /** 检测 Claude Code 安装状态 */
   CHECK_CLAUDE_CODE: 'tool-check-claude-code',
+  /** 卸载 Claude Code */
+  UNINSTALL_CLAUDE_CODE: 'tool-uninstall-claude-code',
   /** 检测 Codex 安装状态 */
   CHECK_CODEX: 'tool-check-codex',
   /** 卸载 Codex */

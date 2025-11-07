@@ -13,33 +13,35 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  Paper,
-  Chip,
   Stack,
   CircularProgress,
-  Divider,
-  Link
+  Divider
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faCheckCircle,
-  faTimesCircle,
-  faDownload,
-  faTerminal,
-  faCoffee
-} from '@fortawesome/free-solid-svg-icons'
+import { faTimesCircle, faDownload, faTerminal, faCoffee } from '@fortawesome/free-solid-svg-icons'
+import InstalledStatus from './c-cpns/installed-status'
+import EnvironmentStatusCard from './c-cpns/environment-status-card'
+import HomebrewInstallPanel from './c-cpns/homebrew-install-panel'
+import CurlInstallPanel from './c-cpns/curl-install-panel'
+import PowershellInstallPanel from './c-cpns/powershell-install-panel'
 
 type InstallMethod = 'native' | 'npm'
 type NativeMethod = 'homebrew' | 'curl' | 'powershell'
 type InstallStatus = 'checking' | 'installed' | 'not-installed'
 type Platform = 'macos' | 'windows' | 'unsupported'
 
+interface EnvironmentStatus {
+  homebrew: { installed: boolean; version?: string; path?: string }
+}
+
 const ToolInstall = () => {
   const [installStatus, setInstallStatus] = useState<InstallStatus>('checking')
   const [platform, setPlatform] = useState<Platform>('unsupported')
   const [installMethod, setInstallMethod] = useState<InstallMethod>('native')
   const [nativeMethod, setNativeMethod] = useState<NativeMethod>('homebrew')
-  const [homebrewInstalled, setHomebrewInstalled] = useState(false)
+  const [environment, setEnvironment] = useState<EnvironmentStatus>({
+    homebrew: { installed: false }
+  })
   const [installPath, setInstallPath] = useState('')
 
   // 检测平台和 Claude Code 安装状态
@@ -61,7 +63,9 @@ const ToolInstall = () => {
         // 检测 Homebrew 是否安装
         const homebrewResult = await window.api.checkHomebrew()
         console.log('Homebrew check result:', homebrewResult)
-        setHomebrewInstalled(homebrewResult.installed)
+        setEnvironment({
+          homebrew: homebrewResult
+        })
       } else if (platformInfo.platform === 'win32') {
         detectedPlatform = 'windows'
         setNativeMethod('powershell')
@@ -95,74 +99,11 @@ const ToolInstall = () => {
     }
   }
 
-  const getInstallCommand = () => {
-    if (platform === 'macos') {
-      return nativeMethod === 'homebrew'
-        ? 'brew install --cask claude-code'
-        : 'curl -fsSL https://claude.ai/install.sh | bash'
-    } else if (platform === 'windows') {
-      return 'irm https://claude.ai/install.ps1 | iex'
-    }
-    return ''
-  }
-
   const steps = ['检测环境', '选择安装方式', '安装 Claude Code']
 
   // 已安装状态页面
   if (installStatus === 'installed') {
-    return (
-      <Box>
-        <Box
-          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}
-        >
-          <Box>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-              工具安装
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Claude Code 已成功安装
-            </Typography>
-          </Box>
-        </Box>
-
-        <Alert severity="success" icon={<FontAwesomeIcon icon={faCheckCircle} />} sx={{ mb: 3 }}>
-          <AlertTitle sx={{ fontWeight: 600 }}>Claude Code 已安装</AlertTitle>
-          您的系统已经正确安装 Claude Code，您可以直接使用。
-        </Alert>
-
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-              安装信息
-            </Typography>
-            <Divider sx={{ my: 2 }} />
-            <Stack spacing={2}>
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  安装位置
-                </Typography>
-                <Paper
-                  variant="outlined"
-                  sx={{ p: 1.5, bgcolor: 'grey.50', fontFamily: 'monospace' }}
-                >
-                  {installPath}
-                </Paper>
-              </Box>
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  平台
-                </Typography>
-                <Chip
-                  label={platform === 'macos' ? 'macOS' : 'Windows'}
-                  color="primary"
-                  size="small"
-                />
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
-    )
+    return <InstalledStatus platform={platform} installPath={installPath} onUninstallSuccess={detectPlatformAndStatus} />
   }
 
   // 检测中状态
@@ -235,36 +176,8 @@ const ToolInstall = () => {
             </CardContent>
           </Card>
 
-          {/* 步骤 1: 环境检测 */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                gutterBottom
-                sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <FontAwesomeIcon icon={faCheckCircle} style={{ color: '#4caf50' }} />
-                步骤 1: 环境检测
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Stack spacing={2}>
-                <Box>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    当前平台
-                  </Typography>
-                  <Chip
-                    label={platform === 'macos' ? 'macOS' : 'Windows'}
-                    color="success"
-                    icon={<FontAwesomeIcon icon={faCheckCircle} />}
-                  />
-                </Box>
-                <Alert severity="info">
-                  系统检测到您正在使用 {platform === 'macos' ? 'macOS' : 'Windows'}{' '}
-                  操作系统，已为您预选推荐的安装方式。
-                </Alert>
-              </Stack>
-            </CardContent>
-          </Card>
+          {/* 环境检测卡片 */}
+          <EnvironmentStatusCard platform={platform} environment={environment} />
 
           {/* 步骤 2: 选择安装方式 */}
           <Card sx={{ mb: 3 }}>
@@ -437,53 +350,22 @@ const ToolInstall = () => {
               </Typography>
               <Divider sx={{ my: 2 }} />
 
-              {/* Homebrew 未安装提示 */}
-              {platform === 'macos' && nativeMethod === 'homebrew' && !homebrewInstalled && (
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                  <AlertTitle sx={{ fontWeight: 600 }}>检测到您未安装 Homebrew</AlertTitle>
-                  请先安装 Homebrew，或选择使用 cURL 方式安装。
-                  <Link
-                    href="https://brew.sh/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{ display: 'block', mt: 1 }}
-                  >
-                    查看 Homebrew 安装指南 →
-                  </Link>
-                </Alert>
-              )}
-
               <Stack spacing={2}>
-                <Box>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    gutterBottom
-                    sx={{ fontWeight: 500 }}
-                  >
-                    执行以下命令安装
-                  </Typography>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      bgcolor: 'grey.900',
-                      color: 'common.white',
-                      fontFamily: 'monospace',
-                      fontSize: '14px',
-                      position: 'relative'
-                    }}
-                  >
-                    <code>{getInstallCommand()}</code>
-                  </Paper>
-                </Box>
+                {/* macOS 安装面板 */}
+                {platform === 'macos' && (
+                  <>
+                    <HomebrewInstallPanel
+                      environment={environment}
+                      isSelected={nativeMethod === 'homebrew'}
+                    />
+                    <CurlInstallPanel isSelected={nativeMethod === 'curl'} />
+                  </>
+                )}
 
-                <Alert severity="info">
-                  <Typography variant="body2">
-                    请打开{platform === 'macos' ? '终端 (Terminal)' : 'PowerShell'}
-                    ，复制并执行上述命令。安装完成后，请刷新此页面以验证安装。
-                  </Typography>
-                </Alert>
+                {/* Windows 安装面板 */}
+                {platform === 'windows' && (
+                  <PowershellInstallPanel isSelected={nativeMethod === 'powershell'} />
+                )}
 
                 <Box sx={{ display: 'flex', gap: 2, pt: 2 }}>
                   <Button variant="contained" size="large" onClick={detectPlatformAndStatus}>

@@ -79,6 +79,72 @@ export function registerToolHandlers() {
     }
   })
 
+  // 卸载 Claude Code
+  ipcMain.handle(
+    TOOL_CHANNELS.UNINSTALL_CLAUDE_CODE,
+    async (): Promise<{ success: boolean; message: string }> => {
+      try {
+        const platform = process.platform
+
+        // 先检查 Claude Code 是否已安装
+        let isInstalled = false
+        try {
+          const command = platform === 'win32' ? 'where claude' : 'which claude'
+          execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+          isInstalled = true
+        } catch {
+          isInstalled = false
+        }
+
+        if (!isInstalled) {
+          return {
+            success: false,
+            message: 'Claude Code 未安装'
+          }
+        }
+
+        // macOS: 尝试使用 Homebrew 卸载
+        if (platform === 'darwin') {
+          try {
+            execSync('brew uninstall --cask claude-code', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe']
+            })
+            return {
+              success: true,
+              message: '已通过 Homebrew 成功卸载 Claude Code'
+            }
+          } catch {
+            return {
+              success: false,
+              message:
+                '卸载失败：请手动运行 "brew uninstall --cask claude-code" 或查看官方文档'
+            }
+          }
+        }
+
+        // Windows: 提示用户手动卸载
+        if (platform === 'win32') {
+          return {
+            success: false,
+            message: '请通过 Windows 设置中的"应用和功能"手动卸载 Claude Code'
+          }
+        }
+
+        // Linux: 提示用户手动卸载
+        return {
+          success: false,
+          message: '请参考官方文档手动卸载 Claude Code'
+        }
+      } catch (error) {
+        return {
+          success: false,
+          message: `卸载失败：${error instanceof Error ? error.message : '未知错误'}`
+        }
+      }
+    }
+  )
+
   // 检测 Homebrew 安装状态（仅 macOS）
   ipcMain.handle(TOOL_CHANNELS.CHECK_HOMEBREW, async (): Promise<HomebrewCheckResult> => {
     try {
