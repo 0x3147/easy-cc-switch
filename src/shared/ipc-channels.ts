@@ -133,6 +133,16 @@ export const SETTINGS_CHANNELS = {
 } as const
 
 /**
+ * Markdown 文档编辑相关 channel
+ */
+export const MARKDOWN_CHANNELS = {
+  /** 读取 CLAUDE.md 文件 */
+  GET_CLAUDE_MD: 'markdown-get-claude-md',
+  /** 保存 CLAUDE.md 文件 */
+  SAVE_CLAUDE_MD: 'markdown-save-claude-md'
+} as const
+
+/**
  * 所有 IPC channels 的联合类型
  */
 export type IpcChannel =
@@ -142,3 +152,4 @@ export type IpcChannel =
   | (typeof TOOL_CHANNELS)[keyof typeof TOOL_CHANNELS]
   | (typeof CODEX_CHANNELS)[keyof typeof CODEX_CHANNELS]
   | (typeof SETTINGS_CHANNELS)[keyof typeof SETTINGS_CHANNELS]
+  | (typeof MARKDOWN_CHANNELS)[keyof typeof MARKDOWN_CHANNELS]

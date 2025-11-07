@@ -7,6 +7,7 @@
     "codex": "Codex",
     "toolInstall": "Tool Installation",
     "vendorConfig": "Vendor Configuration",
+    "claudeDocs": "Global Rules Configuration",
     "settings": "Settings"
   },
   "settings": {
@@ -213,5 +214,19 @@
       "installing": "Installing Codex...",
       "install": "Install Codex"
     }
+  },
+  "claudeDocs": {
+    "title": "Global Rules Configuration",
+    "description": "Edit and view ~/.claude/CLAUDE.md documentation, this file will be loaded by Claude Code as global rules",
+    "editMode": "Edit Mode",
+    "previewMode": "Preview Mode",
+    "save": "Save",
+    "saving": "Saving...",
+    "saveSuccess": "Document saved successfully!",
+    "saveFailed": "Failed to save document, please try again",
+    "loadFailed": "Failed to load document",
+    "unsavedChanges": "You have unsaved changes, please click the Save button to save your edits",
+    "editorPlaceholder": "Start editing your Claude documentation...",
+    "emptyContent": "No content yet, please switch to edit mode to start editing"
   }
 }

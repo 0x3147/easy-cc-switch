@@ -3,6 +3,7 @@ import { registerVendorHandler } from './vendor-handler'
 import { registerToolHandlers } from './tool-handler'
 import { registerCodexHandler } from './codex-handler'
 import { registerSettingsHandlers } from './settings-handler'
+import { registerMarkdownHandlers } from './markdown-handler'
 
 /**
  * 注册所有 IPC 事件处理器
@@ -22,6 +23,9 @@ export function registerAllHandlers() {
 
   // 注册用户设置处理器
   registerSettingsHandlers()
+
+  // 注册 Markdown 编辑器处理器
+  registerMarkdownHandlers()
 
   // 未来可以在这里注册更多的 handler
   // registerAppHandler()

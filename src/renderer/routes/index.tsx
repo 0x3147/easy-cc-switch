@@ -2,6 +2,7 @@ import { HashRouter, useRoutes, RouteObject, Navigate } from 'react-router-dom'
 import MainLayout from '../layouts/main-layout'
 import ClaudeCodeToolInstall from '../pages/claude-code/tool-install'
 import ClaudeCodeVendor from '../pages/claude-code/vendor'
+import ClaudeCodeDocs from '../pages/claude-code/claude-docs'
 import CodexToolInstall from '../pages/codex/tool-install'
 import CodexVendor from '../pages/codex/vendor'
 import Settings from '../pages/settings'
@@ -22,6 +23,10 @@ const routes: RouteObject[] = [
       {
         path: 'claude-code/vendor',
         element: <ClaudeCodeVendor />
+      },
+      {
+        path: 'claude-code/claude-docs',
+        element: <ClaudeCodeDocs />
       },
       {
         path: 'codex/tool-install',

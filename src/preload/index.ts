@@ -5,7 +5,8 @@ import {
   VENDOR_CHANNELS,
   TOOL_CHANNELS,
   CODEX_CHANNELS,
-  SETTINGS_CHANNELS
+  SETTINGS_CHANNELS,
+  MARKDOWN_CHANNELS
 } from '@/shared/ipc-channels'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 import type {
@@ -91,7 +92,11 @@ const api = {
   setLanguage: (language: string): Promise<boolean> =>
     ipcRenderer.invoke(SETTINGS_CHANNELS.SET_LANGUAGE, language),
   getAllSettings: (): Promise<{ themeMode: 'light' | 'dark' | 'system'; language: string }> =>
-    ipcRenderer.invoke(SETTINGS_CHANNELS.GET_ALL_SETTINGS)
+    ipcRenderer.invoke(SETTINGS_CHANNELS.GET_ALL_SETTINGS),
+  // Markdown 编辑器
+  getClaudeMd: (): Promise<string> => ipcRenderer.invoke(MARKDOWN_CHANNELS.GET_CLAUDE_MD),
+  saveClaudeMd: (content: string): Promise<boolean> =>
+    ipcRenderer.invoke(MARKDOWN_CHANNELS.SAVE_CLAUDE_MD, content)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -57,6 +57,8 @@ interface API {
   getLanguage: () => Promise<string>
   setLanguage: (language: string) => Promise<boolean>
   getAllSettings: () => Promise<{ themeMode: 'light' | 'dark' | 'system'; language: string }>
+  getClaudeMd: () => Promise<string>
+  saveClaudeMd: (content: string) => Promise<boolean>
 }
 
 declare global {

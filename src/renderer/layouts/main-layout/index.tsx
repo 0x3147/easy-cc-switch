@@ -12,7 +12,13 @@ import {
   Collapse
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faChevronUp, faDownload, faCog } from '@fortawesome/free-solid-svg-icons'
+import {
+  faChevronDown,
+  faChevronUp,
+  faDownload,
+  faCog,
+  faFileAlt
+} from '@fortawesome/free-solid-svg-icons'
 import TitleBar from '../../components/title-bar'
 import claudeLogo from '../../assets/images/claude-logo.svg'
 import openaiLogo from '../../assets/images/openai-logo.svg'
@@ -45,6 +51,11 @@ const menuItems: MenuItem[] = [
         key: 'vendorConfig',
         icon: faCog,
         path: '/claude-code/vendor'
+      },
+      {
+        key: 'claudeDocs',
+        icon: faFileAlt,
+        path: '/claude-code/claude-docs'
       }
     ]
   },

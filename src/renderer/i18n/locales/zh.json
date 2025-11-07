@@ -7,6 +7,7 @@
     "codex": "Codex",
     "toolInstall": "工具安装",
     "vendorConfig": "供应商配置",
+    "claudeDocs": "全局规则文件配置",
     "settings": "设置"
   },
   "settings": {
@@ -213,5 +214,19 @@
       "installing": "正在安装 Codex...",
       "install": "安装 Codex"
     }
+  },
+  "claudeDocs": {
+    "title": "全局规则文件配置",
+    "description": "编辑和查看 ~/.claude/CLAUDE.md 文档，此文档会被 Claude Code 加载为全局规则",
+    "editMode": "编辑模式",
+    "previewMode": "预览模式",
+    "save": "保存",
+    "saving": "保存中...",
+    "saveSuccess": "文档保存成功！",
+    "saveFailed": "文档保存失败，请重试",
+    "loadFailed": "加载文档失败",
+    "unsavedChanges": "您有未保存的更改，请点击保存按钮以保存您的编辑",
+    "editorPlaceholder": "开始编辑您的 Claude 文档...",
+    "emptyContent": "暂无内容，请切换到编辑模式开始编辑"
   }
 }

@@ -1,0 +1,437 @@
+import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  Alert,
+  Snackbar,
+  CircularProgress,
+  ToggleButtonGroup,
+  ToggleButton,
+  Stack,
+  IconButton,
+  Tooltip,
+  Divider
+} from '@mui/material'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faSave,
+  faEye,
+  faEdit,
+  faBold,
+  faItalic,
+  faHeading,
+  faQuoteLeft,
+  faListUl,
+  faListOl,
+  faLink,
+  faImage,
+  faCode
+} from '@fortawesome/free-solid-svg-icons'
+import SimpleMDE from 'react-simplemde-editor'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import 'easymde/dist/easymde.min.css'
+
+type ViewMode = 'edit' | 'preview'
+
+const ClaudeDocsPage = () => {
+  const { t } = useTranslation()
+  const [content, setContent] = useState<string>('')
+  const [originalContent, setOriginalContent] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('edit')
+  const [editorInstance, setEditorInstance] = useState<any>(null)
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error'
+  })
+
+  // 加载 Markdown 内容
+  useEffect(() => {
+    loadContent()
+  }, [])
+
+  const loadContent = async () => {
+    setLoading(true)
+    try {
+      const mdContent = await window.api.getClaudeMd()
+      setContent(mdContent)
+      setOriginalContent(mdContent)
+    } catch (error) {
+      console.error('加载 CLAUDE.md 失败:', error)
+      setSnackbar({
+        open: true,
+        message: t('claudeDocs.loadFailed'),
+        severity: 'error'
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 保存内容
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const success = await window.api.saveClaudeMd(content)
+      if (success) {
+        setOriginalContent(content)
+        setSnackbar({
+          open: true,
+          message: t('claudeDocs.saveSuccess'),
+          severity: 'success'
+        })
+      } else {
+        setSnackbar({
+          open: true,
+          message: t('claudeDocs.saveFailed'),
+          severity: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('保存 CLAUDE.md 失败:', error)
+      setSnackbar({
+        open: true,
+        message: t('claudeDocs.saveFailed'),
+        severity: 'error'
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // 检测是否有未保存的更改
+  const hasUnsavedChanges = useMemo(() => {
+    return content !== originalContent
+  }, [content, originalContent])
+
+  // SimpleMDE 配置
+  const editorOptions = useMemo(() => {
+    return {
+      spellChecker: false,
+      placeholder: t('claudeDocs.editorPlaceholder'),
+      status: ['lines', 'words', 'cursor'] as any,
+      toolbar: false, // 禁用默认工具栏
+      minHeight: '500px',
+      maxHeight: '70vh'
+    }
+  }, [t])
+
+  // 编辑器工具栏操作
+  const insertMarkdown = (before: string, after: string = '') => {
+    if (!editorInstance) return
+    const cm = editorInstance.codemirror
+    const selection = cm.getSelection()
+    const text = selection || '文本'
+    cm.replaceSelection(`${before}${text}${after}`)
+    cm.focus()
+  }
+
+  const handleEditorChange = useCallback((value: string) => {
+    setContent(value)
+  }, [])
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '60vh'
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  return (
+    <Box>
+      {/* 标题和操作栏 */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          mb: 3
+        }}
+      >
+        <Box>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
+            {t('claudeDocs.title')}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {t('claudeDocs.description')}
+          </Typography>
+        </Box>
+
+        <Stack direction="row" spacing={2} alignItems="center">
+          {/* 视图切换 */}
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(_, newMode) => newMode && setViewMode(newMode)}
+            size="small"
+          >
+            <ToggleButton value="edit">
+              <FontAwesomeIcon icon={faEdit} style={{ marginRight: '8px' }} />
+              {t('claudeDocs.editMode')}
+            </ToggleButton>
+            <ToggleButton value="preview">
+              <FontAwesomeIcon icon={faEye} style={{ marginRight: '8px' }} />
+              {t('claudeDocs.previewMode')}
+            </ToggleButton>
+          </ToggleButtonGroup>
+
+          {/* 保存按钮 */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            disabled={!hasUnsavedChanges || saving}
+            startIcon={saving ? <CircularProgress size={20} /> : <FontAwesomeIcon icon={faSave} />}
+          >
+            {saving ? t('claudeDocs.saving') : t('claudeDocs.save')}
+          </Button>
+        </Stack>
+      </Box>
+
+      {/* 未保存更改提示 */}
+      {hasUnsavedChanges && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          {t('claudeDocs.unsavedChanges')}
+        </Alert>
+      )}
+
+      {/* 编辑器/预览区域 */}
+      <Paper
+        sx={{
+          overflow: 'hidden',
+          borderRadius: 2
+        }}
+      >
+        {viewMode === 'edit' ? (
+          <Box>
+            {/* 自定义工具栏 */}
+            <Box
+              sx={{
+                p: 1,
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                backgroundColor: 'background.default',
+                display: 'flex',
+                gap: 0.5,
+                flexWrap: 'wrap'
+              }}
+            >
+              <Tooltip title="粗体">
+                <IconButton size="small" onClick={() => insertMarkdown('**', '**')}>
+                  <FontAwesomeIcon icon={faBold} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="斜体">
+                <IconButton size="small" onClick={() => insertMarkdown('*', '*')}>
+                  <FontAwesomeIcon icon={faItalic} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="标题">
+                <IconButton size="small" onClick={() => insertMarkdown('## ', '')}>
+                  <FontAwesomeIcon icon={faHeading} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+
+              <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+              <Tooltip title="引用">
+                <IconButton size="small" onClick={() => insertMarkdown('> ', '')}>
+                  <FontAwesomeIcon icon={faQuoteLeft} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="无序列表">
+                <IconButton size="small" onClick={() => insertMarkdown('- ', '')}>
+                  <FontAwesomeIcon icon={faListUl} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="有序列表">
+                <IconButton size="small" onClick={() => insertMarkdown('1. ', '')}>
+                  <FontAwesomeIcon icon={faListOl} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+
+              <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+
+              <Tooltip title="链接">
+                <IconButton size="small" onClick={() => insertMarkdown('[', '](url)')}>
+                  <FontAwesomeIcon icon={faLink} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="图片">
+                <IconButton size="small" onClick={() => insertMarkdown('![', '](url)')}>
+                  <FontAwesomeIcon icon={faImage} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="代码">
+                <IconButton size="small" onClick={() => insertMarkdown('`', '`')}>
+                  <FontAwesomeIcon icon={faCode} fontSize="14px" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+
+            {/* 编辑器 */}
+            <Box
+              sx={{
+                '& .EasyMDEContainer': {
+                  border: 'none'
+                },
+                '& .CodeMirror': {
+                  borderRadius: 0,
+                  fontSize: '14px',
+                  fontFamily: 'monospace',
+                  lineHeight: 1.6,
+                  border: 'none'
+                },
+                '& .CodeMirror-scroll': {
+                  minHeight: '500px'
+                }
+              }}
+            >
+              <SimpleMDE
+                value={content}
+                onChange={handleEditorChange}
+                options={editorOptions}
+                getMdeInstance={(instance) => setEditorInstance(instance)}
+              />
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              p: 4,
+              minHeight: '500px',
+              maxHeight: '70vh',
+              overflow: 'auto',
+              '& h1': {
+                fontSize: '2rem',
+                fontWeight: 600,
+                mt: 3,
+                mb: 2,
+                borderBottom: '2px solid',
+                borderColor: 'divider',
+                pb: 1
+              },
+              '& h2': {
+                fontSize: '1.5rem',
+                fontWeight: 600,
+                mt: 2.5,
+                mb: 1.5
+              },
+              '& h3': {
+                fontSize: '1.25rem',
+                fontWeight: 600,
+                mt: 2,
+                mb: 1
+              },
+              '& p': {
+                mb: 1.5,
+                lineHeight: 1.7
+              },
+              '& code': {
+                backgroundColor: 'action.hover',
+                px: 0.8,
+                py: 0.3,
+                borderRadius: 1,
+                fontSize: '0.875em',
+                fontFamily: 'monospace'
+              },
+              '& pre': {
+                backgroundColor: 'action.hover',
+                p: 2,
+                borderRadius: 1,
+                overflow: 'auto',
+                mb: 2
+              },
+              '& pre code': {
+                backgroundColor: 'transparent',
+                p: 0
+              },
+              '& ul, & ol': {
+                pl: 3,
+                mb: 2
+              },
+              '& li': {
+                mb: 0.5
+              },
+              '& blockquote': {
+                borderLeft: '4px solid',
+                borderColor: 'primary.main',
+                pl: 2,
+                ml: 0,
+                fontStyle: 'italic',
+                color: 'text.secondary'
+              },
+              '& table': {
+                width: '100%',
+                borderCollapse: 'collapse',
+                mb: 2
+              },
+              '& th, & td': {
+                border: '1px solid',
+                borderColor: 'divider',
+                p: 1,
+                textAlign: 'left'
+              },
+              '& th': {
+                backgroundColor: 'action.hover',
+                fontWeight: 600
+              },
+              '& img': {
+                maxWidth: '100%',
+                height: 'auto',
+                borderRadius: 1
+              },
+              '& a': {
+                color: 'primary.main',
+                textDecoration: 'none',
+                '&:hover': {
+                  textDecoration: 'underline'
+                }
+              }
+            }}
+          >
+            {content ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            ) : (
+              <Typography color="text.secondary" sx={{ textAlign: 'center', py: 8 }}>
+                {t('claudeDocs.emptyContent')}
+              </Typography>
+            )}
+          </Box>
+        )}
+      </Paper>
+
+      {/* 提示消息 */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
+  )
+}
+
+export default ClaudeDocsPage
