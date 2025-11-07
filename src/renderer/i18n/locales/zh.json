@@ -168,5 +168,50 @@
         "deepseekHaiku": "DeepSeek Haiku 模型配置"
       }
     }
+  },
+  "codex": {
+    "vendor": {
+      "title": "Codex 供应商配置",
+      "description": "配置不同的 Codex API 供应商，切换使用不同的服务",
+      "killProcessTitle": "终止 Codex 进程",
+      "killProcessMessage": "检测到 Codex 正在运行。您需要终止所有 Codex 进程以使配置立即生效吗？",
+      "killSuccess": "Codex 进程已终止，配置将在下次启动时生效",
+      "dialog": {
+        "addTitle": "添加 Codex 供应商配置",
+        "editTitle": "编辑供应商配置",
+        "configName": "配置名称",
+        "configNamePlaceholder": "例如：我的 Codex 配置",
+        "configNameHelper": "自定义配置名称",
+        "providerKey": "供应商标识符",
+        "providerKeyPlaceholder": "例如：fox, huiyan",
+        "providerKeyHelper": "在 config.toml 中的供应商键名（小写字母，无空格）",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "sk-xxxxx",
+        "apiKeyHelper": "请输入你的 API Key",
+        "apiBaseUrl": "API Base URL",
+        "apiBaseUrlPlaceholder": "https://code.newcli.com/codex/v1",
+        "apiBaseUrlHelper": "API 服务的基础地址",
+        "model": "模型",
+        "reasoningEffort": "推理程度",
+        "reasoningEffortLabel": "推理努力程度",
+        "reasoningHigh": "High (高)",
+        "reasoningMedium": "Medium (中)",
+        "reasoningLow": "Low (低)",
+        "reasoningMinimal": "Minimal (最小)"
+      }
+    },
+    "toolInstall": {
+      "checkingStatus": "正在检测 Codex 安装状态...",
+      "installed": "Codex 已安装",
+      "installedDesc": "您的系统已经正确安装 Codex，您可以直接使用。",
+      "notInstalled": "按照下方步骤安装 Codex",
+      "uninstall": "卸载 Codex",
+      "uninstallWarning": "卸载 Codex 将移除系统中的工具，但不会影响您的配置文件。",
+      "uninstallButton": "卸载 Codex",
+      "confirmUninstallDesc": "您确定要卸载 Codex 吗？此操作将移除系统中的工具，但不会影响您的配置文件。",
+      "oneClickInstall": "一键安装 Codex",
+      "installing": "正在安装 Codex...",
+      "install": "安装 Codex"
+    }
   }
 }

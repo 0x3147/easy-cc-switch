@@ -1,4 +1,5 @@
 import { Card, CardContent, Box, Typography, Button, Chip, Stack, IconButton } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
 import type { CodexVendorConfig } from '@/shared/types/codex'
@@ -18,6 +19,8 @@ const CodexVendorCard = ({
   onSetActive,
   onDelete
 }: CodexVendorCardProps) => {
+  const { t } = useTranslation()
+
   return (
     <Card
       elevation={0}
@@ -40,7 +43,9 @@ const CodexVendorCard = ({
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 {vendor.name}
               </Typography>
-              {isActive && <Chip label="使用中" size="small" color="primary" sx={{ height: 24 }} />}
+              {isActive && (
+                <Chip label={t('vendor.active')} size="small" color="primary" sx={{ height: 24 }} />
+              )}
             </Box>
 
             <Typography
@@ -75,7 +80,7 @@ const CodexVendorCard = ({
               onClick={onSetActive}
               disabled={isActive}
             >
-              {isActive ? '已启用' : '设为启用'}
+              {isActive ? t('vendor.enabled') : t('vendor.setAsActive')}
             </Button>
           </Stack>
         </Box>

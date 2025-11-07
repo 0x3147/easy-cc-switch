@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogTitle,
@@ -13,7 +14,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Typography,
+  Typography
 } from '@mui/material'
 import type { CodexVendorConfig } from '@/shared/types/codex'
 
@@ -24,10 +25,7 @@ interface CodexVendorConfigDialogProps {
   /** 编辑时传入的配置 */
   config?: CodexVendorConfig | null
   onClose: () => void
-  onSave: (
-    config: CodexVendorConfig,
-    applyImmediately: boolean
-  ) => Promise<void>
+  onSave: (config: CodexVendorConfig, applyImmediately: boolean) => Promise<void>
 }
 
 const CodexVendorConfigDialog = ({
@@ -35,8 +33,9 @@ const CodexVendorConfigDialog = ({
   mode,
   config,
   onClose,
-  onSave,
+  onSave
 }: CodexVendorConfigDialogProps) => {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState<Omit<CodexVendorConfig, 'id'>>({
     name: '',
     providerKey: '',
@@ -44,7 +43,7 @@ const CodexVendorConfigDialog = ({
     apiKey: '',
     model: 'gpt-5',
     reasoningEffort: 'high',
-    wireApi: 'responses',
+    wireApi: 'responses'
   })
   const [applyImmediately, setApplyImmediately] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -59,7 +58,7 @@ const CodexVendorConfigDialog = ({
         apiKey: config.apiKey,
         model: config.model || 'gpt-5',
         reasoningEffort: config.reasoningEffort || 'high',
-        wireApi: config.wireApi || 'responses',
+        wireApi: config.wireApi || 'responses'
       })
     } else {
       // 添加模式下重置表单
@@ -70,7 +69,7 @@ const CodexVendorConfigDialog = ({
         apiKey: '',
         model: 'gpt-5',
         reasoningEffort: 'high',
-        wireApi: 'responses',
+        wireApi: 'responses'
       })
     }
     setApplyImmediately(false)
@@ -81,8 +80,7 @@ const CodexVendorConfigDialog = ({
     try {
       const configData: CodexVendorConfig = {
         ...formData,
-        id:
-          mode === 'edit' && config ? config.id : `codex_vendor_${Date.now()}`,
+        id: mode === 'edit' && config ? config.id : `codex_vendor_${Date.now()}`
       }
 
       await onSave(configData, applyImmediately)
@@ -102,18 +100,17 @@ const CodexVendorConfigDialog = ({
       apiKey: '',
       model: 'gpt-5',
       reasoningEffort: 'high',
-      wireApi: 'responses',
+      wireApi: 'responses'
     })
     setApplyImmediately(false)
     onClose()
   }
 
   const handleChange =
-    (field: keyof Omit<CodexVendorConfig, 'id'>) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof Omit<CodexVendorConfig, 'id'>) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({
         ...prev,
-        [field]: e.target.value,
+        [field]: e.target.value
       }))
     }
 
@@ -133,62 +130,60 @@ const CodexVendorConfigDialog = ({
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        {mode === 'add' ? '添加 Codex 供应商配置' : '编辑供应商配置'}
+        {mode === 'add' ? t('codex.vendor.dialog.addTitle') : t('codex.vendor.dialog.editTitle')}
       </DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
           {/* 基础配置 */}
           <TextField
-            label="配置名称"
+            label={t('codex.vendor.dialog.configName')}
             value={formData.name}
             onChange={handleChange('name')}
             fullWidth
             required
-            placeholder="例如：我的 Codex 配置"
-            helperText="自定义配置名称"
+            placeholder={t('codex.vendor.dialog.configNamePlaceholder')}
+            helperText={t('codex.vendor.dialog.configNameHelper')}
           />
 
           <TextField
-            label="供应商标识符"
+            label={t('codex.vendor.dialog.providerKey')}
             value={formData.providerKey}
             onChange={handleChange('providerKey')}
             fullWidth
             required
-            placeholder="例如：fox, huiyan"
-            helperText="在 config.toml 中的供应商键名（小写字母，无空格）"
+            placeholder={t('codex.vendor.dialog.providerKeyPlaceholder')}
+            helperText={t('codex.vendor.dialog.providerKeyHelper')}
           />
 
           <TextField
-            label="API Base URL"
+            label={t('codex.vendor.dialog.apiBaseUrl')}
             value={formData.baseUrl}
             onChange={handleChange('baseUrl')}
             fullWidth
             required
-            placeholder="https://code.newcli.com/codex/v1"
-            helperText="API 服务的基础地址"
+            placeholder={t('codex.vendor.dialog.apiBaseUrlPlaceholder')}
+            helperText={t('codex.vendor.dialog.apiBaseUrlHelper')}
           />
 
           <TextField
-            label="API Key"
+            label={t('codex.vendor.dialog.apiKey')}
             value={formData.apiKey}
             onChange={handleChange('apiKey')}
             fullWidth
             required
             type="password"
-            placeholder="sk-xxxxx"
-            helperText="请输入你的 API Key"
+            placeholder={t('codex.vendor.dialog.apiKeyPlaceholder')}
+            helperText={t('codex.vendor.dialog.apiKeyHelper')}
           />
 
           {/* 模型配置 */}
           <FormControl fullWidth required>
-            <InputLabel id="model-label">模型</InputLabel>
+            <InputLabel id="model-label">{t('codex.vendor.dialog.model')}</InputLabel>
             <Select
               labelId="model-label"
               value={formData.model}
-              label="模型"
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, model: e.target.value }))
-              }
+              label={t('codex.vendor.dialog.model')}
+              onChange={(e) => setFormData((prev) => ({ ...prev, model: e.target.value }))}
             >
               <MenuItem value="gpt-5">gpt-5</MenuItem>
               <MenuItem value="gpt-5-codex">gpt-5-codex</MenuItem>
@@ -196,22 +191,24 @@ const CodexVendorConfigDialog = ({
           </FormControl>
 
           <FormControl fullWidth required>
-            <InputLabel id="reasoning-effort-label">推理程度</InputLabel>
+            <InputLabel id="reasoning-effort-label">
+              {t('codex.vendor.dialog.reasoningEffort')}
+            </InputLabel>
             <Select
               labelId="reasoning-effort-label"
               value={formData.reasoningEffort}
-              label="推理努力程度"
+              label={t('codex.vendor.dialog.reasoningEffortLabel')}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  reasoningEffort: e.target.value,
+                  reasoningEffort: e.target.value
                 }))
               }
             >
-              <MenuItem value="high">High (高)</MenuItem>
-              <MenuItem value="medium">Medium (中)</MenuItem>
-              <MenuItem value="low">Low (低)</MenuItem>
-              <MenuItem value="minimal">Minimal (最小)</MenuItem>
+              <MenuItem value="high">{t('codex.vendor.dialog.reasoningHigh')}</MenuItem>
+              <MenuItem value="medium">{t('codex.vendor.dialog.reasoningMedium')}</MenuItem>
+              <MenuItem value="low">{t('codex.vendor.dialog.reasoningLow')}</MenuItem>
+              <MenuItem value="minimal">{t('codex.vendor.dialog.reasoningMinimal')}</MenuItem>
             </Select>
           </FormControl>
 
@@ -221,9 +218,7 @@ const CodexVendorConfigDialog = ({
               labelId="wire-api-label"
               value={formData.wireApi}
               label="Wire API"
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, wireApi: e.target.value }))
-              }
+              onChange={(e) => setFormData((prev) => ({ ...prev, wireApi: e.target.value }))}
             >
               <MenuItem value="responses">responses</MenuItem>
               <MenuItem value="streaming">streaming</MenuItem>
@@ -241,7 +236,7 @@ const CodexVendorConfigDialog = ({
               }
               label={
                 <Box>
-                  <Typography variant="body2">立即生效</Typography>
+                  <Typography variant="body2">{t('vendor.dialog.applyImmediately')}</Typography>
                 </Box>
               }
             />
@@ -250,14 +245,14 @@ const CodexVendorConfigDialog = ({
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={handleClose} disabled={saving}>
-          取消
+          {t('vendor.dialog.cancel')}
         </Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          disabled={!canSubmit()}
-        >
-          {saving ? '保存中...' : mode === 'add' ? '添加' : '保存'}
+        <Button onClick={handleSave} variant="contained" disabled={!canSubmit()}>
+          {saving
+            ? t('vendor.dialog.saving')
+            : mode === 'add'
+              ? t('vendor.dialog.add')
+              : t('vendor.dialog.save')}
         </Button>
       </DialogActions>
     </Dialog>

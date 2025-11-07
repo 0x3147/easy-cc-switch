@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Box,
   Typography,
@@ -22,6 +23,7 @@ import CodexVendorConfigDialog from './components/codex-vendor-config-dialog'
 import type { CodexVendorConfig } from '@/shared/types/codex'
 
 const CodexVendorPage = () => {
+  const { t } = useTranslation()
   const [vendors, setVendors] = useState<CodexVendorConfig[]>([])
   const [activeVendorId, setActiveVendorId] = useState<string | null>(null)
   const [editingVendor, setEditingVendor] = useState<CodexVendorConfig | null>(null)
@@ -93,13 +95,13 @@ const CodexVendorPage = () => {
       if (success) {
         setSnackbar({
           open: true,
-          message: 'Codex 进程已终止，配置将在下次启动时生效',
+          message: t('codex.vendor.killSuccess'),
           severity: 'success'
         })
       } else {
         setSnackbar({
           open: true,
-          message: '终止进程失败',
+          message: t('vendor.killFailed'),
           severity: 'error'
         })
       }
@@ -107,7 +109,7 @@ const CodexVendorPage = () => {
       console.error('终止进程失败:', error)
       setSnackbar({
         open: true,
-        message: '终止进程失败',
+        message: t('vendor.killFailed'),
         severity: 'error'
       })
     } finally {
@@ -140,19 +142,17 @@ const CodexVendorPage = () => {
         if (success) {
           setSnackbar({
             open: true,
-            message: applyImmediately ? '添加成功并已生效！' : '添加成功！',
+            message: applyImmediately ? t('vendor.addSuccessAndActive') : t('vendor.addSuccess'),
             severity: 'success'
           })
           if (applyImmediately) {
             setActiveVendorId(config.id)
-            // 如果立即生效，提示用户是否需要重启进程
             await checkAndPromptKillProcess()
           }
         }
       } else {
         success = await window.api.updateCodexVendor(config.id, config)
         if (success && applyImmediately) {
-          // 如果勾选了立即生效，激活该配置
           success = await window.api.activateCodexVendor(config.id)
           if (success) {
             setActiveVendorId(config.id)
@@ -161,10 +161,9 @@ const CodexVendorPage = () => {
         if (success) {
           setSnackbar({
             open: true,
-            message: applyImmediately ? '更新成功并已生效！' : '更新成功！',
+            message: applyImmediately ? t('vendor.addSuccessAndActive') : t('vendor.updateSuccess'),
             severity: 'success'
           })
-          // 如果更新的是当前激活的配置，提示重启进程
           if (config.id === activeVendorId || applyImmediately) {
             await checkAndPromptKillProcess()
           }
@@ -176,7 +175,7 @@ const CodexVendorPage = () => {
       } else {
         setSnackbar({
           open: true,
-          message: '操作失败，请重试',
+          message: t('vendor.operationFailed'),
           severity: 'error'
         })
       }
@@ -184,24 +183,23 @@ const CodexVendorPage = () => {
       console.error('保存配置失败:', error)
       setSnackbar({
         open: true,
-        message: '操作失败',
+        message: t('vendor.operationFailed'),
         severity: 'error'
       })
     }
   }
 
   const handleDelete = async (id: string) => {
-    // 检查是否为当前激活的配置
     if (id === activeVendorId) {
       setSnackbar({
         open: true,
-        message: '无法删除正在使用中的配置，请先切换到其他配置',
+        message: t('vendor.cannotDeleteActive'),
         severity: 'error'
       })
       return
     }
 
-    if (!confirm('确定要删除这个供应商配置吗？')) {
+    if (!confirm(t('vendor.confirmDelete'))) {
       return
     }
 
@@ -210,14 +208,14 @@ const CodexVendorPage = () => {
       if (success) {
         setSnackbar({
           open: true,
-          message: '删除成功！',
+          message: t('vendor.deleteSuccess'),
           severity: 'success'
         })
         await loadData()
       } else {
         setSnackbar({
           open: true,
-          message: '删除失败，请重试',
+          message: t('vendor.operationFailed'),
           severity: 'error'
         })
       }
@@ -225,7 +223,7 @@ const CodexVendorPage = () => {
       console.error('删除供应商失败:', error)
       setSnackbar({
         open: true,
-        message: '删除失败',
+        message: t('vendor.operationFailed'),
         severity: 'error'
       })
     }
@@ -237,16 +235,15 @@ const CodexVendorPage = () => {
       if (success) {
         setSnackbar({
           open: true,
-          message: '已切换供应商！',
+          message: t('vendor.activateSuccess'),
           severity: 'success'
         })
         setActiveVendorId(id)
-        // 切换供应商后提示重启进程
         await checkAndPromptKillProcess()
       } else {
         setSnackbar({
           open: true,
-          message: '切换失败，请重试',
+          message: t('vendor.operationFailed'),
           severity: 'error'
         })
       }
@@ -254,7 +251,7 @@ const CodexVendorPage = () => {
       console.error('切换供应商失败:', error)
       setSnackbar({
         open: true,
-        message: '切换失败',
+        message: t('vendor.operationFailed'),
         severity: 'error'
       })
     }
@@ -273,10 +270,10 @@ const CodexVendorPage = () => {
       >
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-            Codex 供应商配置
+            {t('codex.vendor.title')}
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            配置不同的 Codex API 供应商，切换使用不同的服务
+            {t('codex.vendor.description')}
           </Typography>
         </Box>
 
@@ -318,16 +315,16 @@ const CodexVendorPage = () => {
               />
             </Box>
             <Typography variant="h6" color="text.secondary" gutterBottom>
-              暂无供应商配置
+              {t('vendor.noVendors')}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              点击右上角的 + 按钮添加您的第一个供应商配置
+              {t('vendor.noVendorsDesc')}
             </Typography>
           </Paper>
         )}
       </Stack>
 
-      {/* 添加/编辑供应商对话框 */}
+      {/* 配置对话框 */}
       <CodexVendorConfigDialog
         open={dialogOpen}
         mode={dialogMode}
@@ -360,24 +357,16 @@ const CodexVendorPage = () => {
           setKillProcessDialog({ ...killProcessDialog, open: false })
         }
       >
-        <DialogTitle>检测到 Codex 正在运行</DialogTitle>
+        <DialogTitle>{t('codex.vendor.killProcessTitle')}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            您刚刚修改了配置，但 Codex 当前正在运行。
-            <br />
-            <br />
-            如需让新配置立即生效，需要终止所有正在运行的 Codex 进程。
-            <br />
-            <br />
-            是否现在终止进程？
-          </DialogContentText>
+          <DialogContentText>{t('codex.vendor.killProcessMessage')}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => setKillProcessDialog({ ...killProcessDialog, open: false })}
             disabled={killProcessDialog.isProcessing}
           >
-            稍后手动重启
+            {t('vendor.killProcessCancel')}
           </Button>
           <Button
             onClick={handleKillProcess}
@@ -386,7 +375,9 @@ const CodexVendorPage = () => {
             disabled={killProcessDialog.isProcessing}
             startIcon={killProcessDialog.isProcessing ? <CircularProgress size={20} /> : null}
           >
-            {killProcessDialog.isProcessing ? '正在终止...' : '立即终止'}
+            {killProcessDialog.isProcessing
+              ? t('vendor.killProcessing')
+              : t('vendor.killProcessConfirm')}
           </Button>
         </DialogActions>
       </Dialog>

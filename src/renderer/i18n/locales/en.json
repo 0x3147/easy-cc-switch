@@ -168,5 +168,50 @@
         "deepseekHaiku": "DeepSeek Haiku Model Config"
       }
     }
+  },
+  "codex": {
+    "vendor": {
+      "title": "Codex Vendor Configuration",
+      "description": "Configure different Codex API vendors and switch between services",
+      "killProcessTitle": "Terminate Codex Process",
+      "killProcessMessage": "Detected that Codex is running. Do you need to terminate all Codex processes for the configuration to take effect immediately?",
+      "killSuccess": "Codex process has been terminated, configuration will take effect on next startup",
+      "dialog": {
+        "addTitle": "Add Codex Vendor Configuration",
+        "editTitle": "Edit Vendor Configuration",
+        "configName": "Configuration Name",
+        "configNamePlaceholder": "e.g.: My Codex Config",
+        "configNameHelper": "Custom configuration name",
+        "providerKey": "Provider Key",
+        "providerKeyPlaceholder": "e.g.: fox, huiyan",
+        "providerKeyHelper": "Provider key name in config.toml (lowercase letters, no spaces)",
+        "apiKey": "API Key",
+        "apiKeyPlaceholder": "sk-xxxxx",
+        "apiKeyHelper": "Enter your API Key",
+        "apiBaseUrl": "API Base URL",
+        "apiBaseUrlPlaceholder": "https://code.newcli.com/codex/v1",
+        "apiBaseUrlHelper": "Base address for API service",
+        "model": "Model",
+        "reasoningEffort": "Reasoning Effort",
+        "reasoningEffortLabel": "Reasoning Effort Level",
+        "reasoningHigh": "High",
+        "reasoningMedium": "Medium",
+        "reasoningLow": "Low",
+        "reasoningMinimal": "Minimal"
+      }
+    },
+    "toolInstall": {
+      "checkingStatus": "Checking Codex installation status...",
+      "installed": "Codex Installed",
+      "installedDesc": "Your system has Codex correctly installed and ready to use.",
+      "notInstalled": "Follow the steps below to install Codex",
+      "uninstall": "Uninstall Codex",
+      "uninstallWarning": "Uninstalling Codex will remove the tool from the system, but will not affect your configuration files.",
+      "uninstallButton": "Uninstall Codex",
+      "confirmUninstallDesc": "Are you sure you want to uninstall Codex? This will remove the tool from the system, but will not affect your configuration files.",
+      "oneClickInstall": "One-Click Install Codex",
+      "installing": "Installing Codex...",
+      "install": "Install Codex"
+    }
   }
 }
