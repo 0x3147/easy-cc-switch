@@ -9,7 +9,9 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Collapse
+  Collapse,
+  IconButton,
+  Tooltip
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -18,13 +20,16 @@ import {
   faDownload,
   faCog,
   faFileAlt,
-  faFolderOpen
+  faFolderOpen,
+  faChevronLeft,
+  faChevronRight
 } from '@fortawesome/free-solid-svg-icons'
 import TitleBar from '../../components/title-bar'
 import claudeLogo from '../../assets/images/claude-logo.svg'
 import openaiLogo from '../../assets/images/openai-logo.svg'
 
 const drawerWidth = 240
+const drawerCollapsedWidth = 64
 
 type MenuItem = {
   key: string
@@ -92,6 +97,7 @@ const MainLayout = () => {
     claudeCode: true, // 默认展开 Claude Code 菜单
     codex: false // 默认折叠 Codex 菜单
   })
+  const [drawerOpen, setDrawerOpen] = useState(true) // 侧边栏展开状态
 
   const handleMenuClick = (path: string) => {
     navigate(path)
@@ -104,6 +110,10 @@ const MainLayout = () => {
     }))
   }
 
+  const handleToggleDrawer = () => {
+    setDrawerOpen(!drawerOpen)
+  }
+
   return (
     <Box sx={{ display: 'flex', height: '100vh', flexDirection: 'column' }}>
       <TitleBar />
@@ -113,15 +123,18 @@ const MainLayout = () => {
         <Drawer
           variant="permanent"
           sx={{
-            width: drawerWidth,
+            width: drawerOpen ? drawerWidth : drawerCollapsedWidth,
             flexShrink: 0,
+            transition: 'width 0.3s',
             '& .MuiDrawer-paper': {
-              width: drawerWidth,
+              width: drawerOpen ? drawerWidth : drawerCollapsedWidth,
               boxSizing: 'border-box',
               position: 'relative',
               borderRight: '1px solid rgba(0, 0, 0, 0.12)',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              transition: 'width 0.3s',
+              overflowX: 'hidden'
             }
           }}
         >
@@ -134,46 +147,64 @@ const MainLayout = () => {
                   <ListItemButton
                     onClick={() => {
                       if (item.subItems) {
-                        handleToggleMenu(item.key)
+                        if (drawerOpen) {
+                          handleToggleMenu(item.key)
+                        } else {
+                          // 收起状态下，点击展开侧边栏并展开菜单
+                          setDrawerOpen(true)
+                          setOpenMenus((prev) => ({
+                            ...prev,
+                            [item.key]: true
+                          }))
+                        }
                       }
                     }}
                     sx={{
-                      borderRadius: 1
+                      borderRadius: 1,
+                      justifyContent: drawerOpen ? 'initial' : 'center'
                     }}
                   >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 40
-                      }}
-                    >
-                      <Box
-                        component="img"
-                        src={item.iconSrc}
+                    <Tooltip title={!drawerOpen ? t(`menu.${item.key}`) : ''} placement="right">
+                      <ListItemIcon
                         sx={{
-                          width: 20,
-                          height: 20,
-                          objectFit: 'contain'
+                          minWidth: drawerOpen ? 40 : 'unset',
+                          mr: drawerOpen ? 2 : 0,
+                          justifyContent: 'center'
                         }}
-                      />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t(`menu.${item.key}`)}
-                      primaryTypographyProps={{
-                        fontSize: 14,
-                        fontWeight: 500
-                      }}
-                    />
-                    {item.subItems && (
-                      <FontAwesomeIcon
-                        icon={openMenus[item.key] ? faChevronUp : faChevronDown}
-                        style={{ fontSize: '12px' }}
-                      />
+                      >
+                        <Box
+                          component="img"
+                          src={item.iconSrc}
+                          sx={{
+                            width: 20,
+                            height: 20,
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </ListItemIcon>
+                    </Tooltip>
+                    {drawerOpen && (
+                      <>
+                        <ListItemText
+                          primary={t(`menu.${item.key}`)}
+                          primaryTypographyProps={{
+                            fontSize: 14,
+                            fontWeight: 500
+                          }}
+                        />
+                        {item.subItems && (
+                          <FontAwesomeIcon
+                            icon={openMenus[item.key] ? faChevronUp : faChevronDown}
+                            style={{ fontSize: '12px' }}
+                          />
+                        )}
+                      </>
                     )}
                   </ListItemButton>
                 </ListItem>
 
                 {/* 子菜单项 */}
-                {item.subItems && (
+                {item.subItems && drawerOpen && (
                   <Collapse in={openMenus[item.key]} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
                       {item.subItems.map((subItem) => (
@@ -223,13 +254,14 @@ const MainLayout = () => {
           </List>
 
           {/* 设置菜单 */}
-          <List sx={{ pb: 2 }}>
+          <List sx={{ pb: 1 }}>
             <ListItem disablePadding sx={{ px: 1 }}>
               <ListItemButton
                 selected={location.pathname === '/settings'}
                 onClick={() => handleMenuClick('/settings')}
                 sx={{
                   borderRadius: 1,
+                  justifyContent: drawerOpen ? 'initial' : 'center',
                   '&.Mui-selected': {
                     backgroundColor: 'primary.main',
                     color: 'primary.contrastText',
@@ -242,24 +274,47 @@ const MainLayout = () => {
                   }
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 40,
-                    color: location.pathname === '/settings' ? 'inherit' : 'action.active'
-                  }}
-                >
-                  <FontAwesomeIcon icon={faCog} style={{ fontSize: '16px' }} />
-                </ListItemIcon>
-                <ListItemText
-                  primary={t('menu.settings')}
-                  primaryTypographyProps={{
-                    fontSize: 14,
-                    fontWeight: location.pathname === '/settings' ? 600 : 500
-                  }}
-                />
+                <Tooltip title={!drawerOpen ? t('menu.settings') : ''} placement="right">
+                  <ListItemIcon
+                    sx={{
+                      minWidth: drawerOpen ? 40 : 'unset',
+                      mr: drawerOpen ? 2 : 0,
+                      color: location.pathname === '/settings' ? 'inherit' : 'action.active',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faCog} style={{ fontSize: '16px' }} />
+                  </ListItemIcon>
+                </Tooltip>
+                {drawerOpen && (
+                  <ListItemText
+                    primary={t('menu.settings')}
+                    primaryTypographyProps={{
+                      fontSize: 14,
+                      fontWeight: location.pathname === '/settings' ? 600 : 500
+                    }}
+                  />
+                )}
               </ListItemButton>
             </ListItem>
           </List>
+
+          {/* 折叠/展开按钮 */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              py: 1,
+              borderTop: '1px solid',
+              borderColor: 'divider'
+            }}
+          >
+            <Tooltip title={drawerOpen ? '收起侧边栏' : '展开侧边栏'} placement="right">
+              <IconButton onClick={handleToggleDrawer} size="small">
+                <FontAwesomeIcon icon={drawerOpen ? faChevronLeft : faChevronRight} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Drawer>
 
         {/* 右侧内容区域 */}
@@ -269,7 +324,8 @@ const MainLayout = () => {
             flexGrow: 1,
             p: 3,
             overflow: 'auto',
-            backgroundColor: 'background.default'
+            backgroundColor: 'background.default',
+            transition: 'margin 0.3s'
           }}
         >
           <Outlet />
