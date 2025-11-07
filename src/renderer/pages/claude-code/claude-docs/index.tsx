@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import {
   Box,
   Typography,
@@ -39,6 +40,8 @@ type ViewMode = 'edit' | 'preview'
 
 const ClaudeDocsPage = () => {
   const { t } = useTranslation()
+  const muiTheme = useMuiTheme()
+  const isDarkMode = muiTheme.palette.mode === 'dark'
   const [content, setContent] = useState<string>('')
   const [originalContent, setOriginalContent] = useState<string>('')
   const [loading, setLoading] = useState(true)
@@ -294,10 +297,52 @@ const ClaudeDocsPage = () => {
                   fontSize: '14px',
                   fontFamily: 'monospace',
                   lineHeight: 1.6,
-                  border: 'none'
+                  border: 'none',
+                  backgroundColor: isDarkMode ? '#1e1e1e' : '#ffffff',
+                  color: isDarkMode ? '#d4d4d4' : '#000000'
                 },
                 '& .CodeMirror-scroll': {
                   minHeight: '500px'
+                },
+                '& .CodeMirror-gutters': {
+                  backgroundColor: isDarkMode ? '#1e1e1e' : '#f5f5f5',
+                  borderRight: isDarkMode ? '1px solid #3e3e3e' : '1px solid #ddd'
+                },
+                '& .CodeMirror-linenumber': {
+                  color: isDarkMode ? '#858585' : '#999'
+                },
+                '& .CodeMirror-cursor': {
+                  borderLeft: isDarkMode ? '1px solid #aeafad' : '1px solid black'
+                },
+                '& .CodeMirror-selected': {
+                  backgroundColor: isDarkMode ? '#264f78' : '#d7d4f0'
+                },
+                '& .CodeMirror-line::selection, & .CodeMirror-line > span::selection, & .CodeMirror-line > span > span::selection':
+                  {
+                    backgroundColor: isDarkMode ? '#264f78' : '#d7d4f0'
+                  },
+                '& .cm-header': {
+                  color: isDarkMode ? '#569cd6' : '#0000ff'
+                },
+                '& .cm-quote': {
+                  color: isDarkMode ? '#6a9955' : '#008000'
+                },
+                '& .cm-link': {
+                  color: isDarkMode ? '#4ec9b0' : '#0000ee'
+                },
+                '& .cm-url': {
+                  color: isDarkMode ? '#4ec9b0' : '#0000ee'
+                },
+                '& .cm-strong': {
+                  fontWeight: 'bold',
+                  color: isDarkMode ? '#d4d4d4' : '#000000'
+                },
+                '& .cm-em': {
+                  fontStyle: 'italic',
+                  color: isDarkMode ? '#d4d4d4' : '#000000'
+                },
+                '& .CodeMirror-placeholder': {
+                  color: isDarkMode ? '#858585' : '#999'
                 }
               }}
             >
