@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import { execSync, spawn } from 'child_process'
+import { join } from 'path'
 import * as os from 'os'
 import { TOOL_CHANNELS } from '@/shared/ipc-channels'
 import type {
@@ -38,6 +39,52 @@ export function registerToolHandlers() {
     try {
       const platform = process.platform
 
+      // 优先检测是否通过 npm 安装
+      try {
+        const npmList = execSync('npm list -g @anthropic/claude-code --depth=0', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+          timeout: 5000
+        })
+
+        // 如果 npm list 成功，说明通过 npm 安装
+        if (npmList && !npmList.includes('(empty)')) {
+          // 获取 npm 全局包路径
+          const npmRoot = execSync('npm root -g', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
+          }).trim()
+
+          const npmPath = join(npmRoot, '@anthropic', 'claude-code')
+
+          // 尝试获取版本号
+          try {
+            const versionOutput = execSync('claude --version', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'ignore'],
+              timeout: 5000
+            })
+            const version = versionOutput.trim()
+
+            return {
+              installed: true,
+              path: npmPath,
+              version
+            }
+          } catch {
+            // 无法获取版本，但已安装
+            return {
+              installed: true,
+              path: npmPath
+            }
+          }
+        }
+      } catch {
+        // npm 检测失败，继续检测其他安装方式
+      }
+
+      // 检查 claude 命令是否可用（非 npm 安装方式）
       let command: string
       if (platform === 'win32') {
         // Windows: 检查 claude 命令是否可用
@@ -128,11 +175,119 @@ export function registerToolHandlers() {
           }
         }
 
-        // Windows: 提示用户手动卸载
+        // Windows: 优先检测是否通过 npm 安装，然后尝试其他卸载方式
         if (platform === 'win32') {
+          // 方式0: 检测是否通过 npm 安装，如果是则直接使用 npm 卸载
+          try {
+            // 直接检查 @anthropic/claude-code 包
+            const npmList = execSync('npm list -g @anthropic/claude-code --depth=0', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'ignore'],
+              timeout: 10000
+            })
+
+            // 如果检测到通过 npm 安装，直接使用 npm 卸载
+            if (npmList && !npmList.includes('(empty)')) {
+              try {
+                execSync('npm uninstall -g @anthropic/claude-code', {
+                  encoding: 'utf-8',
+                  stdio: ['pipe', 'pipe', 'pipe'],
+                  timeout: 30000
+                })
+                return {
+                  success: true,
+                  message: '已通过 npm 成功卸载 Claude Code (@anthropic/claude-code)'
+                }
+              } catch (npmError) {
+                // npm 卸载失败，继续尝试其他方式
+              }
+            }
+          } catch {
+            // npm 检测失败，继续尝试其他方式
+          }
+
+          // 方式1: 尝试使用 PowerShell 卸载脚本
+          try {
+            const psUninstall = spawn(
+              'powershell.exe',
+              ['-Command', 'irm https://claude.ai/uninstall.ps1 | iex'],
+              {
+                stdio: ['ignore', 'pipe', 'pipe'],
+                timeout: 30000
+              }
+            )
+
+            const psResult = await new Promise<boolean>((resolve) => {
+              psUninstall.on('close', (code) => resolve(code === 0))
+              psUninstall.on('error', () => resolve(false))
+            })
+
+            if (psResult) {
+              return {
+                success: true,
+                message: '已通过 PowerShell 脚本成功卸载 Claude Code'
+              }
+            }
+          } catch {
+            // PowerShell 卸载失败，继续尝试其他方式
+          }
+
+          // 方式2: 尝试使用 winget 卸载
+          try {
+            execSync('winget uninstall "Claude Code"', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+              timeout: 30000
+            })
+            return {
+              success: true,
+              message: '已通过 winget 成功卸载 Claude Code'
+            }
+          } catch {
+            // winget 卸载失败，继续尝试其他方式
+          }
+
+          // 方式3: 尝试查找并执行卸载程序
+          try {
+            // 常见的卸载路径
+            const uninstallPaths = [
+              join(
+                process.env.LOCALAPPDATA || '',
+                'Programs',
+                'claude-code',
+                'Uninstall Claude Code.exe'
+              ),
+              join(process.env.PROGRAMFILES || '', 'Claude Code', 'Uninstall.exe'),
+              join(process.env['PROGRAMFILES(X86)'] || '', 'Claude Code', 'Uninstall.exe')
+            ]
+
+            for (const uninstallPath of uninstallPaths) {
+              try {
+                const { existsSync } = await import('fs')
+                if (existsSync(uninstallPath)) {
+                  execSync(`"${uninstallPath}" /S`, {
+                    encoding: 'utf-8',
+                    stdio: ['pipe', 'pipe', 'pipe'],
+                    timeout: 30000
+                  })
+                  return {
+                    success: true,
+                    message: '已通过卸载程序成功卸载 Claude Code'
+                  }
+                }
+              } catch {
+                continue
+              }
+            }
+          } catch {
+            // 查找卸载程序失败
+          }
+
+          // 所有自动卸载方式都失败，提示用户手动卸载
           return {
             success: false,
-            message: '请通过 Windows 设置中的"应用和功能"手动卸载 Claude Code'
+            message:
+              '自动卸载失败。请通过以下方式手动卸载：\n1. Windows 设置 > 应用 > 已安装的应用\n2. 搜索 "Claude Code" 并点击卸载'
           }
         }
 
