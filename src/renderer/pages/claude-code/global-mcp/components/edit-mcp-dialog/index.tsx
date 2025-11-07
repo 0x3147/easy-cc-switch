@@ -197,21 +197,26 @@ const EditMcpDialog = ({ open, server, onClose, onSave }: EditMcpDialogProps) =>
 
               {/* 参数列表 */}
               <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  {t('mcp.arguments')}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                  <TextField
-                    fullWidth
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="subtitle2">{t('mcp.arguments')}</Typography>
+                  <Button
                     size="small"
-                    value={argInput}
-                    onChange={(e) => setArgInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addArg()}
-                  />
-                  <Button variant="outlined" onClick={addArg} startIcon={<FontAwesomeIcon icon={faPlus} />}>
+                    onClick={addArg}
+                    disabled={!argInput.trim()}
+                    startIcon={<FontAwesomeIcon icon={faPlus} />}
+                  >
                     {t('mcp.add')}
                   </Button>
                 </Box>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={argInput}
+                  onChange={(e) => setArgInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && argInput.trim() && addArg()}
+                  placeholder="eg: @playwright/mcp@latest"
+                  sx={{ mb: 1 }}
+                />
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   {args.map((arg, index) => (
                     <Chip key={index} label={arg} onDelete={() => removeArg(index)} size="small" />
