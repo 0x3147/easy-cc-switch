@@ -24,9 +24,10 @@ import EnvironmentStatusCard from './c-cpns/environment-status-card'
 import HomebrewInstallPanel from './c-cpns/homebrew-install-panel'
 import CurlInstallPanel from './c-cpns/curl-install-panel'
 import PowershellInstallPanel from './c-cpns/powershell-install-panel'
+import CmdInstallPanel from './c-cpns/cmd-install-panel'
 
 type InstallMethod = 'native' | 'npm'
-type NativeMethod = 'homebrew' | 'curl' | 'powershell'
+type NativeMethod = 'homebrew' | 'curl' | 'powershell' | 'cmd'
 type InstallStatus = 'checking' | 'installed' | 'not-installed'
 type Platform = 'macos' | 'windows' | 'unsupported'
 
@@ -103,7 +104,13 @@ const ToolInstall = () => {
 
   // 已安装状态页面
   if (installStatus === 'installed') {
-    return <InstalledStatus platform={platform} installPath={installPath} onUninstallSuccess={detectPlatformAndStatus} />
+    return (
+      <InstalledStatus
+        platform={platform}
+        installPath={installPath}
+        onUninstallSuccess={detectPlatformAndStatus}
+      />
+    )
   }
 
   // 检测中状态
@@ -305,10 +312,13 @@ const ToolInstall = () => {
                   )}
 
                   {platform === 'windows' && (
-                    <Box>
+                    <RadioGroup
+                      value={nativeMethod}
+                      onChange={(e) => setNativeMethod(e.target.value as NativeMethod)}
+                    >
                       <FormControlLabel
                         value="powershell"
-                        control={<Radio checked />}
+                        control={<Radio />}
                         label={
                           <Box>
                             <Typography
@@ -321,16 +331,38 @@ const ToolInstall = () => {
                               }}
                             >
                               <FontAwesomeIcon icon={faTerminal} />
-                              PowerShell 脚本
+                              PowerShell 脚本 (推荐)
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               使用 PowerShell 脚本自动安装
                             </Typography>
                           </Box>
                         }
-                        disabled
                       />
-                    </Box>
+                      <FormControlLabel
+                        value="cmd"
+                        control={<Radio />}
+                        label={
+                          <Box>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: 500,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTerminal} />
+                              CMD 脚本
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              使用命令提示符脚本安装
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                    </RadioGroup>
                   )}
                 </Box>
               )}
@@ -368,10 +400,16 @@ const ToolInstall = () => {
 
                 {/* Windows 安装面板 */}
                 {platform === 'windows' && (
-                  <PowershellInstallPanel
-                    isSelected={nativeMethod === 'powershell'}
-                    onInstallSuccess={detectPlatformAndStatus}
-                  />
+                  <>
+                    <PowershellInstallPanel
+                      isSelected={nativeMethod === 'powershell'}
+                      onInstallSuccess={detectPlatformAndStatus}
+                    />
+                    <CmdInstallPanel
+                      isSelected={nativeMethod === 'cmd'}
+                      onInstallSuccess={detectPlatformAndStatus}
+                    />
+                  </>
                 )}
 
                 <Box sx={{ display: 'flex', gap: 2, pt: 2 }}>

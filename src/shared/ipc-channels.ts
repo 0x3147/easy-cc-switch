@@ -62,6 +62,8 @@ export const TOOL_CHANNELS = {
   INSTALL_CLAUDE_CODE_CURL: 'tool-install-claude-code-curl',
   /** 通过 PowerShell 脚本安装 Claude Code（仅 Windows） */
   INSTALL_CLAUDE_CODE_POWERSHELL: 'tool-install-claude-code-powershell',
+  /** 通过 CMD 脚本安装 Claude Code（仅 Windows） */
+  INSTALL_CLAUDE_CODE_CMD: 'tool-install-claude-code-cmd',
   /** 检测 Codex 安装状态 */
   CHECK_CODEX: 'tool-check-codex',
   /** 卸载 Codex */

@@ -49,6 +49,8 @@ const api = {
     ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_CURL),
   installClaudeCodePowershell: (): Promise<InstallResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_POWERSHELL),
+  installClaudeCodeCmd: (): Promise<InstallResult> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_CMD),
   checkCodex: (): Promise<CodexCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX),
   uninstallCodex: (): Promise<{ success: boolean; message: string }> =>
     ipcRenderer.invoke(TOOL_CHANNELS.UNINSTALL_CODEX),

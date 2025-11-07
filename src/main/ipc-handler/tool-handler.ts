@@ -118,8 +118,7 @@ export function registerToolHandlers() {
           } catch {
             return {
               success: false,
-              message:
-                '卸载失败：请手动运行 "brew uninstall --cask claude-code" 或查看官方文档'
+              message: '卸载失败：请手动运行 "brew uninstall --cask claude-code" 或查看官方文档'
             }
           }
         }
@@ -402,13 +401,10 @@ export function registerToolHandlers() {
           // 尝试获取版本号
           try {
             // 使用 bash -c 来加载 nvm 并获取版本
-            const versionOutput = execSync(
-              `bash -c "source ${nvmScript} && nvm --version"`,
-              {
-                encoding: 'utf-8',
-                stdio: ['pipe', 'pipe', 'ignore']
-              }
-            )
+            const versionOutput = execSync(`bash -c "source ${nvmScript} && nvm --version"`, {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'ignore']
+            })
             const version = versionOutput.trim()
 
             return {
@@ -1001,65 +997,123 @@ export function registerToolHandlers() {
   })
 
   // 通过 PowerShell 脚本安装 Claude Code (仅 Windows)
-  ipcMain.handle(
-    TOOL_CHANNELS.INSTALL_CLAUDE_CODE_POWERSHELL,
-    async (): Promise<InstallResult> => {
-      try {
-        if (process.platform !== 'win32') {
-          return {
-            success: false,
-            message: 'PowerShell 安装脚本仅支持 Windows 平台'
-          }
-        }
-
-        // 执行 PowerShell 安装脚本
-        return new Promise<InstallResult>((resolve) => {
-          const installCommand = 'irm https://claude.ai/install.ps1 | iex'
-
-          const child = spawn('powershell.exe', ['-Command', installCommand], {
-            stdio: ['ignore', 'pipe', 'pipe']
-          })
-
-          let output = ''
-
-          child.stdout?.on('data', (data) => {
-            output += data.toString()
-          })
-
-          child.stderr?.on('data', (data) => {
-            output += data.toString()
-          })
-
-          child.on('close', (code) => {
-            if (code === 0) {
-              resolve({
-                success: true,
-                message: '已成功通过 PowerShell 脚本安装 Claude Code',
-                output
-              })
-            } else {
-              resolve({
-                success: false,
-                message: `安装失败（退出码: ${code}），请手动访问 https://claude.ai 查看安装说明`,
-                output
-              })
-            }
-          })
-
-          child.on('error', (error) => {
-            resolve({
-              success: false,
-              message: `安装失败：${error.message}`,
-              output
-            })
-          })
-        })
-      } catch (error) {
+  ipcMain.handle(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_POWERSHELL, async (): Promise<InstallResult> => {
+    try {
+      if (process.platform !== 'win32') {
         return {
           success: false,
-          message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+          message: 'PowerShell 安装脚本仅支持 Windows 平台'
         }
       }
+
+      // 执行 PowerShell 安装脚本
+      return new Promise<InstallResult>((resolve) => {
+        const installCommand = 'irm https://claude.ai/install.ps1 | iex'
+
+        const child = spawn('powershell.exe', ['-Command', installCommand], {
+          stdio: ['ignore', 'pipe', 'pipe']
+        })
+
+        let output = ''
+
+        child.stdout?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', (code) => {
+          if (code === 0) {
+            resolve({
+              success: true,
+              message: '已成功通过 PowerShell 脚本安装 Claude Code',
+              output
+            })
+          } else {
+            resolve({
+              success: false,
+              message: `安装失败（退出码: ${code}），请手动访问 https://claude.ai 查看安装说明`,
+              output
+            })
+          }
+        })
+
+        child.on('error', (error) => {
+          resolve({
+            success: false,
+            message: `安装失败：${error.message}`,
+            output
+          })
+        })
+      })
+    } catch (error) {
+      return {
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      }
     }
-  )
+  })
+
+  // 通过 CMD 脚本安装 Claude Code (仅 Windows)
+  ipcMain.handle(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_CMD, async (): Promise<InstallResult> => {
+    try {
+      if (process.platform !== 'win32') {
+        return {
+          success: false,
+          message: 'CMD 安装脚本仅支持 Windows 平台'
+        }
+      }
+
+      // 执行 CMD 安装脚本
+      return new Promise<InstallResult>((resolve) => {
+        const installCommand =
+          'curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd'
+
+        const child = spawn('cmd.exe', ['/c', installCommand], {
+          stdio: ['ignore', 'pipe', 'pipe']
+        })
+
+        let output = ''
+
+        child.stdout?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', (code) => {
+          if (code === 0) {
+            resolve({
+              success: true,
+              message: '已成功通过 CMD 脚本安装 Claude Code',
+              output
+            })
+          } else {
+            resolve({
+              success: false,
+              message: `安装失败（退出码: ${code}），请手动访问 https://claude.ai 查看安装说明`,
+              output
+            })
+          }
+        })
+
+        child.on('error', (error) => {
+          resolve({
+            success: false,
+            message: `安装失败：${error.message}`,
+            output
+          })
+        })
+      })
+    } catch (error) {
+      return {
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      }
+    }
+  })
 }

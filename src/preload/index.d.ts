@@ -30,6 +30,7 @@ interface API {
   installClaudeCodeHomebrew: () => Promise<InstallResult>
   installClaudeCodeCurl: () => Promise<InstallResult>
   installClaudeCodePowershell: () => Promise<InstallResult>
+  installClaudeCodeCmd: () => Promise<InstallResult>
   checkCodex: () => Promise<CodexCheckResult>
   uninstallCodex: () => Promise<{ success: boolean; message: string }>
   checkNodejs: () => Promise<NodeCheckResult>
