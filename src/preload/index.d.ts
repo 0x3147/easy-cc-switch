@@ -10,10 +10,7 @@ import type {
   InstallResult
 } from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
-import type {
-  ClaudeProjectConfig,
-  UpdateProjectConfigRequest
-} from '@/shared/types/claude-project'
+import type { ClaudeProjectConfig, UpdateProjectConfigRequest } from '@/shared/types/claude-project'
 import type { McpServerItem, McpServerConfig } from '@/shared/types/mcp'
 
 interface API {
@@ -31,12 +28,14 @@ interface API {
   getActiveVendorId: () => Promise<string | null>
   getPlatformInfo: () => Promise<PlatformInfo>
   checkClaudeCode: () => Promise<ClaudeCodeCheckResult>
+  checkClaudeCodeCached: () => Promise<ClaudeCodeCheckResult>
   uninstallClaudeCode: () => Promise<{ success: boolean; message: string }>
   installClaudeCodeHomebrew: () => Promise<InstallResult>
   installClaudeCodeCurl: () => Promise<InstallResult>
   installClaudeCodePowershell: () => Promise<InstallResult>
   installClaudeCodeCmd: () => Promise<InstallResult>
   checkCodex: () => Promise<CodexCheckResult>
+  checkCodexCached: () => Promise<CodexCheckResult>
   uninstallCodex: () => Promise<{ success: boolean; message: string }>
   checkNodejs: () => Promise<NodeCheckResult>
   checkNvm: () => Promise<NvmCheckResult>
@@ -49,6 +48,7 @@ interface API {
   installCodexHomebrew: () => Promise<InstallResult>
   installHomebrew: () => Promise<InstallResult>
   installNvm: () => Promise<InstallResult>
+  refreshToolCache: () => Promise<void>
   getCodexConfig: () => Promise<CodexVendorConfig | null>
   saveCodexConfig: (config: CodexVendorConfig) => Promise<boolean>
   getAllCodexVendors: () => Promise<CodexVendorConfig[]>

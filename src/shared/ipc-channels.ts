@@ -91,7 +91,13 @@ export const TOOL_CHANNELS = {
   /** 安装 Homebrew（仅 macOS） */
   INSTALL_HOMEBREW: 'tool-install-homebrew',
   /** 安装 NVM */
-  INSTALL_NVM: 'tool-install-nvm'
+  INSTALL_NVM: 'tool-install-nvm',
+  /** 检测 Claude Code 安装状态（使用缓存） */
+  CHECK_CLAUDE_CODE_CACHED: 'tool-check-claude-code-cached',
+  /** 检测 Codex 安装状态（使用缓存） */
+  CHECK_CODEX_CACHED: 'tool-check-codex-cached',
+  /** 强制刷新工具检测缓存 */
+  REFRESH_TOOL_CACHE: 'tool-refresh-cache'
 } as const
 
 /**

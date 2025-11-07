@@ -43,9 +43,14 @@ const CodexToolInstall = () => {
     detectEnvironment()
   }, [])
 
-  const detectEnvironment = async () => {
+  const detectEnvironment = async (forceRefresh = false) => {
     setInstallStatus('checking')
     try {
+      // 如果需要强制刷新，先清除缓存
+      if (forceRefresh) {
+        await window.api.refreshToolCache()
+      }
+
       // 获取平台信息
       const platformInfo = await window.api.getPlatformInfo()
       console.log('Platform info:', platformInfo)
@@ -60,9 +65,9 @@ const CodexToolInstall = () => {
       }
       setPlatform(detectedPlatform)
 
-      // 并行检测所有依赖
+      // 并行检测所有依赖（Codex 强制刷新时使用完整检测，否则使用缓存）
       const [codexResult, nodejsResult, nvmResult, homebrewResult] = await Promise.all([
-        window.api.checkCodex(),
+        forceRefresh ? window.api.checkCodex() : window.api.checkCodexCached(),
         window.api.checkNodejs(),
         window.api.checkNvm(),
         detectedPlatform === 'macos'
@@ -70,7 +75,7 @@ const CodexToolInstall = () => {
           : Promise.resolve({ installed: false })
       ])
 
-      console.log('Codex check:', codexResult)
+      console.log(`Codex check ${forceRefresh ? '(force)' : '(cached)'}:`, codexResult)
       console.log('Node.js check:', nodejsResult)
       console.log('NVM check:', nvmResult)
       console.log('Homebrew check:', homebrewResult)
@@ -141,7 +146,9 @@ const CodexToolInstall = () => {
   if (installStatus === 'checking') {
     return (
       <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}
+        >
           <Box>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
               工具安装
@@ -169,7 +176,9 @@ const CodexToolInstall = () => {
   // 未安装 - 安装向导页面
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}
+      >
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
             工具安装
@@ -226,12 +235,10 @@ const CodexToolInstall = () => {
             <CardContent>
               <Stack spacing={2}>
                 <Alert severity="info">
-                  <Typography variant="body2">
-                    安装完成后，请点击下方按钮重新检测环境。
-                  </Typography>
+                  <Typography variant="body2">安装完成后，请点击下方按钮重新检测环境。</Typography>
                 </Alert>
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button variant="contained" size="large" onClick={detectEnvironment}>
+                  <Button variant="contained" size="large" onClick={() => detectEnvironment(true)}>
                     重新检测
                   </Button>
                   <Button

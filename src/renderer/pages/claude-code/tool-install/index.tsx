@@ -52,8 +52,13 @@ const ToolInstall = () => {
     detectPlatformAndStatus()
   }, [])
 
-  const detectPlatformAndStatus = async () => {
+  const detectPlatformAndStatus = async (forceRefresh = false) => {
     try {
+      // 如果需要强制刷新，先清除缓存
+      if (forceRefresh) {
+        await window.api.refreshToolCache()
+      }
+
       // 获取平台信息
       const platformInfo = await window.api.getPlatformInfo()
       console.log('Platform info:', platformInfo)
@@ -76,9 +81,14 @@ const ToolInstall = () => {
 
       setPlatform(detectedPlatform)
 
-      // 检测 Claude Code 安装状态
-      const claudeCodeResult = await window.api.checkClaudeCode()
-      console.log('Claude Code check result:', claudeCodeResult)
+      // 检测 Claude Code 安装状态（强制刷新时使用完整检测，否则使用缓存）
+      const claudeCodeResult = forceRefresh
+        ? await window.api.checkClaudeCode()
+        : await window.api.checkClaudeCodeCached()
+      console.log(
+        `Claude Code check result ${forceRefresh ? '(force)' : '(cached)'}:`,
+        claudeCodeResult
+      )
       setInstallStatus(claudeCodeResult.installed ? 'installed' : 'not-installed')
 
       if (claudeCodeResult.installed && claudeCodeResult.path) {
@@ -419,7 +429,11 @@ const ToolInstall = () => {
                 )}
 
                 <Box sx={{ display: 'flex', gap: 2, pt: 2 }}>
-                  <Button variant="contained" size="large" onClick={detectPlatformAndStatus}>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => detectPlatformAndStatus(true)}
+                  >
                     重新检测
                   </Button>
                   <Button

@@ -12,6 +12,189 @@ import type {
   HomebrewCheckResult,
   InstallResult
 } from '@/shared/types/tool'
+import { toolCacheStore } from '../store/tool-cache-store'
+
+/**
+ * 快速验证 Claude Code 是否存在（仅检测命令是否可用）
+ */
+async function quickCheckClaudeCode(): Promise<boolean> {
+  try {
+    const platform = process.platform
+    const command = platform === 'win32' ? 'where claude' : 'which claude'
+    execSync(command, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+      timeout: 3000
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 快速验证 Codex 是否存在（仅检测命令是否可用）
+ */
+async function quickCheckCodex(): Promise<boolean> {
+  try {
+    const platform = process.platform
+    const command = platform === 'win32' ? 'where codex' : 'which codex'
+    execSync(command, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+      timeout: 3000
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 执行完整的 Claude Code 检测（包含版本号等详细信息）
+ */
+async function fullCheckClaudeCode(): Promise<ClaudeCodeCheckResult> {
+  try {
+    const platform = process.platform
+
+    // 优先检测是否通过 npm 安装
+    try {
+      const npmList = execSync('npm list -g @anthropic/claude-code --depth=0', {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000
+      })
+
+      // 如果 npm list 成功，说明通过 npm 安装
+      if (npmList && !npmList.includes('(empty)')) {
+        // 获取 npm 全局包路径
+        const npmRoot = execSync('npm root -g', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+          timeout: 5000
+        }).trim()
+
+        const npmPath = join(npmRoot, '@anthropic', 'claude-code')
+
+        // 尝试获取版本号
+        try {
+          const versionOutput = execSync('claude --version', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
+          })
+          const version = versionOutput.trim()
+
+          return {
+            installed: true,
+            path: npmPath,
+            version
+          }
+        } catch {
+          // 无法获取版本，但已安装
+          return {
+            installed: true,
+            path: npmPath
+          }
+        }
+      }
+    } catch {
+      // npm 检测失败，继续检测其他安装方式
+    }
+
+    // 检查 claude 命令是否可用（非 npm 安装方式）
+    let command: string
+    if (platform === 'win32') {
+      command = 'where claude'
+    } else {
+      command = 'which claude'
+    }
+
+    const output = execSync(command, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+      timeout: 5000
+    })
+    const path = output.trim().split('\n')[0]
+
+    if (path) {
+      // 尝试获取版本号
+      try {
+        const versionOutput = execSync('claude --version', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+          timeout: 5000
+        })
+        const version = versionOutput.trim()
+
+        return {
+          installed: true,
+          path,
+          version
+        }
+      } catch {
+        return {
+          installed: true,
+          path
+        }
+      }
+    }
+
+    return { installed: false }
+  } catch {
+    return { installed: false }
+  }
+}
+
+/**
+ * 执行完整的 Codex 检测（包含版本号等详细信息）
+ */
+async function fullCheckCodex(): Promise<CodexCheckResult> {
+  try {
+    const platform = process.platform
+
+    let command: string
+    if (platform === 'win32') {
+      command = 'where codex'
+    } else {
+      command = 'which codex'
+    }
+
+    const output = execSync(command, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+      timeout: 5000
+    })
+    const path = output.trim().split('\n')[0]
+
+    if (path) {
+      // 尝试获取版本号
+      try {
+        const versionOutput = execSync('codex --version', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+          timeout: 5000
+        })
+        const version = versionOutput.trim()
+
+        return {
+          installed: true,
+          path,
+          version
+        }
+      } catch {
+        return {
+          installed: true,
+          path
+        }
+      }
+    }
+
+    return { installed: false }
+  } catch {
+    return { installed: false }
+  }
+}
 
 /**
  * 注册工具相关的 IPC handlers
@@ -34,102 +217,59 @@ export function registerToolHandlers() {
     }
   })
 
-  // 检测 Claude Code 安装状态
+  // 检测 Claude Code 安装状态（完整检测）
   ipcMain.handle(TOOL_CHANNELS.CHECK_CLAUDE_CODE, async (): Promise<ClaudeCodeCheckResult> => {
-    try {
-      const platform = process.platform
+    const result = await fullCheckClaudeCode()
+    // 更新缓存
+    toolCacheStore.setClaudeCodeCache(result)
+    return result
+  })
 
-      // 优先检测是否通过 npm 安装
-      try {
-        const npmList = execSync('npm list -g @anthropic/claude-code --depth=0', {
-          encoding: 'utf-8',
-          stdio: ['pipe', 'pipe', 'ignore'],
-          timeout: 5000
-        })
+  // 检测 Claude Code 安装状态（使用缓存）
+  ipcMain.handle(
+    TOOL_CHANNELS.CHECK_CLAUDE_CODE_CACHED,
+    async (): Promise<ClaudeCodeCheckResult> => {
+      // 先尝试从缓存中获取
+      const cached = toolCacheStore.getClaudeCodeCache()
 
-        // 如果 npm list 成功，说明通过 npm 安装
-        if (npmList && !npmList.includes('(empty)')) {
-          // 获取 npm 全局包路径
-          const npmRoot = execSync('npm root -g', {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore'],
-            timeout: 5000
-          }).trim()
-
-          const npmPath = join(npmRoot, '@anthropic', 'claude-code')
-
-          // 尝试获取版本号
-          try {
-            const versionOutput = execSync('claude --version', {
-              encoding: 'utf-8',
-              stdio: ['pipe', 'pipe', 'ignore'],
-              timeout: 5000
-            })
-            const version = versionOutput.trim()
-
-            return {
-              installed: true,
-              path: npmPath,
-              version
-            }
-          } catch {
-            // 无法获取版本，但已安装
-            return {
-              installed: true,
-              path: npmPath
-            }
+      if (cached) {
+        // 如果缓存显示已安装，快速验证是否仍然存在
+        if (cached.installed) {
+          const stillExists = await quickCheckClaudeCode()
+          if (stillExists) {
+            // 仍然存在，返回缓存
+            return cached
+          } else {
+            // 已被卸载，更新缓存
+            const notInstalledResult = { installed: false }
+            toolCacheStore.setClaudeCodeCache(notInstalledResult)
+            return notInstalledResult
           }
-        }
-      } catch {
-        // npm 检测失败，继续检测其他安装方式
-      }
-
-      // 检查 claude 命令是否可用（非 npm 安装方式）
-      let command: string
-      if (platform === 'win32') {
-        // Windows: 检查 claude 命令是否可用
-        command = 'where claude'
-      } else {
-        // macOS/Linux: 检查 claude 命令是否可用
-        command = 'which claude'
-      }
-
-      const output = execSync(command, {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'ignore'],
-        timeout: 5000
-      })
-      const path = output.trim().split('\n')[0] // 获取第一个结果
-
-      if (path) {
-        // 尝试获取版本号
-        try {
-          const versionOutput = execSync('claude --version', {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore'],
-            timeout: 5000
-          })
-          const version = versionOutput.trim()
-
-          return {
-            installed: true,
-            path,
-            version
-          }
-        } catch {
-          // 无法获取版本，但已安装
-          return {
-            installed: true,
-            path
+        } else {
+          // 缓存显示未安装，快速验证是否已安装
+          const nowExists = await quickCheckClaudeCode()
+          if (nowExists) {
+            // 已安装，执行完整检测并更新缓存
+            const fullResult = await fullCheckClaudeCode()
+            toolCacheStore.setClaudeCodeCache(fullResult)
+            return fullResult
+          } else {
+            // 仍然未安装，返回缓存
+            return cached
           }
         }
       }
 
-      return { installed: false }
-    } catch {
-      // 命令不存在或执行失败
-      return { installed: false }
+      // 无缓存，执行完整检测
+      const result = await fullCheckClaudeCode()
+      toolCacheStore.setClaudeCodeCache(result)
+      return result
     }
+  )
+
+  // 刷新工具检测缓存
+  ipcMain.handle(TOOL_CHANNELS.REFRESH_TOOL_CACHE, async (): Promise<void> => {
+    toolCacheStore.clearAllCache()
   })
 
   // 卸载 Claude Code
@@ -163,6 +303,8 @@ export function registerToolHandlers() {
               encoding: 'utf-8',
               stdio: ['pipe', 'pipe', 'pipe']
             })
+            // 清除缓存
+            toolCacheStore.clearClaudeCodeCache()
             return {
               success: true,
               message: '已通过 Homebrew 成功卸载 Claude Code'
@@ -194,6 +336,8 @@ export function registerToolHandlers() {
                   stdio: ['pipe', 'pipe', 'pipe'],
                   timeout: 30000
                 })
+                // 清除缓存
+                toolCacheStore.clearClaudeCodeCache()
                 return {
                   success: true,
                   message: '已通过 npm 成功卸载 Claude Code (@anthropic/claude-code)'
@@ -223,6 +367,8 @@ export function registerToolHandlers() {
             })
 
             if (psResult) {
+              // 清除缓存
+              toolCacheStore.clearClaudeCodeCache()
               return {
                 success: true,
                 message: '已通过 PowerShell 脚本成功卸载 Claude Code'
@@ -239,6 +385,8 @@ export function registerToolHandlers() {
               stdio: ['pipe', 'pipe', 'pipe'],
               timeout: 30000
             })
+            // 清除缓存
+            toolCacheStore.clearClaudeCodeCache()
             return {
               success: true,
               message: '已通过 winget 成功卸载 Claude Code'
@@ -270,6 +418,8 @@ export function registerToolHandlers() {
                     stdio: ['pipe', 'pipe', 'pipe'],
                     timeout: 30000
                   })
+                  // 清除缓存
+                  toolCacheStore.clearClaudeCodeCache()
                   return {
                     success: true,
                     message: '已通过卸载程序成功卸载 Claude Code'
@@ -348,56 +498,51 @@ export function registerToolHandlers() {
     }
   })
 
-  // 检测 Codex 安装状态
+  // 检测 Codex 安装状态（完整检测）
   ipcMain.handle(TOOL_CHANNELS.CHECK_CODEX, async (): Promise<CodexCheckResult> => {
-    try {
-      const platform = process.platform
+    const result = await fullCheckCodex()
+    // 更新缓存
+    toolCacheStore.setCodexCache(result)
+    return result
+  })
 
-      let command: string
-      if (platform === 'win32') {
-        // Windows: 检查 codex 命令是否可用
-        command = 'where codex'
+  // 检测 Codex 安装状态（使用缓存）
+  ipcMain.handle(TOOL_CHANNELS.CHECK_CODEX_CACHED, async (): Promise<CodexCheckResult> => {
+    // 先尝试从缓存中获取
+    const cached = toolCacheStore.getCodexCache()
+
+    if (cached) {
+      // 如枟缓存显示已安装，快速验证是否仍然存在
+      if (cached.installed) {
+        const stillExists = await quickCheckCodex()
+        if (stillExists) {
+          // 仍然存在，返回缓存
+          return cached
+        } else {
+          // 已被卸载，更新缓存
+          const notInstalledResult = { installed: false }
+          toolCacheStore.setCodexCache(notInstalledResult)
+          return notInstalledResult
+        }
       } else {
-        // macOS/Linux: 检查 codex 命令是否可用
-        command = 'which codex'
-      }
-
-      const output = execSync(command, {
-        encoding: 'utf-8',
-        stdio: ['pipe', 'pipe', 'ignore'],
-        timeout: 5000
-      })
-      const path = output.trim().split('\n')[0] // 获取第一个结果
-
-      if (path) {
-        // 尝试获取版本号
-        try {
-          const versionOutput = execSync('codex --version', {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'ignore'],
-            timeout: 5000
-          })
-          const version = versionOutput.trim()
-
-          return {
-            installed: true,
-            path,
-            version
-          }
-        } catch {
-          // 无法获取版本，但已安装
-          return {
-            installed: true,
-            path
-          }
+        // 缓存显示未安装，快速验证是否已安装
+        const nowExists = await quickCheckCodex()
+        if (nowExists) {
+          // 已安装，执行完整检测并更新缓存
+          const fullResult = await fullCheckCodex()
+          toolCacheStore.setCodexCache(fullResult)
+          return fullResult
+        } else {
+          // 仍然未安装，返回缓存
+          return cached
         }
       }
-
-      return { installed: false }
-    } catch {
-      // 命令不存在或执行失败
-      return { installed: false }
     }
+
+    // 无缓存，执行完整检测
+    const result = await fullCheckCodex()
+    toolCacheStore.setCodexCache(result)
+    return result
   })
 
   // 卸载 Codex
@@ -430,6 +575,8 @@ export function registerToolHandlers() {
             encoding: 'utf-8',
             stdio: ['pipe', 'pipe', 'pipe']
           })
+          // 清除缓存
+          toolCacheStore.clearCodexCache()
           return {
             success: true,
             message: '已通过 npm 成功卸载 Codex'
@@ -442,6 +589,8 @@ export function registerToolHandlers() {
                 encoding: 'utf-8',
                 stdio: ['pipe', 'pipe', 'pipe']
               })
+              // 清除缓存
+              toolCacheStore.clearCodexCache()
               return {
                 success: true,
                 message: '已通过 Homebrew 成功卸载 Codex'

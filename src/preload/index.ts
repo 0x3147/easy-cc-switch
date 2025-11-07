@@ -21,10 +21,7 @@ import type {
   InstallResult
 } from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
-import type {
-  ClaudeProjectConfig,
-  UpdateProjectConfigRequest
-} from '@/shared/types/claude-project'
+import type { ClaudeProjectConfig, UpdateProjectConfigRequest } from '@/shared/types/claude-project'
 import type { McpServerItem, McpServerConfig } from '@/shared/types/mcp'
 
 // Custom APIs for renderer
@@ -50,6 +47,8 @@ const api = {
   getPlatformInfo: (): Promise<PlatformInfo> => ipcRenderer.invoke(TOOL_CHANNELS.GET_PLATFORM_INFO),
   checkClaudeCode: (): Promise<ClaudeCodeCheckResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE),
+  checkClaudeCodeCached: (): Promise<ClaudeCodeCheckResult> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE_CACHED),
   uninstallClaudeCode: (): Promise<{ success: boolean; message: string }> =>
     ipcRenderer.invoke(TOOL_CHANNELS.UNINSTALL_CLAUDE_CODE),
   installClaudeCodeHomebrew: (): Promise<InstallResult> =>
@@ -61,6 +60,8 @@ const api = {
   installClaudeCodeCmd: (): Promise<InstallResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_CMD),
   checkCodex: (): Promise<CodexCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX),
+  checkCodexCached: (): Promise<CodexCheckResult> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX_CACHED),
   uninstallCodex: (): Promise<{ success: boolean; message: string }> =>
     ipcRenderer.invoke(TOOL_CHANNELS.UNINSTALL_CODEX),
   checkNodejs: (): Promise<NodeCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_NODEJS),
@@ -78,6 +79,7 @@ const api = {
     ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CODEX_HOMEBREW),
   installHomebrew: (): Promise<InstallResult> => ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_HOMEBREW),
   installNvm: (): Promise<InstallResult> => ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_NVM),
+  refreshToolCache: (): Promise<void> => ipcRenderer.invoke(TOOL_CHANNELS.REFRESH_TOOL_CACHE),
   // Codex 供应商配置
   getCodexConfig: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_CODEX_CONFIG),
   saveCodexConfig: (config: CodexVendorConfig) =>
