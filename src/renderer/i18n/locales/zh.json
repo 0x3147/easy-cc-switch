@@ -1,6 +1,9 @@
 {
   "common": {
-    "appName": "Easy CC Switch"
+    "appName": "Easy CC Switch",
+    "cancel": "取消",
+    "add": "添加",
+    "save": "保存"
   },
   "menu": {
     "claudeCode": "Claude Code",
@@ -9,6 +12,7 @@
     "vendorConfig": "供应商配置",
     "claudeDocs": "全局规则文件配置",
     "projectConfig": "项目配置",
+    "globalMcp": "全局 MCP",
     "settings": "设置"
   },
   "settings": {
@@ -229,5 +233,53 @@
     "unsavedChanges": "您有未保存的更改，请点击保存按钮以保存您的编辑",
     "editorPlaceholder": "开始编辑您的 Claude 文档...",
     "emptyContent": "暂无内容，请切换到编辑模式开始编辑"
+  },
+  "mcp": {
+    "title": "全局 MCP 配置",
+    "description": "管理 ~/.claude.json 中的全局 MCP 服务器配置",
+    "noServers": "暂无 MCP 服务器配置",
+    "noServersDesc": "点击右上角的 + 按钮添加您的第一个 MCP 服务器",
+    "addServer": "添加 MCP 服务器",
+    "editServer": "编辑 MCP 服务器",
+    "serverName": "服务器名称",
+    "serverNameRequired": "服务器名称不能为空",
+    "serverType": "服务器类型",
+    "command": "命令",
+    "commandRequired": "命令不能为空",
+    "arguments": "参数",
+    "environmentVariables": "环境变量",
+    "url": "URL",
+    "urlRequired": "URL 不能为空",
+    "headers": "请求头",
+    "key": "键",
+    "value": "值",
+    "headerKey": "请求头键名",
+    "headerValue": "请求头值",
+    "add": "添加",
+    "addSuccess": "MCP 服务器添加成功！",
+    "addFailed": "添加 MCP 服务器失败",
+    "updateSuccess": "MCP 服务器更新成功！",
+    "updateFailed": "更新 MCP 服务器失败",
+    "deleteSuccess": "MCP 服务器删除成功！",
+    "deleteFailed": "删除 MCP 服务器失败",
+    "confirmDelete": "确定要删除这个 MCP 服务器配置吗？",
+    "loadFailed": "加载 MCP 服务器配置失败",
+    "typeDescription": {
+      "stdio": {
+        "title": "STDIO (标准输入输出)",
+        "description": "通过标准输入输出与本地进程通信，最常用的方式，适合本地工具和服务。Claude Code 会启动指定的命令并通过 stdin/stdout 与其通信。",
+        "example": "示例：npx @playwright/mcp@latest 或 python my_mcp_server.py"
+      },
+      "http": {
+        "title": "HTTP (超文本传输协议)",
+        "description": "通过 HTTP 协议与远程服务器通信，适合远程 API 服务。支持自定义请求头，可用于身份验证（如 Bearer Token）。",
+        "example": "示例：https://api.example.com/mcp 或 https://mcp.context7.com/mcp"
+      },
+      "sse": {
+        "title": "SSE (服务器推送事件)",
+        "description": "通过服务器推送事件与远程服务器通信，适合需要实时推送的服务。服务器可以主动向客户端推送消息，支持自定义请求头。",
+        "example": "示例：https://streaming.example.com/mcp/events"
+      }
+    }
   }
 }

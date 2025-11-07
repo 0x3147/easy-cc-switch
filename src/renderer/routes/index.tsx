@@ -4,6 +4,7 @@ import ClaudeCodeToolInstall from '../pages/claude-code/tool-install'
 import ClaudeCodeVendor from '../pages/claude-code/vendor'
 import ClaudeCodeDocs from '../pages/claude-code/claude-docs'
 import ClaudeCodeProjectConfig from '../pages/claude-code/project-config'
+import GlobalMcp from '../pages/claude-code/global-mcp'
 import CodexToolInstall from '../pages/codex/tool-install'
 import CodexVendor from '../pages/codex/vendor'
 import Settings from '../pages/settings'
@@ -32,6 +33,10 @@ const routes: RouteObject[] = [
       {
         path: 'claude-code/project-config',
         element: <ClaudeCodeProjectConfig />
+      },
+      {
+        path: 'claude-code/global-mcp',
+        element: <GlobalMcp />
       },
       {
         path: 'codex/tool-install',

@@ -7,7 +7,8 @@ import {
   CODEX_CHANNELS,
   SETTINGS_CHANNELS,
   MARKDOWN_CHANNELS,
-  CLAUDE_PROJECT_CHANNELS
+  CLAUDE_PROJECT_CHANNELS,
+  MCP_CHANNELS
 } from '@/shared/ipc-channels'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 import type {
@@ -24,6 +25,7 @@ import type {
   ClaudeProjectConfig,
   UpdateProjectConfigRequest
 } from '@/shared/types/claude-project'
+import type { McpServerItem, McpServerConfig } from '@/shared/types/mcp'
 
 // Custom APIs for renderer
 const api = {
@@ -108,7 +110,16 @@ const api = {
   updateProject: (request: UpdateProjectConfigRequest): Promise<void> =>
     ipcRenderer.invoke(CLAUDE_PROJECT_CHANNELS.UPDATE_PROJECT, request),
   deleteProject: (path: string): Promise<void> =>
-    ipcRenderer.invoke(CLAUDE_PROJECT_CHANNELS.DELETE_PROJECT, path)
+    ipcRenderer.invoke(CLAUDE_PROJECT_CHANNELS.DELETE_PROJECT, path),
+  // 全局 MCP 配置
+  getAllMcpServers: (): Promise<McpServerItem[]> =>
+    ipcRenderer.invoke(MCP_CHANNELS.GET_ALL_MCP_SERVERS),
+  addMcpServer: (name: string, config: McpServerConfig): Promise<boolean> =>
+    ipcRenderer.invoke(MCP_CHANNELS.ADD_MCP_SERVER, name, config),
+  updateMcpServer: (oldName: string, newName: string, config: McpServerConfig): Promise<boolean> =>
+    ipcRenderer.invoke(MCP_CHANNELS.UPDATE_MCP_SERVER, oldName, newName, config),
+  deleteMcpServer: (name: string): Promise<boolean> =>
+    ipcRenderer.invoke(MCP_CHANNELS.DELETE_MCP_SERVER, name)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

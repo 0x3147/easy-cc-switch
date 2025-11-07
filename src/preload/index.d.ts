@@ -14,6 +14,7 @@ import type {
   ClaudeProjectConfig,
   UpdateProjectConfigRequest
 } from '@/shared/types/claude-project'
+import type { McpServerItem, McpServerConfig } from '@/shared/types/mcp'
 
 interface API {
   windowMinimize: () => void
@@ -66,6 +67,10 @@ interface API {
   getAllProjects: () => Promise<ClaudeProjectConfig[]>
   updateProject: (request: UpdateProjectConfigRequest) => Promise<void>
   deleteProject: (path: string) => Promise<void>
+  getAllMcpServers: () => Promise<McpServerItem[]>
+  addMcpServer: (name: string, config: McpServerConfig) => Promise<boolean>
+  updateMcpServer: (oldName: string, newName: string, config: McpServerConfig) => Promise<boolean>
+  deleteMcpServer: (name: string) => Promise<boolean>
 }
 
 declare global {

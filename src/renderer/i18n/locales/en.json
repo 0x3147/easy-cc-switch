@@ -1,6 +1,9 @@
 {
   "common": {
-    "appName": "Easy CC Switch"
+    "appName": "Easy CC Switch",
+    "cancel": "Cancel",
+    "add": "Add",
+    "save": "Save"
   },
   "menu": {
     "claudeCode": "Claude Code",
@@ -9,6 +12,7 @@
     "vendorConfig": "Vendor Configuration",
     "claudeDocs": "Global Rules Configuration",
     "projectConfig": "Project Configuration",
+    "globalMcp": "Global MCP",
     "settings": "Settings"
   },
   "settings": {
@@ -229,5 +233,53 @@
     "unsavedChanges": "You have unsaved changes, please click the Save button to save your edits",
     "editorPlaceholder": "Start editing your Claude documentation...",
     "emptyContent": "No content yet, please switch to edit mode to start editing"
+  },
+  "mcp": {
+    "title": "Global MCP Configuration",
+    "description": "Manage global MCP server configurations in ~/.claude.json",
+    "noServers": "No MCP Server Configurations",
+    "noServersDesc": "Click the + button in the upper right corner to add your first MCP server",
+    "addServer": "Add MCP Server",
+    "editServer": "Edit MCP Server",
+    "serverName": "Server Name",
+    "serverNameRequired": "Server name is required",
+    "serverType": "Server Type",
+    "command": "Command",
+    "commandRequired": "Command is required",
+    "arguments": "Arguments",
+    "environmentVariables": "Environment Variables",
+    "url": "URL",
+    "urlRequired": "URL is required",
+    "headers": "Headers",
+    "key": "Key",
+    "value": "Value",
+    "headerKey": "Header Key",
+    "headerValue": "Header Value",
+    "add": "Add",
+    "addSuccess": "MCP server added successfully!",
+    "addFailed": "Failed to add MCP server",
+    "updateSuccess": "MCP server updated successfully!",
+    "updateFailed": "Failed to update MCP server",
+    "deleteSuccess": "MCP server deleted successfully!",
+    "deleteFailed": "Failed to delete MCP server",
+    "confirmDelete": "Are you sure you want to delete this MCP server configuration?",
+    "loadFailed": "Failed to load MCP server configurations",
+    "typeDescription": {
+      "stdio": {
+        "title": "STDIO (Standard Input/Output)",
+        "description": "Communicates with local processes via standard input/output. Most commonly used for local tools and services. Claude Code will launch the specified command and communicate via stdin/stdout.",
+        "example": "Example: npx @playwright/mcp@latest or python my_mcp_server.py"
+      },
+      "http": {
+        "title": "HTTP (HyperText Transfer Protocol)",
+        "description": "Communicates with remote servers via HTTP protocol. Suitable for remote API services. Supports custom headers for authentication (e.g., Bearer Token).",
+        "example": "Example: https://api.example.com/mcp or https://mcp.context7.com/mcp"
+      },
+      "sse": {
+        "title": "SSE (Server-Sent Events)",
+        "description": "Communicates with remote servers via server-sent events. Suitable for services requiring real-time push. Server can proactively push messages to clients. Supports custom headers.",
+        "example": "Example: https://streaming.example.com/mcp/events"
+      }
+    }
   }
 }

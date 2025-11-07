@@ -155,6 +155,20 @@ export const CLAUDE_PROJECT_CHANNELS = {
 } as const
 
 /**
+ * 全局 MCP 配置相关 channel
+ */
+export const MCP_CHANNELS = {
+  /** 获取所有 MCP 服务器配置 */
+  GET_ALL_MCP_SERVERS: 'mcp-get-all-servers',
+  /** 添加 MCP 服务器配置 */
+  ADD_MCP_SERVER: 'mcp-add-server',
+  /** 更新 MCP 服务器配置 */
+  UPDATE_MCP_SERVER: 'mcp-update-server',
+  /** 删除 MCP 服务器配置 */
+  DELETE_MCP_SERVER: 'mcp-delete-server'
+} as const
+
+/**
  * 所有 IPC channels 的联合类型
  */
 export type IpcChannel =
@@ -166,3 +180,4 @@ export type IpcChannel =
   | (typeof SETTINGS_CHANNELS)[keyof typeof SETTINGS_CHANNELS]
   | (typeof MARKDOWN_CHANNELS)[keyof typeof MARKDOWN_CHANNELS]
   | (typeof CLAUDE_PROJECT_CHANNELS)[keyof typeof CLAUDE_PROJECT_CHANNELS]
+  | (typeof MCP_CHANNELS)[keyof typeof MCP_CHANNELS]

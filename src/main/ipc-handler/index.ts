@@ -5,6 +5,7 @@ import { registerCodexHandler } from './codex-handler'
 import { registerSettingsHandlers } from './settings-handler'
 import { registerMarkdownHandlers } from './markdown-handler'
 import { registerClaudeProjectHandlers } from './claude-project-handler'
+import { registerMcpHandlers } from './mcp-handler'
 
 /**
  * 注册所有 IPC 事件处理器
@@ -30,4 +31,7 @@ export function registerAllHandlers() {
 
   // 注册 Claude 项目配置处理器
   registerClaudeProjectHandlers()
+
+  // 注册 MCP 配置处理器
+  registerMcpHandlers()
 }
