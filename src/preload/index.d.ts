@@ -52,6 +52,11 @@ interface API {
   updateCodexVendor: (id: string, updates: Partial<CodexVendorConfig>) => Promise<boolean>
   activateCodexVendor: (id: string) => Promise<boolean>
   getActiveCodexVendorId: () => Promise<string | null>
+  getThemeMode: () => Promise<'light' | 'dark' | 'system'>
+  setThemeMode: (mode: 'light' | 'dark' | 'system') => Promise<boolean>
+  getLanguage: () => Promise<string>
+  setLanguage: (language: string) => Promise<boolean>
+  getAllSettings: () => Promise<{ themeMode: 'light' | 'dark' | 'system'; language: string }>
 }
 
 declare global {

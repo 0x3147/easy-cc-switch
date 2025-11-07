@@ -29,21 +29,34 @@ const getSystemTheme = (): ActualTheme => {
 }
 
 export const ThemeContextProvider = ({ children }: ThemeProviderProps) => {
-  // 从 localStorage 读取保存的主题，默认为跟随系统
-  const [mode, setMode] = useState<ThemeMode>(() => {
-    const savedTheme = localStorage.getItem('theme-mode')
-    return (savedTheme as ThemeMode) || 'system'
-  })
-
+  // 从 electron-store读取保存的主题，默认为跟随系统
+  const [mode, setMode] = useState<ThemeMode>('system')
   const [systemTheme, setSystemTheme] = useState<ActualTheme>(getSystemTheme())
+
+  // 初始化时从 electron-store 加载主题设置
+  useEffect(() => {
+    const loadTheme = async () => {
+      try {
+        const savedTheme = await window.api.getThemeMode()
+        setMode(savedTheme)
+      } catch (error) {
+        console.error('Failed to load theme mode:', error)
+      }
+    }
+    loadTheme()
+  }, [])
 
   // 计算实际使用的主题
   const actualTheme: ActualTheme = mode === 'system' ? systemTheme : mode
 
   // 设置主题模式
-  const setThemeMode = (newMode: ThemeMode) => {
+  const setThemeMode = async (newMode: ThemeMode) => {
     setMode(newMode)
-    localStorage.setItem('theme-mode', newMode)
+    try {
+      await window.api.setThemeMode(newMode)
+    } catch (error) {
+      console.error('Failed to save theme mode:', error)
+    }
   }
 
   // 监听系统主题变化

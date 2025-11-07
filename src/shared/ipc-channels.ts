@@ -117,6 +117,22 @@ export const CODEX_CHANNELS = {
 } as const
 
 /**
+ * 用户设置相关 channel
+ */
+export const SETTINGS_CHANNELS = {
+  /** 获取主题模式 */
+  GET_THEME_MODE: 'settings-get-theme-mode',
+  /** 设置主题模式 */
+  SET_THEME_MODE: 'settings-set-theme-mode',
+  /** 获取语言设置 */
+  GET_LANGUAGE: 'settings-get-language',
+  /** 设置语言 */
+  SET_LANGUAGE: 'settings-set-language',
+  /** 获取所有设置 */
+  GET_ALL_SETTINGS: 'settings-get-all-settings'
+} as const
+
+/**
  * 所有 IPC channels 的联合类型
  */
 export type IpcChannel =
@@ -125,3 +141,4 @@ export type IpcChannel =
   | (typeof VENDOR_CHANNELS)[keyof typeof VENDOR_CHANNELS]
   | (typeof TOOL_CHANNELS)[keyof typeof TOOL_CHANNELS]
   | (typeof CODEX_CHANNELS)[keyof typeof CODEX_CHANNELS]
+  | (typeof SETTINGS_CHANNELS)[keyof typeof SETTINGS_CHANNELS]

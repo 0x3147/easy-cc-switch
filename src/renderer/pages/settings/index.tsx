@@ -22,14 +22,19 @@ const SettingsPage = () => {
   const { mode, setThemeMode } = useTheme()
   const { t, i18n } = useTranslation()
 
-  const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setThemeMode(event.target.value as 'light' | 'dark' | 'system')
+  const handleThemeChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newMode = event.target.value as 'light' | 'dark' | 'system'
+    setThemeMode(newMode)
   }
 
-  const handleLanguageChange = (event: any) => {
+  const handleLanguageChange = async (event: any) => {
     const newLang = event.target.value
     i18n.changeLanguage(newLang)
-    localStorage.setItem('language', newLang)
+    try {
+      await window.api.setLanguage(newLang)
+    } catch (error) {
+      console.error('Failed to save language:', error)
+    }
   }
 
   return (

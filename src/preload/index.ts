@@ -4,7 +4,8 @@ import {
   WINDOW_CHANNELS,
   VENDOR_CHANNELS,
   TOOL_CHANNELS,
-  CODEX_CHANNELS
+  CODEX_CHANNELS,
+  SETTINGS_CHANNELS
 } from '@/shared/ipc-channels'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 import type {
@@ -80,7 +81,17 @@ const api = {
   updateCodexVendor: (id: string, updates: Partial<CodexVendorConfig>) =>
     ipcRenderer.invoke(CODEX_CHANNELS.UPDATE_CODEX_VENDOR, id, updates),
   activateCodexVendor: (id: string) => ipcRenderer.invoke(CODEX_CHANNELS.ACTIVATE_CODEX_VENDOR, id),
-  getActiveCodexVendorId: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_ACTIVE_CODEX_VENDOR_ID)
+  getActiveCodexVendorId: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_ACTIVE_CODEX_VENDOR_ID),
+  // 用户设置
+  getThemeMode: (): Promise<'light' | 'dark' | 'system'> =>
+    ipcRenderer.invoke(SETTINGS_CHANNELS.GET_THEME_MODE),
+  setThemeMode: (mode: 'light' | 'dark' | 'system'): Promise<boolean> =>
+    ipcRenderer.invoke(SETTINGS_CHANNELS.SET_THEME_MODE, mode),
+  getLanguage: (): Promise<string> => ipcRenderer.invoke(SETTINGS_CHANNELS.GET_LANGUAGE),
+  setLanguage: (language: string): Promise<boolean> =>
+    ipcRenderer.invoke(SETTINGS_CHANNELS.SET_LANGUAGE, language),
+  getAllSettings: (): Promise<{ themeMode: 'light' | 'dark' | 'system'; language: string }> =>
+    ipcRenderer.invoke(SETTINGS_CHANNELS.GET_ALL_SETTINGS)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
