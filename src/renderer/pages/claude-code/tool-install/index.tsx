@@ -41,7 +41,6 @@ const ToolInstall = () => {
   const [nativeMethod, setNativeMethod] = useState<NativeMethod>('homebrew')
   const [homebrewInstalled, setHomebrewInstalled] = useState(false)
   const [installPath, setInstallPath] = useState('')
-  const [activeStep, setActiveStep] = useState(0)
 
   // 检测平台和 Claude Code 安装状态
   useEffect(() => {
@@ -226,7 +225,7 @@ const ToolInstall = () => {
           {/* 进度条 */}
           <Card sx={{ mb: 3 }}>
             <CardContent>
-              <Stepper activeStep={activeStep} alternativeLabel>
+              <Stepper activeStep={0} alternativeLabel>
                 {steps.map((label) => (
                   <Step key={label}>
                     <StepLabel>{label}</StepLabel>

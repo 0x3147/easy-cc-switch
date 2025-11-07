@@ -1,6 +1,13 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
-import type { PlatformInfo, ClaudeCodeCheckResult, HomebrewCheckResult } from '@/shared/types/tool'
+import type {
+  PlatformInfo,
+  ClaudeCodeCheckResult,
+  CodexCheckResult,
+  NodeCheckResult,
+  NvmCheckResult,
+  HomebrewCheckResult
+} from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
 
 interface API {
@@ -18,6 +25,9 @@ interface API {
   getActiveVendorId: () => Promise<string | null>
   getPlatformInfo: () => Promise<PlatformInfo>
   checkClaudeCode: () => Promise<ClaudeCodeCheckResult>
+  checkCodex: () => Promise<CodexCheckResult>
+  checkNodejs: () => Promise<NodeCheckResult>
+  checkNvm: () => Promise<NvmCheckResult>
   checkHomebrew: () => Promise<HomebrewCheckResult>
   checkClaudeCodeRunning: () => Promise<boolean>
   killClaudeCode: () => Promise<boolean>

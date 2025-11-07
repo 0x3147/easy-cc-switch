@@ -44,3 +44,41 @@ export interface HomebrewCheckResult {
   /** 版本号（如果已安装） */
   version?: string
 }
+
+/**
+ * Codex 检测结果
+ */
+export interface CodexCheckResult {
+  /** 是否已安装 */
+  installed: boolean
+  /** 安装路径（如果已安装） */
+  path?: string
+  /** 版本号（如果已安装） */
+  version?: string
+}
+
+/**
+ * Node.js 检测结果
+ */
+export interface NodeCheckResult {
+  /** 是否已安装 */
+  installed: boolean
+  /** 安装路径（如果已安装） */
+  path?: string
+  /** 版本号（如果已安装） */
+  version?: string
+  /** 主版本号（用于版本检查） */
+  majorVersion?: number
+}
+
+/**
+ * NVM 检测结果
+ */
+export interface NvmCheckResult {
+  /** 是否已安装 */
+  installed: boolean
+  /** 安装路径（如果已安装） */
+  path?: string
+  /** 版本号（如果已安装） */
+  version?: string
+}

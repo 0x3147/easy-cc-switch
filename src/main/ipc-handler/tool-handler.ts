@@ -2,7 +2,14 @@ import { ipcMain } from 'electron'
 import { execSync } from 'child_process'
 import * as os from 'os'
 import { TOOL_CHANNELS } from '@/shared/ipc-channels'
-import type { PlatformInfo, ClaudeCodeCheckResult, HomebrewCheckResult } from '@/shared/types/tool'
+import type {
+  PlatformInfo,
+  ClaudeCodeCheckResult,
+  CodexCheckResult,
+  NodeCheckResult,
+  NvmCheckResult,
+  HomebrewCheckResult
+} from '@/shared/types/tool'
 
 /**
  * 注册工具相关的 IPC handlers
@@ -104,6 +111,185 @@ export function registerToolHandlers() {
             installed: true,
             path
           }
+        }
+      }
+
+      return { installed: false }
+    } catch {
+      return { installed: false }
+    }
+  })
+
+  // 检测 Codex 安装状态
+  ipcMain.handle(TOOL_CHANNELS.CHECK_CODEX, async (): Promise<CodexCheckResult> => {
+    try {
+      const platform = process.platform
+
+      let command: string
+      if (platform === 'win32') {
+        // Windows: 检查 codex 命令是否可用
+        command = 'where codex'
+      } else {
+        // macOS/Linux: 检查 codex 命令是否可用
+        command = 'which codex'
+      }
+
+      const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      const path = output.trim().split('\n')[0] // 获取第一个结果
+
+      if (path) {
+        // 尝试获取版本号
+        try {
+          const versionOutput = execSync('codex --version', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore']
+          })
+          const version = versionOutput.trim()
+
+          return {
+            installed: true,
+            path,
+            version
+          }
+        } catch {
+          // 无法获取版本，但已安装
+          return {
+            installed: true,
+            path
+          }
+        }
+      }
+
+      return { installed: false }
+    } catch {
+      // 命令不存在或执行失败
+      return { installed: false }
+    }
+  })
+
+  // 检测 Node.js 安装状态
+  ipcMain.handle(TOOL_CHANNELS.CHECK_NODEJS, async (): Promise<NodeCheckResult> => {
+    try {
+      const platform = process.platform
+
+      let command: string
+      if (platform === 'win32') {
+        // Windows: 检查 node 命令是否可用
+        command = 'where node'
+      } else {
+        // macOS/Linux: 检查 node 命令是否可用
+        command = 'which node'
+      }
+
+      const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      const path = output.trim().split('\n')[0] // 获取第一个结果
+
+      if (path) {
+        // 尝试获取版本号
+        try {
+          const versionOutput = execSync('node --version', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore']
+          })
+          const version = versionOutput.trim() // 例如: v18.20.0
+
+          // 提取主版本号
+          const majorVersion = parseInt(version.replace('v', '').split('.')[0], 10)
+
+          return {
+            installed: true,
+            path,
+            version,
+            majorVersion
+          }
+        } catch {
+          // 无法获取版本，但已安装
+          return {
+            installed: true,
+            path
+          }
+        }
+      }
+
+      return { installed: false }
+    } catch {
+      // 命令不存在或执行失败
+      return { installed: false }
+    }
+  })
+
+  // 检测 NVM 安装状态
+  ipcMain.handle(TOOL_CHANNELS.CHECK_NVM, async (): Promise<NvmCheckResult> => {
+    try {
+      const platform = process.platform
+
+      if (platform === 'win32') {
+        // Windows: 检查 nvm 命令（nvm-windows）
+        try {
+          const output = execSync('where nvm', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore']
+          })
+          const path = output.trim().split('\n')[0]
+
+          if (path) {
+            try {
+              const versionOutput = execSync('nvm version', {
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'ignore']
+              })
+              const version = versionOutput.trim()
+
+              return {
+                installed: true,
+                path,
+                version
+              }
+            } catch {
+              return {
+                installed: true,
+                path
+              }
+            }
+          }
+        } catch {
+          return { installed: false }
+        }
+      } else {
+        // macOS/Linux: NVM 通常是 shell 函数，检查 NVM_DIR 环境变量和 nvm.sh 脚本
+        const nvmDir = process.env.NVM_DIR || `${process.env.HOME}/.nvm`
+        const nvmScript = `${nvmDir}/nvm.sh`
+
+        try {
+          // 检查 nvm.sh 是否存在
+          execSync(`test -f ${nvmScript}`, { stdio: ['pipe', 'pipe', 'ignore'] })
+
+          // 尝试获取版本号
+          try {
+            // 使用 bash -c 来加载 nvm 并获取版本
+            const versionOutput = execSync(
+              `bash -c "source ${nvmScript} && nvm --version"`,
+              {
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'ignore']
+              }
+            )
+            const version = versionOutput.trim()
+
+            return {
+              installed: true,
+              path: nvmScript,
+              version
+            }
+          } catch {
+            // 无法获取版本，但 nvm.sh 存在
+            return {
+              installed: true,
+              path: nvmScript
+            }
+          }
+        } catch {
+          return { installed: false }
         }
       }
 

@@ -7,7 +7,14 @@ import {
   CODEX_CHANNELS
 } from '@/shared/ipc-channels'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
-import type { PlatformInfo, ClaudeCodeCheckResult, HomebrewCheckResult } from '@/shared/types/tool'
+import type {
+  PlatformInfo,
+  ClaudeCodeCheckResult,
+  CodexCheckResult,
+  NodeCheckResult,
+  NvmCheckResult,
+  HomebrewCheckResult
+} from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
 
 // Custom APIs for renderer
@@ -33,6 +40,9 @@ const api = {
   getPlatformInfo: (): Promise<PlatformInfo> => ipcRenderer.invoke(TOOL_CHANNELS.GET_PLATFORM_INFO),
   checkClaudeCode: (): Promise<ClaudeCodeCheckResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE),
+  checkCodex: (): Promise<CodexCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX),
+  checkNodejs: (): Promise<NodeCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_NODEJS),
+  checkNvm: (): Promise<NvmCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_NVM),
   checkHomebrew: (): Promise<HomebrewCheckResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_HOMEBREW),
   checkClaudeCodeRunning: (): Promise<boolean> =>

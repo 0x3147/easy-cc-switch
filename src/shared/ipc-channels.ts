@@ -54,6 +54,12 @@ export const VENDOR_CHANNELS = {
 export const TOOL_CHANNELS = {
   /** 检测 Claude Code 安装状态 */
   CHECK_CLAUDE_CODE: 'tool-check-claude-code',
+  /** 检测 Codex 安装状态 */
+  CHECK_CODEX: 'tool-check-codex',
+  /** 检测 Node.js 安装状态 */
+  CHECK_NODEJS: 'tool-check-nodejs',
+  /** 检测 NVM 安装状态 */
+  CHECK_NVM: 'tool-check-nvm',
   /** 检测 Homebrew 安装状态（仅 macOS） */
   CHECK_HOMEBREW: 'tool-check-homebrew',
   /** 获取系统平台信息 */
