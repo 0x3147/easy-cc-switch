@@ -42,22 +42,27 @@ export const lightTheme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: {
+        '*': {
           scrollbarWidth: 'thin',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px'
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent'
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: 'rgba(0, 0, 0, 0.2)',
-            borderRadius: '4px',
-            '&:hover': {
-              background: 'rgba(0, 0, 0, 0.3)'
-            }
+          scrollbarColor: 'rgba(0, 0, 0, 0.2) transparent'
+        },
+        '*::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px'
+        },
+        '*::-webkit-scrollbar-track': {
+          background: 'transparent'
+        },
+        '*::-webkit-scrollbar-thumb': {
+          background: 'rgba(0, 0, 0, 0.15)',
+          borderRadius: '4px',
+          transition: 'background 0.2s',
+          '&:hover': {
+            background: 'rgba(0, 0, 0, 0.25)'
           }
+        },
+        '*::-webkit-scrollbar-corner': {
+          background: 'transparent'
         }
       }
     }
@@ -106,22 +111,27 @@ export const darkTheme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: {
+        '*': {
           scrollbarWidth: 'thin',
-          '&::-webkit-scrollbar': {
-            width: '8px',
-            height: '8px'
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent'
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: 'rgba(255, 255, 255, 0.2)',
-            borderRadius: '4px',
-            '&:hover': {
-              background: 'rgba(255, 255, 255, 0.3)'
-            }
+          scrollbarColor: 'rgba(255, 255, 255, 0.2) transparent'
+        },
+        '*::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px'
+        },
+        '*::-webkit-scrollbar-track': {
+          background: 'transparent'
+        },
+        '*::-webkit-scrollbar-thumb': {
+          background: 'rgba(255, 255, 255, 0.15)',
+          borderRadius: '4px',
+          transition: 'background 0.2s',
+          '&:hover': {
+            background: 'rgba(255, 255, 255, 0.25)'
           }
+        },
+        '*::-webkit-scrollbar-corner': {
+          background: 'transparent'
         }
       }
     }
