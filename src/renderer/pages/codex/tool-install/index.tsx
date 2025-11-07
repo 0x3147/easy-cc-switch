@@ -7,30 +7,15 @@ import {
   Button,
   Alert,
   AlertTitle,
-  Paper,
-  Chip,
   Stack,
-  CircularProgress,
-  Divider,
-  Link,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon
+  CircularProgress
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faCheckCircle,
-  faTimesCircle,
-  faExclamationTriangle,
-  faTerminal,
-  faCoffee,
-  faChevronDown,
-  faInfoCircle
-} from '@fortawesome/free-solid-svg-icons'
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons'
+import InstalledStatus from './c-cpns/installed-status'
+import EnvironmentStatusCard from './c-cpns/environment-status-card'
+import NpmInstallPanel from './c-cpns/npm-install-panel'
+import HomebrewInstallPanel from './c-cpns/homebrew-install-panel'
 
 type InstallStatus = 'checking' | 'installed' | 'not-installed'
 type Platform = 'macos' | 'windows' | 'linux' | 'unsupported'
@@ -59,6 +44,7 @@ const CodexToolInstall = () => {
   }, [])
 
   const detectEnvironment = async () => {
+    setInstallStatus('checking')
     try {
       // 获取平台信息
       const platformInfo = await window.api.getPlatformInfo()
@@ -79,7 +65,9 @@ const CodexToolInstall = () => {
         window.api.checkCodex(),
         window.api.checkNodejs(),
         window.api.checkNvm(),
-        detectedPlatform === 'macos' ? window.api.checkHomebrew() : Promise.resolve({ installed: false })
+        detectedPlatform === 'macos'
+          ? window.api.checkHomebrew()
+          : Promise.resolve({ installed: false })
       ])
 
       console.log('Codex check:', codexResult)
@@ -141,52 +129,11 @@ const CodexToolInstall = () => {
   // 已安装状态页面
   if (installStatus === 'installed') {
     return (
-      <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
-          <Box>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-              工具安装
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Codex 已成功安装
-            </Typography>
-          </Box>
-        </Box>
-
-        <Alert severity="success" icon={<FontAwesomeIcon icon={faCheckCircle} />} sx={{ mb: 3 }}>
-          <AlertTitle sx={{ fontWeight: 600 }}>Codex 已安装</AlertTitle>
-          您的系统已经正确安装 Codex，您可以直接使用。
-        </Alert>
-
-        <Card>
-          <CardContent>
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-              安装信息
-            </Typography>
-            <Divider sx={{ my: 2 }} />
-            <Stack spacing={2}>
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  安装位置
-                </Typography>
-                <Paper variant="outlined" sx={{ p: 1.5, bgcolor: 'grey.50', fontFamily: 'monospace' }}>
-                  {installPath}
-                </Paper>
-              </Box>
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  平台
-                </Typography>
-                <Chip
-                  label={platform === 'macos' ? 'macOS' : platform === 'windows' ? 'Windows' : 'Linux'}
-                  color="primary"
-                  size="small"
-                />
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
+      <InstalledStatus
+        platform={platform}
+        installPath={installPath}
+        onUninstallSuccess={detectEnvironment}
+      />
     )
   }
 
@@ -220,10 +167,6 @@ const CodexToolInstall = () => {
   }
 
   // 未安装 - 安装向导页面
-  const nodeVersionValid = environment.nodejs.installed &&
-    environment.nodejs.majorVersion !== undefined &&
-    environment.nodejs.majorVersion >= 18
-
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
@@ -248,76 +191,7 @@ const CodexToolInstall = () => {
       {platform !== 'unsupported' && (
         <>
           {/* 环境检测结果 */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                环境检测
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Stack spacing={2}>
-                {/* Node.js 检测 */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <FontAwesomeIcon
-                      icon={nodeVersionValid ? faCheckCircle : faTimesCircle}
-                      style={{ color: nodeVersionValid ? '#4caf50' : '#f44336' }}
-                    />
-                    <Typography variant="body1">Node.js (≥ v18)</Typography>
-                  </Box>
-                  {environment.nodejs.installed ? (
-                    <Chip
-                      label={environment.nodejs.version || '已安装'}
-                      color={nodeVersionValid ? 'success' : 'warning'}
-                      size="small"
-                    />
-                  ) : (
-                    <Chip label="未安装" color="default" size="small" />
-                  )}
-                </Box>
-
-                {/* 显示版本过低警告 */}
-                {environment.nodejs.installed && !nodeVersionValid && (
-                  <Alert severity="warning" icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
-                    检测到 Node.js 版本低于 v18，Codex 需要 Node.js v18 或更高版本。
-                  </Alert>
-                )}
-
-                {/* NVM 检测 */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <FontAwesomeIcon
-                      icon={environment.nvm.installed ? faCheckCircle : faInfoCircle}
-                      style={{ color: environment.nvm.installed ? '#4caf50' : '#9e9e9e' }}
-                    />
-                    <Typography variant="body1">NVM (Node 版本管理器)</Typography>
-                  </Box>
-                  {environment.nvm.installed ? (
-                    <Chip label={environment.nvm.version || '已安装'} color="success" size="small" />
-                  ) : (
-                    <Chip label="未安装" color="default" size="small" />
-                  )}
-                </Box>
-
-                {/* Homebrew 检测 (仅 macOS) */}
-                {platform === 'macos' && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <FontAwesomeIcon
-                        icon={environment.homebrew.installed ? faCheckCircle : faInfoCircle}
-                        style={{ color: environment.homebrew.installed ? '#4caf50' : '#9e9e9e' }}
-                      />
-                      <Typography variant="body1">Homebrew</Typography>
-                    </Box>
-                    {environment.homebrew.installed ? (
-                      <Chip label={environment.homebrew.version || '已安装'} color="success" size="small" />
-                    ) : (
-                      <Chip label="未安装" color="default" size="small" />
-                    )}
-                  </Box>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
+          <EnvironmentStatusCard platform={platform} environment={environment} />
 
           {/* 安装方式推荐 */}
           <Card sx={{ mb: 3 }}>
@@ -325,215 +199,22 @@ const CodexToolInstall = () => {
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                 推荐安装方式
               </Typography>
-              <Divider sx={{ my: 2 }} />
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }} />
 
-              {/* 方式 1: npm 安装 */}
-              <Accordion
-                defaultExpanded={recommendedMethod === 'npm'}
-                sx={{ mb: 2, border: recommendedMethod === 'npm' ? '2px solid #1976d2' : '1px solid #e0e0e0' }}
-              >
-                <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                    <FontAwesomeIcon icon={faTerminal} />
-                    <Typography sx={{ fontWeight: 600 }}>使用 npm 安装</Typography>
-                    {recommendedMethod === 'npm' && (
-                      <Chip label="推荐" color="primary" size="small" sx={{ ml: 'auto', mr: 2 }} />
-                    )}
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Stack spacing={2}>
-                    {nodeVersionValid ? (
-                      <>
-                        <Alert severity="success" icon={<FontAwesomeIcon icon={faCheckCircle} />}>
-                          检测到符合要求的 Node.js 版本，可以直接使用 npm 安装。
-                        </Alert>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 500 }}>
-                            执行以下命令安装 Codex:
-                          </Typography>
-                          <Paper
-                            variant="outlined"
-                            sx={{
-                              p: 2,
-                              bgcolor: 'grey.900',
-                              color: 'common.white',
-                              fontFamily: 'monospace',
-                              fontSize: '14px'
-                            }}
-                          >
-                            <code>{getInstallCommand('npm')}</code>
-                          </Paper>
-                        </Box>
-                      </>
-                    ) : (
-                      <>
-                        <Alert severity="warning" icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
-                          需要先安装 Node.js v18 或更高版本。
-                        </Alert>
-                        <Typography variant="body2" gutterBottom sx={{ fontWeight: 500 }}>
-                          安装 Node.js 的方式:
-                        </Typography>
-                        <List dense>
-                          {environment.nvm.installed ? (
-                            <>
-                              <ListItem>
-                                <ListItemIcon>
-                                  <FontAwesomeIcon icon={faCheckCircle} style={{ color: '#4caf50' }} />
-                                </ListItemIcon>
-                                <ListItemText
-                                  primary="使用 NVM 安装 Node.js (推荐)"
-                                  secondary="已检测到 NVM，可以使用它管理 Node.js 版本"
-                                />
-                              </ListItem>
-                              <Box sx={{ pl: 4, pr: 2, pb: 2 }}>
-                                <Paper
-                                  variant="outlined"
-                                  sx={{
-                                    p: 2,
-                                    bgcolor: 'grey.900',
-                                    color: 'common.white',
-                                    fontFamily: 'monospace',
-                                    fontSize: '14px'
-                                  }}
-                                >
-                                  <code>
-                                    # 安装最新 LTS 版本{'\n'}
-                                    nvm install --lts{'\n'}
-                                    {'\n'}
-                                    # 使用已安装的 LTS 版本{'\n'}
-                                    nvm use --lts{'\n'}
-                                    {'\n'}
-                                    # 然后安装 Codex{'\n'}
-                                    {getInstallCommand('npm')}
-                                  </code>
-                                </Paper>
-                              </Box>
-                            </>
-                          ) : (
-                            <>
-                              <ListItem>
-                                <ListItemIcon>
-                                  <Typography>1.</Typography>
-                                </ListItemIcon>
-                                <ListItemText
-                                  primary="安装 NVM (Node 版本管理器，推荐)"
-                                  secondary={
-                                    <Link
-                                      href="https://github.com/nvm-sh/nvm#installing-and-updating"
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      查看 NVM 安装指南 →
-                                    </Link>
-                                  }
-                                />
-                              </ListItem>
-                              <ListItem>
-                                <ListItemIcon>
-                                  <Typography>2.</Typography>
-                                </ListItemIcon>
-                                <ListItemText
-                                  primary="直接安装 Node.js LTS 版本"
-                                  secondary={
-                                    <Link
-                                      href="https://nodejs.org/"
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                    >
-                                      访问 Node.js 官网下载 →
-                                    </Link>
-                                  }
-                                />
-                              </ListItem>
-                            </>
-                          )}
-                        </List>
-                      </>
-                    )}
-                  </Stack>
-                </AccordionDetails>
-              </Accordion>
+              {/* npm 安装面板 */}
+              <NpmInstallPanel
+                environment={environment}
+                isRecommended={recommendedMethod === 'npm'}
+                installCommand={getInstallCommand('npm')}
+              />
 
-              {/* 方式 2: Homebrew 安装 (仅 macOS) */}
+              {/* Homebrew 安装面板 (仅 macOS) */}
               {platform === 'macos' && (
-                <Accordion
-                  defaultExpanded={recommendedMethod === 'homebrew'}
-                  sx={{ border: recommendedMethod === 'homebrew' ? '2px solid #1976d2' : '1px solid #e0e0e0' }}
-                >
-                  <AccordionSummary expandIcon={<FontAwesomeIcon icon={faChevronDown} />}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                      <FontAwesomeIcon icon={faCoffee} />
-                      <Typography sx={{ fontWeight: 600 }}>使用 Homebrew 安装</Typography>
-                      {recommendedMethod === 'homebrew' && (
-                        <Chip label="推荐" color="primary" size="small" sx={{ ml: 'auto', mr: 2 }} />
-                      )}
-                    </Box>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Stack spacing={2}>
-                      {environment.homebrew.installed ? (
-                        <>
-                          <Alert severity="success" icon={<FontAwesomeIcon icon={faCheckCircle} />}>
-                            检测到 Homebrew，可以直接使用它安装 Codex。
-                          </Alert>
-                          <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 500 }}>
-                              执行以下命令安装 Codex:
-                            </Typography>
-                            <Paper
-                              variant="outlined"
-                              sx={{
-                                p: 2,
-                                bgcolor: 'grey.900',
-                                color: 'common.white',
-                                fontFamily: 'monospace',
-                                fontSize: '14px'
-                              }}
-                            >
-                              <code>{getInstallCommand('homebrew')}</code>
-                            </Paper>
-                          </Box>
-                        </>
-                      ) : (
-                        <>
-                          <Alert severity="warning" icon={<FontAwesomeIcon icon={faExclamationTriangle} />}>
-                            需要先安装 Homebrew。
-                          </Alert>
-                          <Typography variant="body2" gutterBottom>
-                            Homebrew 是 macOS 上最流行的包管理器，可以方便地安装和管理各种软件。
-                          </Typography>
-                          <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 500 }}>
-                              安装 Homebrew:
-                            </Typography>
-                            <Paper
-                              variant="outlined"
-                              sx={{
-                                p: 2,
-                                bgcolor: 'grey.900',
-                                color: 'common.white',
-                                fontFamily: 'monospace',
-                                fontSize: '14px',
-                                mb: 1
-                              }}
-                            >
-                              <code>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</code>
-                            </Paper>
-                            <Link
-                              href="https://brew.sh/"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              sx={{ fontSize: '0.875rem' }}
-                            >
-                              查看 Homebrew 官方网站 →
-                            </Link>
-                          </Box>
-                        </>
-                      )}
-                    </Stack>
-                  </AccordionDetails>
-                </Accordion>
+                <HomebrewInstallPanel
+                  environment={environment}
+                  isRecommended={recommendedMethod === 'homebrew'}
+                  installCommand={getInstallCommand('homebrew')}
+                />
               )}
             </CardContent>
           </Card>

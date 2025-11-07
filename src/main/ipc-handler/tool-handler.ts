@@ -167,6 +167,74 @@ export function registerToolHandlers() {
     }
   })
 
+  // 卸载 Codex
+  ipcMain.handle(
+    TOOL_CHANNELS.UNINSTALL_CODEX,
+    async (): Promise<{ success: boolean; message: string }> => {
+      try {
+        const platform = process.platform
+
+        // 先检查 Codex 是否已安装
+        let isInstalled = false
+        try {
+          const command = platform === 'win32' ? 'where codex' : 'which codex'
+          execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+          isInstalled = true
+        } catch {
+          isInstalled = false
+        }
+
+        if (!isInstalled) {
+          return {
+            success: false,
+            message: 'Codex 未安装'
+          }
+        }
+
+        // 尝试使用 npm 卸载
+        try {
+          execSync('npm uninstall -g @openai/codex', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'pipe']
+          })
+          return {
+            success: true,
+            message: '已通过 npm 成功卸载 Codex'
+          }
+        } catch (npmError) {
+          // npm 卸载失败，尝试 homebrew (仅 macOS)
+          if (platform === 'darwin') {
+            try {
+              execSync('brew uninstall codex', {
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'pipe']
+              })
+              return {
+                success: true,
+                message: '已通过 Homebrew 成功卸载 Codex'
+              }
+            } catch (brewError) {
+              return {
+                success: false,
+                message: '卸载失败：无法通过 npm 或 Homebrew 卸载 Codex'
+              }
+            }
+          }
+
+          return {
+            success: false,
+            message: '卸载失败：npm uninstall 命令执行失败'
+          }
+        }
+      } catch (error) {
+        return {
+          success: false,
+          message: `卸载失败：${error instanceof Error ? error.message : '未知错误'}`
+        }
+      }
+    }
+  )
+
   // 检测 Node.js 安装状态
   ipcMain.handle(TOOL_CHANNELS.CHECK_NODEJS, async (): Promise<NodeCheckResult> => {
     try {

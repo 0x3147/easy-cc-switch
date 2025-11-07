@@ -41,6 +41,8 @@ const api = {
   checkClaudeCode: (): Promise<ClaudeCodeCheckResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE),
   checkCodex: (): Promise<CodexCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX),
+  uninstallCodex: (): Promise<{ success: boolean; message: string }> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.UNINSTALL_CODEX),
   checkNodejs: (): Promise<NodeCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_NODEJS),
   checkNvm: (): Promise<NvmCheckResult> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_NVM),
   checkHomebrew: (): Promise<HomebrewCheckResult> =>

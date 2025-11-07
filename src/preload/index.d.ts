@@ -26,6 +26,7 @@ interface API {
   getPlatformInfo: () => Promise<PlatformInfo>
   checkClaudeCode: () => Promise<ClaudeCodeCheckResult>
   checkCodex: () => Promise<CodexCheckResult>
+  uninstallCodex: () => Promise<{ success: boolean; message: string }>
   checkNodejs: () => Promise<NodeCheckResult>
   checkNvm: () => Promise<NvmCheckResult>
   checkHomebrew: () => Promise<HomebrewCheckResult>

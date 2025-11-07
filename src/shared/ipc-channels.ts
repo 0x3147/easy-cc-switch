@@ -56,6 +56,8 @@ export const TOOL_CHANNELS = {
   CHECK_CLAUDE_CODE: 'tool-check-claude-code',
   /** 检测 Codex 安装状态 */
   CHECK_CODEX: 'tool-check-codex',
+  /** 卸载 Codex */
+  UNINSTALL_CODEX: 'tool-uninstall-codex',
   /** 检测 Node.js 安装状态 */
   CHECK_NODEJS: 'tool-check-nodejs',
   /** 检测 NVM 安装状态 */
