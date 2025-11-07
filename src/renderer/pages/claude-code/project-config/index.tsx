@@ -34,6 +34,8 @@ export default function ProjectConfig() {
   const [loading, setLoading] = useState(false)
   const [mcpDialogOpen, setMcpDialogOpen] = useState(false)
   const [mcpJson, setMcpJson] = useState('')
+  const [mcpExpanded, setMcpExpanded] = useState(false)
+  const [editingMcp, setEditingMcp] = useState<{ name: string; config: any } | null>(null)
 
   useEffect(() => {
     loadProjects()
@@ -106,15 +108,33 @@ export default function ProjectConfig() {
     if (!selectedProject || !mcpJson.trim()) return
     try {
       const parsed = JSON.parse(mcpJson)
-      setSelectedProject({
-        ...selectedProject,
-        mcpServers: { ...selectedProject.mcpServers, ...parsed }
-      })
+      if (editingMcp) {
+        // 编辑模式：删除旧的，添加新的
+        const newMcpServers = { ...selectedProject.mcpServers }
+        delete newMcpServers[editingMcp.name]
+        setSelectedProject({
+          ...selectedProject,
+          mcpServers: { ...newMcpServers, ...parsed }
+        })
+        setEditingMcp(null)
+      } else {
+        // 添加模式
+        setSelectedProject({
+          ...selectedProject,
+          mcpServers: { ...selectedProject.mcpServers, ...parsed }
+        })
+      }
       setMcpJson('')
       setMcpDialogOpen(false)
     } catch (error) {
       alert('JSON 格式错误，请检查后重试')
     }
+  }
+
+  const handleEditMcp = (name: string, config: any) => {
+    setEditingMcp({ name, config })
+    setMcpJson(JSON.stringify({ [name]: config }, null, 2))
+    setMcpDialogOpen(true)
   }
 
   return (
@@ -228,9 +248,16 @@ export default function ProjectConfig() {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                  MCP 服务器
+                  MCP 服务器 ({Object.keys(selectedProject.mcpServers).length})
                 </Typography>
-                <Button size="small" onClick={() => setMcpDialogOpen(true)}>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    setEditingMcp(null)
+                    setMcpJson('')
+                    setMcpDialogOpen(true)
+                  }}
+                >
                   添加 MCP
                 </Button>
               </Box>
@@ -240,37 +267,59 @@ export default function ProjectConfig() {
                     未配置 MCP 服务器
                   </Typography>
                 ) : (
-                  Object.entries(selectedProject.mcpServers).map(([name, config]) => (
-                    <Box
-                      key={name}
-                      sx={{
-                        p: 1.5,
-                        mb: 1,
-                        border: 1,
-                        borderColor: 'divider',
-                        borderRadius: 1,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <Box>
-                        <Typography variant="body2" fontWeight={600}>
-                          {name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {config.command || config.url}
-                        </Typography>
-                      </Box>
-                      <IconButton
+                  <>
+                    {Object.entries(selectedProject.mcpServers)
+                      .slice(0, mcpExpanded ? undefined : 3)
+                      .map(([name, config]) => (
+                        <Box
+                          key={name}
+                          sx={{
+                            p: 1.5,
+                            mb: 1,
+                            border: 1,
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="body2" fontWeight={600}>
+                              {name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {config.command || config.url}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', gap: 0.5 }}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditMcp(name, config)}
+                            >
+                              <SettingsIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => handleDeleteMcp(name)}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      ))}
+                    {Object.keys(selectedProject.mcpServers).length > 3 && (
+                      <Button
                         size="small"
-                        color="error"
-                        onClick={() => handleDeleteMcp(name)}
+                        fullWidth
+                        onClick={() => setMcpExpanded(!mcpExpanded)}
+                        sx={{ mt: 1 }}
                       >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  ))
+                        {mcpExpanded ? '收起' : `展开更多 (${Object.keys(selectedProject.mcpServers).length - 3})`}
+                      </Button>
+                    )}
+                  </>
                 )}
               </Box>
             </Box>
@@ -284,8 +333,17 @@ export default function ProjectConfig() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={mcpDialogOpen} onClose={() => setMcpDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>添加 MCP 服务器</DialogTitle>
+      <Dialog
+        open={mcpDialogOpen}
+        onClose={() => {
+          setMcpDialogOpen(false)
+          setEditingMcp(null)
+          setMcpJson('')
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>{editingMcp ? '编辑 MCP 服务器' : '添加 MCP 服务器'}</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             粘贴 MCP 服务器的 JSON 配置，例如：
@@ -325,9 +383,17 @@ export default function ProjectConfig() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setMcpDialogOpen(false)}>取消</Button>
+          <Button
+            onClick={() => {
+              setMcpDialogOpen(false)
+              setEditingMcp(null)
+              setMcpJson('')
+            }}
+          >
+            取消
+          </Button>
           <Button onClick={handleAddMcp} variant="contained">
-            添加
+            {editingMcp ? '保存' : '添加'}
           </Button>
         </DialogActions>
       </Dialog>
