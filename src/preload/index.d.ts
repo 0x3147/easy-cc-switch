@@ -27,6 +27,9 @@ interface API {
   getPlatformInfo: () => Promise<PlatformInfo>
   checkClaudeCode: () => Promise<ClaudeCodeCheckResult>
   uninstallClaudeCode: () => Promise<{ success: boolean; message: string }>
+  installClaudeCodeHomebrew: () => Promise<InstallResult>
+  installClaudeCodeCurl: () => Promise<InstallResult>
+  installClaudeCodePowershell: () => Promise<InstallResult>
   checkCodex: () => Promise<CodexCheckResult>
   uninstallCodex: () => Promise<{ success: boolean; message: string }>
   checkNodejs: () => Promise<NodeCheckResult>

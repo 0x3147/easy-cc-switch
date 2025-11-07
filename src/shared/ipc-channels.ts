@@ -56,6 +56,12 @@ export const TOOL_CHANNELS = {
   CHECK_CLAUDE_CODE: 'tool-check-claude-code',
   /** 卸载 Claude Code */
   UNINSTALL_CLAUDE_CODE: 'tool-uninstall-claude-code',
+  /** 通过 Homebrew 安装 Claude Code（仅 macOS） */
+  INSTALL_CLAUDE_CODE_HOMEBREW: 'tool-install-claude-code-homebrew',
+  /** 通过 cURL 脚本安装 Claude Code（仅 macOS） */
+  INSTALL_CLAUDE_CODE_CURL: 'tool-install-claude-code-curl',
+  /** 通过 PowerShell 脚本安装 Claude Code（仅 Windows） */
+  INSTALL_CLAUDE_CODE_POWERSHELL: 'tool-install-claude-code-powershell',
   /** 检测 Codex 安装状态 */
   CHECK_CODEX: 'tool-check-codex',
   /** 卸载 Codex */

@@ -357,14 +357,21 @@ const ToolInstall = () => {
                     <HomebrewInstallPanel
                       environment={environment}
                       isSelected={nativeMethod === 'homebrew'}
+                      onInstallSuccess={detectPlatformAndStatus}
                     />
-                    <CurlInstallPanel isSelected={nativeMethod === 'curl'} />
+                    <CurlInstallPanel
+                      isSelected={nativeMethod === 'curl'}
+                      onInstallSuccess={detectPlatformAndStatus}
+                    />
                   </>
                 )}
 
                 {/* Windows 安装面板 */}
                 {platform === 'windows' && (
-                  <PowershellInstallPanel isSelected={nativeMethod === 'powershell'} />
+                  <PowershellInstallPanel
+                    isSelected={nativeMethod === 'powershell'}
+                    onInstallSuccess={detectPlatformAndStatus}
+                  />
                 )}
 
                 <Box sx={{ display: 'flex', gap: 2, pt: 2 }}>

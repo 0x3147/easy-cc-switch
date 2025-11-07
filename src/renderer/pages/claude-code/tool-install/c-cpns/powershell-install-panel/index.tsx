@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Box,
   Typography,
@@ -6,16 +7,55 @@ import {
   Alert,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Button,
+  CircularProgress,
+  AlertTitle
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTerminal, faChevronDown, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import {
+  faTerminal,
+  faChevronDown,
+  faInfoCircle,
+  faDownload,
+  faCheckCircle,
+  faTimesCircle
+} from '@fortawesome/free-solid-svg-icons'
 
 interface PowershellInstallPanelProps {
   isSelected: boolean
+  onInstallSuccess?: () => void
 }
 
-const PowershellInstallPanel = ({ isSelected }: PowershellInstallPanelProps) => {
+const PowershellInstallPanel = ({ isSelected, onInstallSuccess }: PowershellInstallPanelProps) => {
+  const [isInstalling, setIsInstalling] = useState(false)
+  const [installResult, setInstallResult] = useState<{
+    success: boolean
+    message: string
+  } | null>(null)
+
+  // 安装 Claude Code
+  const handleInstall = async () => {
+    setIsInstalling(true)
+    setInstallResult(null)
+    try {
+      const result = await window.api.installClaudeCodePowershell()
+      setInstallResult(result)
+      if (result.success && onInstallSuccess) {
+        // 延迟一下再重新检测，让用户看到成功消息
+        setTimeout(() => {
+          onInstallSuccess()
+        }, 1500)
+      }
+    } catch (error) {
+      setInstallResult({
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      })
+    } finally {
+      setIsInstalling(false)
+    }
+  }
   return (
     <Accordion
       defaultExpanded={isSelected}
@@ -32,9 +72,46 @@ const PowershellInstallPanel = ({ isSelected }: PowershellInstallPanelProps) => 
           <Alert severity="info" icon={<FontAwesomeIcon icon={faInfoCircle} />}>
             这种方式会自动下载并安装 Claude Code。
           </Alert>
+
+          {/* 安装按钮 */}
+          <Box>
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              startIcon={
+                isInstalling ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <FontAwesomeIcon icon={faDownload} />
+                )
+              }
+              onClick={handleInstall}
+              disabled={isInstalling}
+            >
+              {isInstalling ? '正在安装 Claude Code...' : '一键安装 Claude Code'}
+            </Button>
+          </Box>
+
+          {/* 安装结果 */}
+          {installResult && (
+            <Alert
+              severity={installResult.success ? 'success' : 'error'}
+              icon={
+                <FontAwesomeIcon icon={installResult.success ? faCheckCircle : faTimesCircle} />
+              }
+            >
+              <AlertTitle sx={{ fontWeight: 600 }}>
+                {installResult.success ? '安装成功' : '安装失败'}
+              </AlertTitle>
+              {installResult.message}
+            </Alert>
+          )}
+
+          {/* 手动安装命令（备用） */}
           <Box>
             <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 500 }}>
-              以管理员身份打开 PowerShell，并执行以下命令:
+              或以管理员身份打开 PowerShell，并手动执行以下命令:
             </Typography>
             <Paper
               variant="outlined"
