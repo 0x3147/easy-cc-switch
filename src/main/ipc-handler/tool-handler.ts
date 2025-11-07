@@ -120,15 +120,16 @@ export function registerToolHandlers() {
       let command: string
 
       if (platform === 'win32') {
-        // Windows: 检查 claude.exe 进程
-        command = 'tasklist /FI "IMAGENAME eq claude.exe"'
+        // Windows: 检查 claude.exe 进程，并验证输出包含进程名
+        command = 'tasklist /FI "IMAGENAME eq claude.exe" /NH'
+        const output = execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        return output.toLowerCase().includes('claude.exe')
       } else {
-        // macOS/Linux: 使用 pgrep 检查 claude 进程
-        command = 'pgrep -x claude'
+        // macOS/Linux: 使用 ps + grep 组合（pgrep 在某些系统上不可靠）
+        command = 'ps -ax -o command | grep -E "^claude$"'
+        execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        return true
       }
-
-      execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
-      return true
     } catch {
       return false
     }
@@ -138,17 +139,54 @@ export function registerToolHandlers() {
   ipcMain.handle(TOOL_CHANNELS.KILL_CLAUDE_CODE, async (): Promise<boolean> => {
     try {
       const platform = process.platform
-      let command: string
 
       if (platform === 'win32') {
-        // Windows: 使用 taskkill
-        command = 'taskkill /F /IM claude.exe'
+        // Windows: 先尝试优雅关闭，失败则强制终止
+        try {
+          execSync('taskkill /IM claude.exe', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore']
+          })
+        } catch {
+          execSync('taskkill /F /IM claude.exe', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore']
+          })
+        }
       } else {
-        // macOS/Linux: 使用 pkill
-        command = 'pkill -9 claude'
+        // macOS/Linux: 先尝试 SIGTERM 优雅退出，失败则使用 SIGKILL
+        // 使用 -x 精确匹配进程名，避免误杀
+        try {
+          execSync('pkill -x claude', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+          // 等待进程退出
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+          // 检查是否还在运行
+          try {
+            execSync('ps -ax -o command | grep -E "^claude$"', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'ignore']
+            })
+            // 如果还在运行，强制终止
+            execSync('pkill -9 -x claude', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'ignore']
+            })
+          } catch {
+            // 进程已退出
+          }
+        } catch {
+          // 尝试强制终止
+          try {
+            execSync('pkill -9 -x claude', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'ignore']
+            })
+          } catch {
+            // 没有进程需要杀掉
+          }
+        }
       }
 
-      execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
       return true
     } catch {
       // 如果没有进程被杀掉，也返回 true（因为目标已达成）
