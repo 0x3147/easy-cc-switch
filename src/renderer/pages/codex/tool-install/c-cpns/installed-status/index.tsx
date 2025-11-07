@@ -80,7 +80,9 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}
+      >
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
             工具安装
@@ -107,7 +109,14 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 安装位置
               </Typography>
-              <Paper variant="outlined" sx={{ p: 1.5, bgcolor: 'grey.50', fontFamily: 'monospace' }}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 1.5,
+                  bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50'),
+                  fontFamily: 'monospace'
+                }}
+              >
                 {installPath}
               </Paper>
             </Box>

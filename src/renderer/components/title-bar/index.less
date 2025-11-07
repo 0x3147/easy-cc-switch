@@ -85,10 +85,32 @@
   }
 }
 
+// 右侧操作区（主题切换按钮）
+.title-bar__actions {
+  display: flex;
+  align-items: center;
+  -webkit-app-region: no-drag;
+  flex-shrink: 0;
+
+  .title-bar--darwin & {
+    width: 80px;
+    justify-content: flex-end;
+  }
+}
+
 // 右侧操作区占位（保持对称）
 .title-bar__actions-spacer {
   width: 80px;
   flex-shrink: 0;
+}
+
+// 主题切换按钮
+.title-bar__theme-btn {
+  transition: all 0.2s ease !important;
+
+  &:hover {
+    transform: rotate(20deg);
+  }
 }
 
 // 品牌区域（Windows/Linux）
