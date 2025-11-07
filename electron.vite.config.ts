@@ -9,7 +9,16 @@ export default defineConfig({
         '@': resolve('src')
       }
     },
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      // 主进程代码保护
+      minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks: undefined
+        }
+      }
+    }
   },
   preload: {
     resolve: {
@@ -17,7 +26,11 @@ export default defineConfig({
         '@': resolve('src')
       }
     },
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      // 预加载脚本代码保护
+      minify: 'esbuild'
+    }
   },
   renderer: {
     resolve: {
@@ -26,6 +39,31 @@ export default defineConfig({
         '@renderer': resolve('src/renderer')
       }
     },
-    plugins: [react()]
+    plugins: [react()],
+    build: {
+      // 渲染进程代码保护
+      minify: 'esbuild',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // 分包策略
+            if (id.includes('node_modules')) {
+              if (id.includes('@mui')) {
+                return 'vendor-mui'
+              }
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'vendor-react'
+              }
+              return 'vendor'
+            }
+          },
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]'
+        }
+      },
+      sourcemap: false,
+      chunkSizeWarningLimit: 1000
+    }
   }
 })

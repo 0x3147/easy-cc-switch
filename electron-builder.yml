@@ -1,5 +1,6 @@
-appId: com.electron.app
+appId: com.easyCCSwitch.app
 productName: EasyCCSwitch
+copyright: Copyright © 2025 EasyCCSwitch
 directories:
   buildResources: build
 files:
@@ -9,15 +10,56 @@ files:
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!BUILD.md'
+  - '!.editorconfig'
+  - '!.git'
+  - '!.github'
+  - '!**/*.map'
+  - '!**/*.{md,txt}'
+extraMetadata:
+  main: ./out/main/index.js
+# ASAR 打包配置（代码保护）
+asar: true
 asarUnpack:
   - resources/**
+  - node_modules/electron-store/**
 win:
-  executableName: easy-cc-switch
+  executableName: EasyCCSwitch
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+  icon: build/icon.ico
+  requestedExecutionLevel: asInvoker
+  # 签名配置（可选，正式发布时建议配置）
+  # certificateFile: path/to/certificate.pfx
+  # certificatePassword: ${env.WIN_CSC_PASSWORD}
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
+  artifactName: ${productName}-${version}-${arch}-setup.${ext}
+  oneClick: false
+  # 允许用户选择安装路径
+  allowToChangeInstallationDirectory: true
+  # 默认安装路径
+  installerLanguages:
+    - zh_CN
+    - en_US
+  # 安装界面配置
   createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: ${productName}
+  # 卸载配置
+  uninstallDisplayName: ${productName}
+  deleteAppDataOnUninstall: false
+  # 安装权限
+  perMachine: false
+  allowElevation: true
+  # 安装包图标
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  # 安装界面样式
+  # installerHeader: build/installerHeader.bmp
+  # installerSidebar: build/installerSidebar.bmp
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
