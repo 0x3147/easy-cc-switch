@@ -112,4 +112,90 @@ export function registerToolHandlers() {
       return { installed: false }
     }
   })
+
+  // 检测 Claude Code 是否正在运行
+  ipcMain.handle(TOOL_CHANNELS.CHECK_CLAUDE_CODE_RUNNING, async (): Promise<boolean> => {
+    try {
+      const platform = process.platform
+      let command: string
+
+      if (platform === 'win32') {
+        // Windows: 检查 claude.exe 进程
+        command = 'tasklist /FI "IMAGENAME eq claude.exe"'
+      } else {
+        // macOS/Linux: 使用 pgrep 检查 claude 进程
+        command = 'pgrep -x claude'
+      }
+
+      execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      return true
+    } catch {
+      return false
+    }
+  })
+
+  // 杀掉所有 Claude Code 进程
+  ipcMain.handle(TOOL_CHANNELS.KILL_CLAUDE_CODE, async (): Promise<boolean> => {
+    try {
+      const platform = process.platform
+      let command: string
+
+      if (platform === 'win32') {
+        // Windows: 使用 taskkill
+        command = 'taskkill /F /IM claude.exe'
+      } else {
+        // macOS/Linux: 使用 pkill
+        command = 'pkill -9 claude'
+      }
+
+      execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      return true
+    } catch {
+      // 如果没有进程被杀掉，也返回 true（因为目标已达成）
+      return true
+    }
+  })
+
+  // 检测 Codex 是否正在运行
+  ipcMain.handle(TOOL_CHANNELS.CHECK_CODEX_RUNNING, async (): Promise<boolean> => {
+    try {
+      const platform = process.platform
+      let command: string
+
+      if (platform === 'win32') {
+        // Windows: 检查 codex.exe 进程
+        command = 'tasklist /FI "IMAGENAME eq codex.exe"'
+      } else {
+        // macOS/Linux: 使用 pgrep 检查 codex 进程
+        command = 'pgrep -x codex'
+      }
+
+      execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      return true
+    } catch {
+      return false
+    }
+  })
+
+  // 杀掉所有 Codex 进程
+  ipcMain.handle(TOOL_CHANNELS.KILL_CODEX, async (): Promise<boolean> => {
+    try {
+      const platform = process.platform
+      let command: string
+
+      if (platform === 'win32') {
+        // Windows: 使用 taskkill
+        command = 'taskkill /F /IM codex.exe'
+      } else {
+        // macOS/Linux: 使用 pkill
+        command = 'pkill -9 codex'
+      }
+
+      execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+      return true
+    } catch {
+      // 如果没有进程被杀掉，也返回 true（因为目标已达成）
+      return true
+    }
+  })
 }

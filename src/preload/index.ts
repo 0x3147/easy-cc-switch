@@ -35,6 +35,11 @@ const api = {
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE),
   checkHomebrew: (): Promise<HomebrewCheckResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_HOMEBREW),
+  checkClaudeCodeRunning: (): Promise<boolean> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE_RUNNING),
+  killClaudeCode: (): Promise<boolean> => ipcRenderer.invoke(TOOL_CHANNELS.KILL_CLAUDE_CODE),
+  checkCodexRunning: (): Promise<boolean> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX_RUNNING),
+  killCodex: (): Promise<boolean> => ipcRenderer.invoke(TOOL_CHANNELS.KILL_CODEX),
   // Codex 供应商配置
   getCodexConfig: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_CODEX_CONFIG),
   saveCodexConfig: (config: CodexVendorConfig) =>

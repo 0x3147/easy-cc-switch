@@ -57,7 +57,15 @@ export const TOOL_CHANNELS = {
   /** 检测 Homebrew 安装状态（仅 macOS） */
   CHECK_HOMEBREW: 'tool-check-homebrew',
   /** 获取系统平台信息 */
-  GET_PLATFORM_INFO: 'tool-get-platform-info'
+  GET_PLATFORM_INFO: 'tool-get-platform-info',
+  /** 检测 Claude Code 是否正在运行 */
+  CHECK_CLAUDE_CODE_RUNNING: 'tool-check-claude-code-running',
+  /** 杀掉所有 Claude Code 进程 */
+  KILL_CLAUDE_CODE: 'tool-kill-claude-code',
+  /** 检测 Codex 是否正在运行 */
+  CHECK_CODEX_RUNNING: 'tool-check-codex-running',
+  /** 杀掉所有 Codex 进程 */
+  KILL_CODEX: 'tool-kill-codex'
 } as const
 
 /**

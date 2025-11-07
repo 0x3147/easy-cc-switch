@@ -19,6 +19,10 @@ interface API {
   getPlatformInfo: () => Promise<PlatformInfo>
   checkClaudeCode: () => Promise<ClaudeCodeCheckResult>
   checkHomebrew: () => Promise<HomebrewCheckResult>
+  checkClaudeCodeRunning: () => Promise<boolean>
+  killClaudeCode: () => Promise<boolean>
+  checkCodexRunning: () => Promise<boolean>
+  killCodex: () => Promise<boolean>
   getCodexConfig: () => Promise<CodexVendorConfig | null>
   saveCodexConfig: (config: CodexVendorConfig) => Promise<boolean>
   getAllCodexVendors: () => Promise<CodexVendorConfig[]>
