@@ -6,7 +6,8 @@ import type {
   CodexCheckResult,
   NodeCheckResult,
   NvmCheckResult,
-  HomebrewCheckResult
+  HomebrewCheckResult,
+  InstallResult
 } from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
 
@@ -35,6 +36,10 @@ interface API {
   killClaudeCode: () => Promise<boolean>
   checkCodexRunning: () => Promise<boolean>
   killCodex: () => Promise<boolean>
+  installCodexNpm: () => Promise<InstallResult>
+  installCodexHomebrew: () => Promise<InstallResult>
+  installHomebrew: () => Promise<InstallResult>
+  installNvm: () => Promise<InstallResult>
   getCodexConfig: () => Promise<CodexVendorConfig | null>
   saveCodexConfig: (config: CodexVendorConfig) => Promise<boolean>
   getAllCodexVendors: () => Promise<CodexVendorConfig[]>

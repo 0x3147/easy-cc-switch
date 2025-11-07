@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { execSync } from 'child_process'
+import { execSync, spawn } from 'child_process'
 import * as os from 'os'
 import { TOOL_CHANNELS } from '@/shared/ipc-channels'
 import type {
@@ -8,7 +8,8 @@ import type {
   CodexCheckResult,
   NodeCheckResult,
   NvmCheckResult,
-  HomebrewCheckResult
+  HomebrewCheckResult,
+  InstallResult
 } from '@/shared/types/tool'
 
 /**
@@ -554,6 +555,313 @@ export function registerToolHandlers() {
     } catch {
       // 如果没有进程被杀掉，也返回 true（因为目标已达成）
       return true
+    }
+  })
+
+  // 通过 npm 安装 Codex
+  ipcMain.handle(TOOL_CHANNELS.INSTALL_CODEX_NPM, async (): Promise<InstallResult> => {
+    try {
+      const platform = process.platform
+
+      // 1. 检查 Node.js 是否已安装且版本 >= 18
+      let nodeInstalled = false
+      let nodeMajorVersion = 0
+
+      try {
+        const command = platform === 'win32' ? 'where node' : 'which node'
+        execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        nodeInstalled = true
+
+        // 获取版本
+        const versionOutput = execSync('node --version', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore']
+        })
+        const version = versionOutput.trim()
+        nodeMajorVersion = parseInt(version.replace('v', '').split('.')[0], 10)
+      } catch {
+        nodeInstalled = false
+      }
+
+      if (!nodeInstalled) {
+        return {
+          success: false,
+          message: '未检测到 Node.js，请先安装 Node.js (≥ v18)'
+        }
+      }
+
+      if (nodeMajorVersion < 18) {
+        return {
+          success: false,
+          message: `当前 Node.js 版本过低 (v${nodeMajorVersion})，需要 v18 或更高版本`
+        }
+      }
+
+      // 2. 执行 npm 安装
+      return new Promise<InstallResult>((resolve) => {
+        const npmCommand = platform === 'win32' ? 'npm.cmd' : 'npm'
+        const child = spawn(npmCommand, ['install', '-g', '@openai/codex'], {
+          shell: true,
+          stdio: ['ignore', 'pipe', 'pipe']
+        })
+
+        let output = ''
+
+        child.stdout?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', (code) => {
+          if (code === 0) {
+            resolve({
+              success: true,
+              message: '已成功通过 npm 安装 Codex',
+              output
+            })
+          } else {
+            resolve({
+              success: false,
+              message: `安装失败（退出码: ${code}），请检查网络连接或权限`,
+              output
+            })
+          }
+        })
+
+        child.on('error', (error) => {
+          resolve({
+            success: false,
+            message: `安装失败：${error.message}`,
+            output
+          })
+        })
+      })
+    } catch (error) {
+      return {
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      }
+    }
+  })
+
+  // 通过 Homebrew 安装 Codex (仅 macOS)
+  ipcMain.handle(TOOL_CHANNELS.INSTALL_CODEX_HOMEBREW, async (): Promise<InstallResult> => {
+    try {
+      if (process.platform !== 'darwin') {
+        return {
+          success: false,
+          message: 'Homebrew 仅支持 macOS 平台'
+        }
+      }
+
+      // 检查 Homebrew 是否已安装
+      let brewInstalled = false
+      try {
+        execSync('which brew', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        brewInstalled = true
+      } catch {
+        brewInstalled = false
+      }
+
+      if (!brewInstalled) {
+        return {
+          success: false,
+          message: '未检测到 Homebrew，请先安装 Homebrew'
+        }
+      }
+
+      // 执行 brew 安装
+      return new Promise<InstallResult>((resolve) => {
+        const child = spawn('brew', ['install', 'codex'], {
+          stdio: ['ignore', 'pipe', 'pipe']
+        })
+
+        let output = ''
+
+        child.stdout?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', (code) => {
+          if (code === 0) {
+            resolve({
+              success: true,
+              message: '已成功通过 Homebrew 安装 Codex',
+              output
+            })
+          } else {
+            resolve({
+              success: false,
+              message: `安装失败（退出码: ${code}），请检查 Homebrew 配置`,
+              output
+            })
+          }
+        })
+
+        child.on('error', (error) => {
+          resolve({
+            success: false,
+            message: `安装失败：${error.message}`,
+            output
+          })
+        })
+      })
+    } catch (error) {
+      return {
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      }
+    }
+  })
+
+  // 安装 Homebrew (仅 macOS)
+  ipcMain.handle(TOOL_CHANNELS.INSTALL_HOMEBREW, async (): Promise<InstallResult> => {
+    try {
+      if (process.platform !== 'darwin') {
+        return {
+          success: false,
+          message: 'Homebrew 仅支持 macOS 平台'
+        }
+      }
+
+      // 检查是否已安装
+      let brewInstalled = false
+      try {
+        execSync('which brew', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        brewInstalled = true
+      } catch {
+        brewInstalled = false
+      }
+
+      if (brewInstalled) {
+        return {
+          success: false,
+          message: 'Homebrew 已经安装'
+        }
+      }
+
+      // 执行安装脚本
+      return new Promise<InstallResult>((resolve) => {
+        const installCommand =
+          '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+
+        const child = spawn(installCommand, [], {
+          shell: true,
+          stdio: ['ignore', 'pipe', 'pipe']
+        })
+
+        let output = ''
+
+        child.stdout?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', (code) => {
+          if (code === 0) {
+            resolve({
+              success: true,
+              message: '已成功安装 Homebrew',
+              output
+            })
+          } else {
+            resolve({
+              success: false,
+              message: `安装失败（退出码: ${code}），请手动访问 https://brew.sh 查看安装说明`,
+              output
+            })
+          }
+        })
+
+        child.on('error', (error) => {
+          resolve({
+            success: false,
+            message: `安装失败：${error.message}`,
+            output
+          })
+        })
+      })
+    } catch (error) {
+      return {
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      }
+    }
+  })
+
+  // 安装 NVM
+  ipcMain.handle(TOOL_CHANNELS.INSTALL_NVM, async (): Promise<InstallResult> => {
+    try {
+      const platform = process.platform
+
+      if (platform === 'win32') {
+        // Windows: 提示用户安装 nvm-windows
+        return {
+          success: false,
+          message:
+            'Windows 平台请手动下载安装 nvm-windows：https://github.com/coreybutler/nvm-windows/releases'
+        }
+      }
+
+      // macOS/Linux: 使用 cURL 安装
+      return new Promise<InstallResult>((resolve) => {
+        const installCommand =
+          'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash'
+
+        const child = spawn(installCommand, [], {
+          shell: true,
+          stdio: ['ignore', 'pipe', 'pipe']
+        })
+
+        let output = ''
+
+        child.stdout?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', (code) => {
+          if (code === 0) {
+            resolve({
+              success: true,
+              message: '已成功安装 NVM，请重启终端或重新加载配置文件后使用',
+              output
+            })
+          } else {
+            resolve({
+              success: false,
+              message: `安装失败（退出码: ${code}），请手动访问 https://github.com/nvm-sh/nvm 查看安装说明`,
+              output
+            })
+          }
+        })
+
+        child.on('error', (error) => {
+          resolve({
+            success: false,
+            message: `安装失败：${error.message}`,
+            output
+          })
+        })
+      })
+    } catch (error) {
+      return {
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      }
     }
   })
 }

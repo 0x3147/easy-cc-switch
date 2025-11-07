@@ -82,3 +82,15 @@ export interface NvmCheckResult {
   /** 版本号（如果已安装） */
   version?: string
 }
+
+/**
+ * 工具安装结果
+ */
+export interface InstallResult {
+  /** 是否安装成功 */
+  success: boolean
+  /** 安装消息（成功或失败原因） */
+  message: string
+  /** 安装过程的输出日志（可选） */
+  output?: string
+}

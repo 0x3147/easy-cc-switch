@@ -75,7 +75,15 @@ export const TOOL_CHANNELS = {
   /** 检测 Codex 是否正在运行 */
   CHECK_CODEX_RUNNING: 'tool-check-codex-running',
   /** 杀掉所有 Codex 进程 */
-  KILL_CODEX: 'tool-kill-codex'
+  KILL_CODEX: 'tool-kill-codex',
+  /** 通过 npm 安装 Codex */
+  INSTALL_CODEX_NPM: 'tool-install-codex-npm',
+  /** 通过 Homebrew 安装 Codex（仅 macOS） */
+  INSTALL_CODEX_HOMEBREW: 'tool-install-codex-homebrew',
+  /** 安装 Homebrew（仅 macOS） */
+  INSTALL_HOMEBREW: 'tool-install-homebrew',
+  /** 安装 NVM */
+  INSTALL_NVM: 'tool-install-nvm'
 } as const
 
 /**

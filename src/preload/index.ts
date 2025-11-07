@@ -13,7 +13,8 @@ import type {
   CodexCheckResult,
   NodeCheckResult,
   NvmCheckResult,
-  HomebrewCheckResult
+  HomebrewCheckResult,
+  InstallResult
 } from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
 
@@ -54,6 +55,12 @@ const api = {
   killClaudeCode: (): Promise<boolean> => ipcRenderer.invoke(TOOL_CHANNELS.KILL_CLAUDE_CODE),
   checkCodexRunning: (): Promise<boolean> => ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CODEX_RUNNING),
   killCodex: (): Promise<boolean> => ipcRenderer.invoke(TOOL_CHANNELS.KILL_CODEX),
+  installCodexNpm: (): Promise<InstallResult> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CODEX_NPM),
+  installCodexHomebrew: (): Promise<InstallResult> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CODEX_HOMEBREW),
+  installHomebrew: (): Promise<InstallResult> => ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_HOMEBREW),
+  installNvm: (): Promise<InstallResult> => ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_NVM),
   // Codex 供应商配置
   getCodexConfig: () => ipcRenderer.invoke(CODEX_CHANNELS.GET_CODEX_CONFIG),
   saveCodexConfig: (config: CodexVendorConfig) =>

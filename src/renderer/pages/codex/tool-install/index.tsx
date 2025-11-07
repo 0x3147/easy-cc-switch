@@ -206,6 +206,7 @@ const CodexToolInstall = () => {
                 environment={environment}
                 isRecommended={recommendedMethod === 'npm'}
                 installCommand={getInstallCommand('npm')}
+                onInstallSuccess={detectEnvironment}
               />
 
               {/* Homebrew 安装面板 (仅 macOS) */}
@@ -214,6 +215,7 @@ const CodexToolInstall = () => {
                   environment={environment}
                   isRecommended={recommendedMethod === 'homebrew'}
                   installCommand={getInstallCommand('homebrew')}
+                  onInstallSuccess={detectEnvironment}
                 />
               )}
             </CardContent>
