@@ -143,6 +143,18 @@ export const MARKDOWN_CHANNELS = {
 } as const
 
 /**
+ * Claude 项目配置相关 channel
+ */
+export const CLAUDE_PROJECT_CHANNELS = {
+  /** 获取所有项目配置 */
+  GET_ALL_PROJECTS: 'claude-project-get-all',
+  /** 更新项目配置 */
+  UPDATE_PROJECT: 'claude-project-update',
+  /** 删除项目配置 */
+  DELETE_PROJECT: 'claude-project-delete'
+} as const
+
+/**
  * 所有 IPC channels 的联合类型
  */
 export type IpcChannel =
@@ -153,3 +165,4 @@ export type IpcChannel =
   | (typeof CODEX_CHANNELS)[keyof typeof CODEX_CHANNELS]
   | (typeof SETTINGS_CHANNELS)[keyof typeof SETTINGS_CHANNELS]
   | (typeof MARKDOWN_CHANNELS)[keyof typeof MARKDOWN_CHANNELS]
+  | (typeof CLAUDE_PROJECT_CHANNELS)[keyof typeof CLAUDE_PROJECT_CHANNELS]

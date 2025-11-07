@@ -8,6 +8,7 @@
     "toolInstall": "工具安装",
     "vendorConfig": "供应商配置",
     "claudeDocs": "全局规则文件配置",
+    "projectConfig": "项目配置",
     "settings": "设置"
   },
   "settings": {

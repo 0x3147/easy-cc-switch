@@ -8,6 +8,7 @@
     "toolInstall": "Tool Installation",
     "vendorConfig": "Vendor Configuration",
     "claudeDocs": "Global Rules Configuration",
+    "projectConfig": "Project Configuration",
     "settings": "Settings"
   },
   "settings": {

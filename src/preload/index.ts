@@ -6,7 +6,8 @@ import {
   TOOL_CHANNELS,
   CODEX_CHANNELS,
   SETTINGS_CHANNELS,
-  MARKDOWN_CHANNELS
+  MARKDOWN_CHANNELS,
+  CLAUDE_PROJECT_CHANNELS
 } from '@/shared/ipc-channels'
 import type { VendorConfig, AddVendorRequest } from '@/shared/types/vendor'
 import type {
@@ -19,6 +20,10 @@ import type {
   InstallResult
 } from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
+import type {
+  ClaudeProjectConfig,
+  UpdateProjectConfigRequest
+} from '@/shared/types/claude-project'
 
 // Custom APIs for renderer
 const api = {
@@ -96,7 +101,14 @@ const api = {
   // Markdown 编辑器
   getClaudeMd: (): Promise<string> => ipcRenderer.invoke(MARKDOWN_CHANNELS.GET_CLAUDE_MD),
   saveClaudeMd: (content: string): Promise<boolean> =>
-    ipcRenderer.invoke(MARKDOWN_CHANNELS.SAVE_CLAUDE_MD, content)
+    ipcRenderer.invoke(MARKDOWN_CHANNELS.SAVE_CLAUDE_MD, content),
+  // Claude 项目配置
+  getAllProjects: (): Promise<ClaudeProjectConfig[]> =>
+    ipcRenderer.invoke(CLAUDE_PROJECT_CHANNELS.GET_ALL_PROJECTS),
+  updateProject: (request: UpdateProjectConfigRequest): Promise<void> =>
+    ipcRenderer.invoke(CLAUDE_PROJECT_CHANNELS.UPDATE_PROJECT, request),
+  deleteProject: (path: string): Promise<void> =>
+    ipcRenderer.invoke(CLAUDE_PROJECT_CHANNELS.DELETE_PROJECT, path)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

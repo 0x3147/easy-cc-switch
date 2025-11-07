@@ -17,7 +17,8 @@ import {
   faChevronUp,
   faDownload,
   faCog,
-  faFileAlt
+  faFileAlt,
+  faFolderOpen
 } from '@fortawesome/free-solid-svg-icons'
 import TitleBar from '../../components/title-bar'
 import claudeLogo from '../../assets/images/claude-logo.svg'
@@ -56,6 +57,11 @@ const menuItems: MenuItem[] = [
         key: 'claudeDocs',
         icon: faFileAlt,
         path: '/claude-code/claude-docs'
+      },
+      {
+        key: 'projectConfig',
+        icon: faFolderOpen,
+        path: '/claude-code/project-config'
       }
     ]
   },

@@ -10,6 +10,10 @@ import type {
   InstallResult
 } from '@/shared/types/tool'
 import type { CodexVendorConfig, AddCodexVendorRequest } from '@/shared/types/codex'
+import type {
+  ClaudeProjectConfig,
+  UpdateProjectConfigRequest
+} from '@/shared/types/claude-project'
 
 interface API {
   windowMinimize: () => void
@@ -59,6 +63,9 @@ interface API {
   getAllSettings: () => Promise<{ themeMode: 'light' | 'dark' | 'system'; language: string }>
   getClaudeMd: () => Promise<string>
   saveClaudeMd: (content: string) => Promise<boolean>
+  getAllProjects: () => Promise<ClaudeProjectConfig[]>
+  updateProject: (request: UpdateProjectConfigRequest) => Promise<void>
+  deleteProject: (path: string) => Promise<void>
 }
 
 declare global {
