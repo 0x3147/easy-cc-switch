@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogTitle,
@@ -83,6 +84,7 @@ const PRESET_VENDORS = {
 type PresetVendorKey = keyof typeof PRESET_VENDORS
 
 const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
+  const { t } = useTranslation()
   const [tabValue, setTabValue] = useState(0)
   const [formData, setFormData] = useState<Omit<VendorConfig, 'id'>>({
     name: '',
@@ -170,7 +172,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>添加供应商配置</DialogTitle>
+      <DialogTitle>{t('vendor.dialog.addTitle')}</DialogTitle>
       <DialogContent>
         {/* Tab 切换 */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
@@ -180,9 +182,9 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                 <FontAwesomeIcon icon={faFire} style={{ color: '#ff6b35', fontSize: '16px' }} />
               }
               iconPosition="end"
-              label="快捷配置"
+              label={t('vendor.dialog.quickConfig')}
             />
-            <Tab label="手动配置" />
+            <Tab label={t('vendor.dialog.manualConfig')} />
           </Tabs>
         </Box>
 
@@ -191,11 +193,11 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             {/* 供应商选择 */}
             <FormControl fullWidth required>
-              <InputLabel id="quick-vendor-label">供应商</InputLabel>
+              <InputLabel id="quick-vendor-label">{t('vendor.dialog.vendor')}</InputLabel>
               <Select
                 labelId="quick-vendor-label"
                 value={quickVendor}
-                label="供应商"
+                label={t('vendor.dialog.vendor')}
                 onChange={(e) => setQuickVendor(e.target.value as PresetVendorKey)}
               >
                 <MenuItem value="zhipu">
@@ -205,7 +207,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                       src={zhipuLogo}
                       sx={{ width: 20, height: 20, objectFit: 'contain' }}
                     />
-                    <span>智谱(GLM)</span>
+                    <span>{t('vendor.presetVendors.zhipu')}</span>
                   </Box>
                 </MenuItem>
                 <MenuItem value="moonshot">
@@ -215,7 +217,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                       src={moonshotLogo}
                       sx={{ width: 20, height: 20, objectFit: 'contain' }}
                     />
-                    <span>月之暗面(KIMI)</span>
+                    <span>{t('vendor.presetVendors.moonshot')}</span>
                   </Box>
                 </MenuItem>
                 <MenuItem value="minimax">
@@ -225,7 +227,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                       src={minimaxLogo}
                       sx={{ width: 20, height: 20, objectFit: 'contain' }}
                     />
-                    <span>MINIMAX</span>
+                    <span>{t('vendor.presetVendors.minimax')}</span>
                   </Box>
                 </MenuItem>
                 <MenuItem value="idealab">
@@ -235,7 +237,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                       src={alibabaLogo}
                       sx={{ width: 20, height: 20, objectFit: 'contain' }}
                     />
-                    <span>idealab</span>
+                    <span>{t('vendor.presetVendors.idealab')}</span>
                   </Box>
                 </MenuItem>
                 <MenuItem value="deepseek">
@@ -245,7 +247,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                       src={deepseekLogo}
                       sx={{ width: 20, height: 20, objectFit: 'contain' }}
                     />
-                    <span>DeepSeek</span>
+                    <span>{t('vendor.presetVendors.deepseek')}</span>
                   </Box>
                 </MenuItem>
               </Select>
@@ -253,32 +255,36 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
 
             {/* 配置名称 */}
             <TextField
-              label="配置名称"
+              label={t('vendor.dialog.configName')}
               value={quickConfigName}
               onChange={(e) => setQuickConfigName(e.target.value)}
               fullWidth
               placeholder={
-                quickVendor ? `我的${PRESET_VENDORS[quickVendor].name}配置` : '例如：我的智谱配置'
+                quickVendor
+                  ? t('vendor.dialog.configNamePlaceholder', {
+                      vendor: PRESET_VENDORS[quickVendor].name
+                    })
+                  : t('vendor.dialog.configNamePlaceholder', { vendor: '智谱' })
               }
-              helperText="留空将使用供应商名称作为配置名"
+              helperText={t('vendor.dialog.configNameHelper')}
             />
 
             {/* API Token */}
             <TextField
-              label="API Token"
+              label={t('vendor.dialog.apiToken')}
               value={quickToken}
               onChange={(e) => setQuickToken(e.target.value)}
               fullWidth
               required
-              placeholder="请输入你的 API Token"
-              helperText="请输入对应供应商的 API 密钥"
+              placeholder={t('vendor.dialog.apiTokenPlaceholder')}
+              helperText={t('vendor.dialog.apiTokenHelper')}
             />
 
             {/* 智谱官方文档链接 */}
             {quickVendor === 'zhipu' && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
                 <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
+                  {t('vendor.dialog.howToGetToken')}
                 </Typography>
                 <Link
                   href="https://bigmodel.cn/glm-coding?utm_source=bigModel&utm_medium=Special&utm_content=glm-code&utm_campaign=Platform_Ops&_channel_track_key=8BAeCdUS"
@@ -287,7 +293,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   underline="hover"
                   variant="body2"
                 >
-                  查看智谱官方文档
+                  {t('vendor.dialog.viewDocs', { vendor: '智谱' })}
                 </Link>
               </Box>
             )}
@@ -296,7 +302,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {quickVendor === 'moonshot' && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
                 <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
+                  {t('vendor.dialog.howToGetToken')}
                 </Typography>
                 <Link
                   href="https://www.kimi.com/coding/docs/"
@@ -305,7 +311,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   underline="hover"
                   variant="body2"
                 >
-                  查看月之暗面官方文档
+                  {t('vendor.dialog.viewDocs', { vendor: '月之暗面' })}
                 </Link>
               </Box>
             )}
@@ -314,7 +320,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {quickVendor === 'minimax' && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
                 <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
+                  {t('vendor.dialog.howToGetToken')}
                 </Typography>
                 <Link
                   href="https://platform.minimaxi.com/user-center/basic-information"
@@ -323,7 +329,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   underline="hover"
                   variant="body2"
                 >
-                  查看MINIMAX官方文档
+                  {t('vendor.dialog.viewDocs', { vendor: 'MINIMAX' })}
                 </Link>
               </Box>
             )}
@@ -332,7 +338,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {quickVendor === 'idealab' && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
                 <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
+                  {t('vendor.dialog.howToGetToken')}
                 </Typography>
                 <Link
                   href="https://idealab.alibaba-inc.com/ideaTalk#/aistudio/manage/personalResource"
@@ -341,7 +347,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   underline="hover"
                   variant="body2"
                 >
-                  查看IdealAB官方文档
+                  {t('vendor.dialog.viewDocs', { vendor: 'IdealAB' })}
                 </Link>
               </Box>
             )}
@@ -350,7 +356,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {quickVendor === 'deepseek' && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
                 <Typography variant="body2" color="text.secondary">
-                  如何获取API TOKEN？
+                  {t('vendor.dialog.howToGetToken')}
                 </Typography>
                 <Link
                   href="https://platform.deepseek.com/"
@@ -359,18 +365,18 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   underline="hover"
                   variant="body2"
                 >
-                  查看DeepSeek官方文档
+                  {t('vendor.dialog.viewDocs', { vendor: 'DeepSeek' })}
                 </Link>
               </Box>
             )}
 
             {/* API Base URL（只读，自动填入） */}
             <TextField
-              label="API Base URL"
+              label={t('vendor.dialog.apiBaseUrl')}
               value={quickVendor ? PRESET_VENDORS[quickVendor].baseUrl : ''}
               fullWidth
               disabled
-              helperText="根据所选供应商自动填入"
+              helperText={t('vendor.dialog.apiBaseUrlAutoFill')}
             />
 
             {/* 智谱特有的模型配置 */}
@@ -381,21 +387,21 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   value="glm-4.6"
                   fullWidth
                   disabled
-                  helperText="智谱 Opus 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.zhipuOpus')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_SONNET_MODEL"
                   value="glm-4.6"
                   fullWidth
                   disabled
-                  helperText="智谱 Sonnet 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.zhipuSonnet')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
                   value="glm-4.5-air"
                   fullWidth
                   disabled
-                  helperText="智谱 Haiku 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.zhipuHaiku')}
                 />
               </>
             )}
@@ -408,14 +414,14 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   value="kimi-for-coding"
                   fullWidth
                   disabled
-                  helperText="月之暗面默认模型配置"
+                  helperText={t('vendor.dialog.modelConfig.moonshotDefault')}
                 />
                 <TextField
                   label="ANTHROPIC_SMALL_FAST_MODEL"
                   value="kimi-for-coding"
                   fullWidth
                   disabled
-                  helperText="月之暗面快速模型配置"
+                  helperText={t('vendor.dialog.modelConfig.moonshotFast')}
                 />
               </>
             )}
@@ -428,21 +434,21 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   value="MiniMax-M2"
                   fullWidth
                   disabled
-                  helperText="MINIMAX Opus 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.minimaxOpus')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_SONNET_MODEL"
                   value="MiniMax-M2"
                   fullWidth
                   disabled
-                  helperText="MINIMAX Sonnet 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.minimaxSonnet')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
                   value="MiniMax-M2"
                   fullWidth
                   disabled
-                  helperText="MINIMAX Haiku 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.minimaxHaiku')}
                 />
               </>
             )}
@@ -455,21 +461,21 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   value="qwen3-coder-plus"
                   fullWidth
                   disabled
-                  helperText="IdealAB Opus 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.idealabOpus')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_SONNET_MODEL"
                   value="qwen3-coder-plus"
                   fullWidth
                   disabled
-                  helperText="IdealAB Sonnet 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.idealabSonnet')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
                   value="qwen3-coder-plus"
                   fullWidth
                   disabled
-                  helperText="IdealAB Haiku 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.idealabHaiku')}
                 />
               </>
             )}
@@ -482,21 +488,21 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   value="deepseek-chat"
                   fullWidth
                   disabled
-                  helperText="DeepSeek Opus 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.deepseekOpus')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_SONNET_MODEL"
                   value="deepseek-chat"
                   fullWidth
                   disabled
-                  helperText="DeepSeek Sonnet 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.deepseekSonnet')}
                 />
                 <TextField
                   label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
                   value="deepseek-chat"
                   fullWidth
                   disabled
-                  helperText="DeepSeek Haiku 模型配置"
+                  helperText={t('vendor.dialog.modelConfig.deepseekHaiku')}
                 />
               </>
             )}
@@ -509,7 +515,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   onChange={(e) => setApplyImmediately(e.target.checked)}
                 />
               }
-              label="立即生效"
+              label={t('vendor.dialog.applyImmediately')}
             />
           </Box>
         )}
@@ -519,33 +525,33 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             {/* 基础配置 */}
             <TextField
-              label="供应商名称"
+              label={t('vendor.dialog.vendorName')}
               value={formData.name}
               onChange={handleChange('name')}
               fullWidth
               required
-              placeholder="例如：我的 Claude API"
-              helperText="自定义供应商名称"
+              placeholder={t('vendor.dialog.vendorNamePlaceholder')}
+              helperText={t('vendor.dialog.vendorNameHelper')}
             />
 
             <TextField
-              label="API Token"
+              label={t('vendor.dialog.apiToken')}
               value={formData.token}
               onChange={handleChange('token')}
               fullWidth
               required
               placeholder="sk-ant-xxxxx"
-              helperText="请输入你的 API Token"
+              helperText={t('vendor.dialog.apiTokenHelper')}
             />
 
             <TextField
-              label="API Base URL"
+              label={t('vendor.dialog.apiBaseUrl')}
               value={formData.baseUrl}
               onChange={handleChange('baseUrl')}
               fullWidth
               required
-              placeholder="https://api.anthropic.com"
-              helperText="API 服务的基础地址"
+              placeholder={t('vendor.dialog.apiBaseUrlPlaceholder')}
+              helperText={t('vendor.dialog.apiBaseUrlHelper')}
             />
 
             {/* 高级选项 */}
@@ -561,7 +567,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                 onClick={() => setShowAdvanced(!showAdvanced)}
               >
                 <Typography variant="subtitle2" color="text.secondary" sx={{ flex: 1 }}>
-                  高级选项
+                  {t('vendor.dialog.advancedOptions')}
                 </Typography>
                 <IconButton size="small">
                   <FontAwesomeIcon icon={showAdvanced ? faChevronUp : faChevronDown} />
@@ -573,40 +579,40 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   <Divider />
 
                   <TextField
-                    label="API Timeout (ms)"
+                    label={t('vendor.dialog.apiTimeout')}
                     value={formData.apiTimeout || ''}
                     onChange={handleChange('apiTimeout')}
                     fullWidth
                     type="number"
-                    placeholder="30000"
-                    helperText="API 请求超时时间（毫秒）"
+                    placeholder={t('vendor.dialog.apiTimeoutPlaceholder')}
+                    helperText={t('vendor.dialog.apiTimeoutHelper')}
                   />
 
                   <TextField
-                    label="Default Opus Model"
+                    label={t('vendor.dialog.opusModel')}
                     value={formData.opusModel || ''}
                     onChange={handleChange('opusModel')}
                     fullWidth
-                    placeholder="claude-opus-4-20250514"
-                    helperText="默认使用的 Opus 模型"
+                    placeholder={t('vendor.dialog.opusModelPlaceholder')}
+                    helperText={t('vendor.dialog.opusModelHelper')}
                   />
 
                   <TextField
-                    label="Default Sonnet Model"
+                    label={t('vendor.dialog.sonnetModel')}
                     value={formData.sonnetModel || ''}
                     onChange={handleChange('sonnetModel')}
                     fullWidth
-                    placeholder="claude-sonnet-4-20250514"
-                    helperText="默认使用的 Sonnet 模型"
+                    placeholder={t('vendor.dialog.sonnetModelPlaceholder')}
+                    helperText={t('vendor.dialog.sonnetModelHelper')}
                   />
 
                   <TextField
-                    label="Default Haiku Model"
+                    label={t('vendor.dialog.haikuModel')}
                     value={formData.haikuModel || ''}
                     onChange={handleChange('haikuModel')}
                     fullWidth
-                    placeholder="claude-3-5-haiku-20241022"
-                    helperText="默认使用的 Haiku 模型"
+                    placeholder={t('vendor.dialog.haikuModelPlaceholder')}
+                    helperText={t('vendor.dialog.haikuModelHelper')}
                   />
                 </Box>
               </Collapse>
@@ -620,17 +626,17 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   onChange={(e) => setApplyImmediately(e.target.checked)}
                 />
               }
-              label="立即生效"
+              label={t('vendor.dialog.applyImmediately')}
             />
           </Box>
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={handleClose} disabled={saving}>
-          取消
+          {t('vendor.dialog.cancel')}
         </Button>
         <Button onClick={handleAdd} variant="contained" disabled={!canSubmit()}>
-          {saving ? '添加中...' : '添加'}
+          {saving ? t('vendor.dialog.adding') : t('vendor.dialog.add')}
         </Button>
       </DialogActions>
     </Dialog>

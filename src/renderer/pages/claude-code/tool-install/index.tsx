@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Box,
   Typography,
@@ -36,6 +37,7 @@ interface EnvironmentStatus {
 }
 
 const ToolInstall = () => {
+  const { t } = useTranslation()
   const [installStatus, setInstallStatus] = useState<InstallStatus>('checking')
   const [platform, setPlatform] = useState<Platform>('unsupported')
   const [installMethod, setInstallMethod] = useState<InstallMethod>('native')
@@ -100,7 +102,11 @@ const ToolInstall = () => {
     }
   }
 
-  const steps = ['检测环境', '选择安装方式', '安装 Claude Code']
+  const steps = [
+    t('toolInstall.steps.detectEnv'),
+    t('toolInstall.steps.selectMethod'),
+    t('toolInstall.steps.install')
+  ]
 
   // 已安装状态页面
   if (installStatus === 'installed') {
@@ -122,10 +128,10 @@ const ToolInstall = () => {
         >
           <Box>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-              工具安装
+              {t('toolInstall.title')}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              正在检测系统环境...
+              {t('toolInstall.checking')}
             </Typography>
           </Box>
         </Box>
@@ -135,7 +141,7 @@ const ToolInstall = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 6 }}>
               <CircularProgress size={48} sx={{ mb: 3 }} />
               <Typography variant="body1" color="text.secondary">
-                正在检测 Claude Code 安装状态...
+                {t('toolInstall.checkingStatus')}
               </Typography>
             </Box>
           </CardContent>
@@ -152,10 +158,10 @@ const ToolInstall = () => {
       >
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-            工具安装
+            {t('toolInstall.title')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            按照下方步骤安装 Claude Code
+            {t('toolInstall.notInstalled')}
           </Typography>
         </Box>
       </Box>
@@ -163,8 +169,8 @@ const ToolInstall = () => {
       {/* 平台不支持提示 */}
       {platform === 'unsupported' && (
         <Alert severity="error" icon={<FontAwesomeIcon icon={faTimesCircle} />} sx={{ mb: 3 }}>
-          <AlertTitle sx={{ fontWeight: 600 }}>不支持的平台</AlertTitle>
-          当前仅支持 macOS 和 Windows 平台。
+          <AlertTitle sx={{ fontWeight: 600 }}>{t('toolInstall.unsupportedPlatform')}</AlertTitle>
+          {t('toolInstall.unsupportedPlatformDesc')}
         </Alert>
       )}
 
@@ -195,7 +201,7 @@ const ToolInstall = () => {
                 sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
               >
                 <FontAwesomeIcon icon={faDownload} />
-                步骤 2: 选择安装方式
+                {t('toolInstall.steps.selectMethod')}
               </Typography>
               <Divider sx={{ my: 2 }} />
 
@@ -207,7 +213,7 @@ const ToolInstall = () => {
                   gutterBottom
                   sx={{ fontWeight: 500 }}
                 >
-                  安装类型
+                  {t('toolInstall.installType')}
                 </Typography>
                 <RadioGroup
                   value={installMethod}
@@ -219,10 +225,10 @@ const ToolInstall = () => {
                     label={
                       <Box>
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          Native 安装 (推荐)
+                          {t('toolInstall.nativeInstall')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          使用系统原生工具安装，性能更优
+                          {t('toolInstall.nativeInstallDesc')}
                         </Typography>
                       </Box>
                     }
@@ -233,10 +239,10 @@ const ToolInstall = () => {
                     label={
                       <Box>
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          NPM 安装 (即将推出)
+                          {t('toolInstall.npmInstall')} ({t('toolInstall.comingSoon')})
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          通过 Node.js 包管理器安装
+                          {t('toolInstall.npmInstallDesc')}
                         </Typography>
                       </Box>
                     }
@@ -254,7 +260,7 @@ const ToolInstall = () => {
                     gutterBottom
                     sx={{ fontWeight: 500 }}
                   >
-                    安装方法
+                    {t('toolInstall.installMethod')}
                   </Typography>
 
                   {platform === 'macos' && (
@@ -277,10 +283,10 @@ const ToolInstall = () => {
                               }}
                             >
                               <FontAwesomeIcon icon={faCoffee} />
-                              Homebrew (推荐)
+                              {t('toolInstall.homebrew')}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              macOS 包管理器，方便管理和更新
+                              {t('toolInstall.homebrewDesc')}
                             </Typography>
                           </Box>
                         }
@@ -300,10 +306,10 @@ const ToolInstall = () => {
                               }}
                             >
                               <FontAwesomeIcon icon={faTerminal} />
-                              cURL 脚本
+                              {t('toolInstall.curlScript')}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              使用 shell 脚本自动安装
+                              {t('toolInstall.curlScriptDesc')}
                             </Typography>
                           </Box>
                         }
@@ -331,10 +337,10 @@ const ToolInstall = () => {
                               }}
                             >
                               <FontAwesomeIcon icon={faTerminal} />
-                              PowerShell 脚本 (推荐)
+                              {t('toolInstall.powershellScript')}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              使用 PowerShell 脚本自动安装
+                              {t('toolInstall.powershellScriptDesc')}
                             </Typography>
                           </Box>
                         }
@@ -354,10 +360,10 @@ const ToolInstall = () => {
                               }}
                             >
                               <FontAwesomeIcon icon={faTerminal} />
-                              CMD 脚本
+                              {t('toolInstall.cmdScript')}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              使用命令提示符脚本安装
+                              {t('toolInstall.cmdScriptDesc')}
                             </Typography>
                           </Box>
                         }
@@ -378,7 +384,7 @@ const ToolInstall = () => {
                 sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
               >
                 <FontAwesomeIcon icon={faTerminal} />
-                步骤 3: 安装 Claude Code
+                {t('toolInstall.steps.install')}
               </Typography>
               <Divider sx={{ my: 2 }} />
 

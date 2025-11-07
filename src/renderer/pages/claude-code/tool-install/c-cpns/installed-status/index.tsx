@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Box,
   Typography,
@@ -30,6 +31,7 @@ interface InstalledStatusProps {
 }
 
 const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: InstalledStatusProps) => {
+  const { t } = useTranslation()
   const [uninstallDialogOpen, setUninstallDialogOpen] = useState(false)
   const [uninstalling, setUninstalling] = useState(false)
   const [uninstallError, setUninstallError] = useState('')
@@ -83,29 +85,29 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
       >
         <Box>
           <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
-            工具安装
+            {t('toolInstall.title')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Claude Code 已成功安装
+            {t('toolInstall.installed')}
           </Typography>
         </Box>
       </Box>
 
       <Alert severity="success" icon={<FontAwesomeIcon icon={faCheckCircle} />} sx={{ mb: 3 }}>
-        <AlertTitle sx={{ fontWeight: 600 }}>Claude Code 已安装</AlertTitle>
-        您的系统已经正确安装 Claude Code，您可以直接使用。
+        <AlertTitle sx={{ fontWeight: 600 }}>{t('toolInstall.installed')}</AlertTitle>
+        {t('toolInstall.installedDesc')}
       </Alert>
 
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            安装信息
+            {t('toolInstall.installInfo')}
           </Typography>
           <Divider sx={{ my: 2 }} />
           <Stack spacing={2}>
             <Box>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                安装位置
+                {t('toolInstall.installLocation')}
               </Typography>
               <Paper
                 variant="outlined"
@@ -120,7 +122,7 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
             </Box>
             <Box>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                平台
+                {t('toolInstall.platform')}
               </Typography>
               <Chip label={getPlatformLabel()} color="primary" size="small" />
             </Box>
@@ -131,11 +133,11 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-            卸载 Claude Code
+            {t('toolInstall.uninstall')}
           </Typography>
           <Divider sx={{ my: 2 }} />
           <Alert severity="warning" sx={{ mb: 2 }}>
-            卸载 Claude Code 将移除系统中的工具，但不会影响您的配置文件。
+            {t('toolInstall.uninstallWarning')}
           </Alert>
           <Button
             variant="outlined"
@@ -143,18 +145,16 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
             startIcon={<FontAwesomeIcon icon={faTrash} />}
             onClick={handleUninstallClick}
           >
-            卸载 Claude Code
+            {t('toolInstall.uninstallButton')}
           </Button>
         </CardContent>
       </Card>
 
       {/* 卸载确认对话框 */}
       <Dialog open={uninstallDialogOpen} onClose={handleUninstallCancel}>
-        <DialogTitle>确认卸载</DialogTitle>
+        <DialogTitle>{t('toolInstall.confirmUninstall')}</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            您确定要卸载 Claude Code 吗？此操作将移除系统中的工具，但不会影响您的配置文件。
-          </DialogContentText>
+          <DialogContentText>{t('toolInstall.confirmUninstallDesc')}</DialogContentText>
           {uninstallError && (
             <Alert severity="error" sx={{ mt: 2 }}>
               {uninstallError}
@@ -163,7 +163,7 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
         </DialogContent>
         <DialogActions>
           <Button onClick={handleUninstallCancel} disabled={uninstalling}>
-            取消
+            {t('toolInstall.cancel')}
           </Button>
           <Button
             onClick={handleUninstallConfirm}
@@ -172,7 +172,7 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
             disabled={uninstalling}
             startIcon={uninstalling ? <CircularProgress size={16} /> : null}
           >
-            {uninstalling ? '卸载中...' : '确认卸载'}
+            {uninstalling ? t('toolInstall.uninstalling') : t('toolInstall.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

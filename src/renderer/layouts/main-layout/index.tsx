@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Box,
   Drawer,
@@ -19,11 +20,11 @@ import openaiLogo from '../../assets/images/openai-logo.svg'
 const drawerWidth = 240
 
 type MenuItem = {
-  text: string
+  key: string
   iconType: 'image'
   iconSrc: string
   subItems: {
-    text: string
+    key: string
     icon: any
     path: string
   }[]
@@ -31,34 +32,34 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   {
-    text: 'Claude Code',
+    key: 'claudeCode',
     iconType: 'image' as const,
     iconSrc: claudeLogo,
     subItems: [
       {
-        text: '工具安装',
+        key: 'toolInstall',
         icon: faDownload,
         path: '/claude-code/tool-install'
       },
       {
-        text: '供应商配置',
+        key: 'vendorConfig',
         icon: faCog,
         path: '/claude-code/vendor'
       }
     ]
   },
   {
-    text: 'Codex',
+    key: 'codex',
     iconType: 'image' as const,
     iconSrc: openaiLogo,
     subItems: [
       {
-        text: '工具安装',
+        key: 'toolInstall',
         icon: faDownload,
         path: '/codex/tool-install'
       },
       {
-        text: '供应商配置',
+        key: 'vendorConfig',
         icon: faCog,
         path: '/codex/vendor'
       }
@@ -69,9 +70,10 @@ const menuItems: MenuItem[] = [
 const MainLayout = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
   const [openMenus, setOpenMenus] = useState<{ [key: string]: boolean }>({
-    'Claude Code': true, // 默认展开 Claude Code 菜单
-    Codex: false // 默认折叠 Codex 菜单
+    claudeCode: true, // 默认展开 Claude Code 菜单
+    codex: false // 默认折叠 Codex 菜单
   })
 
   const handleMenuClick = (path: string) => {
@@ -109,13 +111,13 @@ const MainLayout = () => {
           {/* 主菜单区域 */}
           <List sx={{ pt: 2, flex: 1 }}>
             {menuItems.map((item) => (
-              <Box key={item.text}>
+              <Box key={item.key}>
                 {/* 主菜单项 */}
                 <ListItem disablePadding sx={{ px: 1 }}>
                   <ListItemButton
                     onClick={() => {
                       if (item.subItems) {
-                        handleToggleMenu(item.text)
+                        handleToggleMenu(item.key)
                       }
                     }}
                     sx={{
@@ -138,7 +140,7 @@ const MainLayout = () => {
                       />
                     </ListItemIcon>
                     <ListItemText
-                      primary={item.text}
+                      primary={t(`menu.${item.key}`)}
                       primaryTypographyProps={{
                         fontSize: 14,
                         fontWeight: 500
@@ -146,7 +148,7 @@ const MainLayout = () => {
                     />
                     {item.subItems && (
                       <FontAwesomeIcon
-                        icon={openMenus[item.text] ? faChevronUp : faChevronDown}
+                        icon={openMenus[item.key] ? faChevronUp : faChevronDown}
                         style={{ fontSize: '12px' }}
                       />
                     )}
@@ -155,7 +157,7 @@ const MainLayout = () => {
 
                 {/* 子菜单项 */}
                 {item.subItems && (
-                  <Collapse in={openMenus[item.text]} timeout="auto" unmountOnExit>
+                  <Collapse in={openMenus[item.key]} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
                       {item.subItems.map((subItem) => (
                         <ListItem key={subItem.path} disablePadding sx={{ px: 1 }}>
@@ -187,7 +189,7 @@ const MainLayout = () => {
                               <FontAwesomeIcon icon={subItem.icon} style={{ fontSize: '14px' }} />
                             </ListItemIcon>
                             <ListItemText
-                              primary={subItem.text}
+                              primary={t(`menu.${subItem.key}`)}
                               primaryTypographyProps={{
                                 fontSize: 13,
                                 fontWeight: location.pathname === subItem.path ? 600 : 400
@@ -232,7 +234,7 @@ const MainLayout = () => {
                   <FontAwesomeIcon icon={faCog} style={{ fontSize: '16px' }} />
                 </ListItemIcon>
                 <ListItemText
-                  primary="设置"
+                  primary={t('menu.settings')}
                   primaryTypographyProps={{
                     fontSize: 14,
                     fontWeight: location.pathname === '/settings' ? 600 : 500

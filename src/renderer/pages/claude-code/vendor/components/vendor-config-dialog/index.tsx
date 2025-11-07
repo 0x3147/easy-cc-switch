@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Dialog,
   DialogTitle,
@@ -31,6 +32,7 @@ const VendorConfigDialog = ({
   onClose,
   onSave
 }: VendorConfigDialogProps) => {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState<Partial<VendorConfig>>({
     token: '',
     baseUrl: ''
@@ -80,38 +82,38 @@ const VendorConfigDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>编辑 {vendorName} 配置</DialogTitle>
+      <DialogTitle>{t('vendor.dialog.editTitle', { name: vendorName })}</DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* 基础配置 */}
           <TextField
-            label="供应商名称"
+            label={t('vendor.dialog.vendorName')}
             value={formData.name || ''}
             onChange={handleChange('name')}
             fullWidth
             required
-            placeholder="例如：默认配置"
-            helperText="自定义供应商名称"
+            placeholder={t('vendor.dialog.vendorNamePlaceholder')}
+            helperText={t('vendor.dialog.vendorNameHelper')}
           />
 
           <TextField
-            label="API Token"
+            label={t('vendor.dialog.apiToken')}
             value={formData.token || ''}
             onChange={handleChange('token')}
             fullWidth
             required
             placeholder="sk-ant-xxxxx"
-            helperText="请输入你的 API Token"
+            helperText={t('vendor.dialog.apiTokenHelper')}
           />
 
           <TextField
-            label="API Base URL"
+            label={t('vendor.dialog.apiBaseUrl')}
             value={formData.baseUrl || ''}
             onChange={handleChange('baseUrl')}
             fullWidth
             required
-            placeholder="https://api.anthropic.com"
-            helperText="API 服务的基础地址"
+            placeholder={t('vendor.dialog.apiBaseUrlPlaceholder')}
+            helperText={t('vendor.dialog.apiBaseUrlHelper')}
           />
 
           {/* 高级选项 */}
@@ -127,7 +129,7 @@ const VendorConfigDialog = ({
               onClick={() => setShowAdvanced(!showAdvanced)}
             >
               <Typography variant="subtitle2" color="text.secondary" sx={{ flex: 1 }}>
-                高级选项
+                {t('vendor.dialog.advancedOptions')}
               </Typography>
               <IconButton size="small">
                 <FontAwesomeIcon icon={showAdvanced ? faChevronUp : faChevronDown} />
@@ -139,40 +141,40 @@ const VendorConfigDialog = ({
                 <Divider />
 
                 <TextField
-                  label="API Timeout (ms)"
+                  label={t('vendor.dialog.apiTimeout')}
                   value={formData.apiTimeout || ''}
                   onChange={handleChange('apiTimeout')}
                   fullWidth
                   type="number"
-                  placeholder="30000"
-                  helperText="API 请求超时时间（毫秒）"
+                  placeholder={t('vendor.dialog.apiTimeoutPlaceholder')}
+                  helperText={t('vendor.dialog.apiTimeoutHelper')}
                 />
 
                 <TextField
-                  label="Default Opus Model"
+                  label={t('vendor.dialog.opusModel')}
                   value={formData.opusModel || ''}
                   onChange={handleChange('opusModel')}
                   fullWidth
-                  placeholder="claude-opus-4-20250514"
-                  helperText="默认使用的 Opus 模型"
+                  placeholder={t('vendor.dialog.opusModelPlaceholder')}
+                  helperText={t('vendor.dialog.opusModelHelper')}
                 />
 
                 <TextField
-                  label="Default Sonnet Model"
+                  label={t('vendor.dialog.sonnetModel')}
                   value={formData.sonnetModel || ''}
                   onChange={handleChange('sonnetModel')}
                   fullWidth
-                  placeholder="claude-sonnet-4-20250514"
-                  helperText="默认使用的 Sonnet 模型"
+                  placeholder={t('vendor.dialog.sonnetModelPlaceholder')}
+                  helperText={t('vendor.dialog.sonnetModelHelper')}
                 />
 
                 <TextField
-                  label="Default Haiku Model"
+                  label={t('vendor.dialog.haikuModel')}
                   value={formData.haikuModel || ''}
                   onChange={handleChange('haikuModel')}
                   fullWidth
-                  placeholder="claude-3-5-haiku-20241022"
-                  helperText="默认使用的 Haiku 模型"
+                  placeholder={t('vendor.dialog.haikuModelPlaceholder')}
+                  helperText={t('vendor.dialog.haikuModelHelper')}
                 />
               </Box>
             </Collapse>
@@ -181,14 +183,14 @@ const VendorConfigDialog = ({
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose} disabled={saving}>
-          取消
+          {t('vendor.dialog.cancel')}
         </Button>
         <Button
           onClick={handleSave}
           variant="contained"
           disabled={!formData.name || !formData.token || !formData.baseUrl || saving}
         >
-          {saving ? '保存中...' : '保存'}
+          {saving ? t('vendor.dialog.saving') : t('vendor.dialog.save')}
         </Button>
       </DialogActions>
     </Dialog>

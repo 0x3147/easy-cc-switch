@@ -1,4 +1,5 @@
 import { Card, CardContent, Box, Typography, Button, Chip, Stack, IconButton } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
 import type { VendorConfig } from '@/shared/types/vendor'
@@ -18,6 +19,8 @@ interface VendorCardProps {
 }
 
 const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorCardProps) => {
+  const { t } = useTranslation()
+
   // 根据 vendorKey 获取对应的 logo
   const getVendorLogo = () => {
     switch (vendor.vendorKey) {
@@ -70,7 +73,9 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorC
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 {vendor.name}
               </Typography>
-              {isActive && <Chip label="使用中" size="small" color="primary" sx={{ height: 24 }} />}
+              {isActive && (
+                <Chip label={t('vendor.active')} size="small" color="primary" sx={{ height: 24 }} />
+              )}
             </Box>
 
             <Typography
@@ -105,7 +110,7 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorC
               onClick={onSetActive}
               disabled={isActive}
             >
-              {isActive ? '已启用' : '设为启用'}
+              {isActive ? t('vendor.enabled') : t('vendor.setAsActive')}
             </Button>
           </Stack>
         </Box>
