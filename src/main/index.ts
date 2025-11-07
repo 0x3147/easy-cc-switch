@@ -19,8 +19,8 @@ function createWindow(): void {
     icon: icon, // 在所有平台设置窗口图标
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
-    },
+      sandbox: false
+    }
   })
 
   mainWindow.on('ready-to-show', () => {

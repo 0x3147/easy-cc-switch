@@ -45,26 +45,18 @@ export default defineConfig({
       minify: 'esbuild',
       rollupOptions: {
         output: {
-          manualChunks(id) {
-            // 分包策略
-            if (id.includes('node_modules')) {
-              if (id.includes('@mui')) {
-                return 'vendor-mui'
-              }
-              if (id.includes('react') || id.includes('react-dom')) {
-                return 'vendor-react'
-              }
-              return 'vendor'
-            }
-            return undefined
-          },
+          // 暂时禁用手动代码分割以避免循环依赖问题
+          manualChunks: undefined,
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash].[ext]'
         }
       },
       sourcemap: false,
-      chunkSizeWarningLimit: 1000
-    }
+      // 调整 chunk size 警告限制（单位：KB）
+      chunkSizeWarningLimit: 2000
+    },
+    // 确保打包后使用相对路径
+    base: './'
   }
 })
