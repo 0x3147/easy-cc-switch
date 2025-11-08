@@ -58,8 +58,9 @@ const ToolInstall = () => {
   }, [])
 
   const detectPlatformAndStatus = async (forceRefresh = false) => {
+    setInstallStatus('checking')
     try {
-      // 如果需要强制刷新，先清除缓存
+      // 如果需要强制刷新,先清除缓存
       if (forceRefresh) {
         await window.api.refreshToolCache()
       }
