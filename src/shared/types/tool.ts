@@ -22,6 +22,11 @@ export interface PlatformInfo {
 }
 
 /**
+ * 安装方式类型
+ */
+export type InstallMethod = 'npm' | 'homebrew' | 'script' | 'unknown'
+
+/**
  * Claude Code 检测结果
  */
 export interface ClaudeCodeCheckResult {
@@ -31,6 +36,8 @@ export interface ClaudeCodeCheckResult {
   path?: string
   /** 版本号（如果已安装） */
   version?: string
+  /** 安装方式（如果已安装） */
+  installMethod?: InstallMethod
 }
 
 /**
@@ -55,6 +62,8 @@ export interface CodexCheckResult {
   path?: string
   /** 版本号（如果已安装） */
   version?: string
+  /** 安装方式（如果已安装） */
+  installMethod?: InstallMethod
 }
 
 /**

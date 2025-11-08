@@ -116,7 +116,11 @@ const InstalledStatus = ({ platform, installPath, onUninstallSuccess }: Installe
                 sx={{
                   p: 1.5,
                   bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50'),
-                  fontFamily: 'monospace'
+                  fontFamily: 'monospace',
+                  fontSize: '0.875rem',
+                  wordBreak: 'break-all',
+                  overflowWrap: 'break-word',
+                  maxWidth: '100%'
                 }}
               >
                 {installPath}

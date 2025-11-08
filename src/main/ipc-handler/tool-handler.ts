@@ -59,7 +59,7 @@ async function fullCheckClaudeCode(): Promise<ClaudeCodeCheckResult> {
 
     // 优先检测是否通过 npm 安装
     try {
-      const npmList = execSync('npm list -g @anthropic/claude-code --depth=0', {
+      const npmList = execSync('npm list -g @anthropic-ai/claude-code --depth=0', {
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'ignore'],
         timeout: 5000
@@ -74,7 +74,7 @@ async function fullCheckClaudeCode(): Promise<ClaudeCodeCheckResult> {
           timeout: 5000
         }).trim()
 
-        const npmPath = join(npmRoot, '@anthropic', 'claude-code')
+        const npmPath = join(npmRoot, '@anthropic-ai', 'claude-code')
 
         // 尝试获取版本号
         try {
@@ -88,13 +88,15 @@ async function fullCheckClaudeCode(): Promise<ClaudeCodeCheckResult> {
           return {
             installed: true,
             path: npmPath,
-            version
+            version,
+            installMethod: 'npm'
           }
         } catch {
           // 无法获取版本，但已安装
           return {
             installed: true,
-            path: npmPath
+            path: npmPath,
+            installMethod: 'npm'
           }
         }
       }
@@ -118,6 +120,24 @@ async function fullCheckClaudeCode(): Promise<ClaudeCodeCheckResult> {
     const path = output.trim().split('\n')[0]
 
     if (path) {
+      // 判断安装方式
+      let installMethod: 'homebrew' | 'script' | 'unknown' = 'unknown'
+
+      // macOS: 检查是否通过 Homebrew 安装
+      if (platform === 'darwin') {
+        if (path.includes('/opt/homebrew/') || path.includes('/usr/local/Cellar/')) {
+          installMethod = 'homebrew'
+        } else if (path.includes('/usr/local/bin/') || path.includes('/.local/bin/')) {
+          // 通过脚本安装通常在这些目录
+          installMethod = 'script'
+        }
+      } else if (platform === 'win32') {
+        // Windows: 通过脚本安装通常在 AppData 或 Program Files
+        if (path.includes('AppData') || path.includes('Program Files')) {
+          installMethod = 'script'
+        }
+      }
+
       // 尝试获取版本号
       try {
         const versionOutput = execSync('claude --version', {
@@ -130,12 +150,14 @@ async function fullCheckClaudeCode(): Promise<ClaudeCodeCheckResult> {
         return {
           installed: true,
           path,
-          version
+          version,
+          installMethod
         }
       } catch {
         return {
           installed: true,
-          path
+          path,
+          installMethod
         }
       }
     }
@@ -153,6 +175,54 @@ async function fullCheckCodex(): Promise<CodexCheckResult> {
   try {
     const platform = process.platform
 
+    // 优先检测是否通过 npm 安装
+    try {
+      const npmList = execSync('npm list -g @openai/codex --depth=0', {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'ignore'],
+        timeout: 5000
+      })
+
+      // 如果 npm list 成功，说明通过 npm 安装
+      if (npmList && !npmList.includes('(empty)')) {
+        // 获取 npm 全局包路径
+        const npmRoot = execSync('npm root -g', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore'],
+          timeout: 5000
+        }).trim()
+
+        const npmPath = join(npmRoot, '@openai', 'codex')
+
+        // 尝试获取版本号
+        try {
+          const versionOutput = execSync('codex --version', {
+            encoding: 'utf-8',
+            stdio: ['pipe', 'pipe', 'ignore'],
+            timeout: 5000
+          })
+          const version = versionOutput.trim()
+
+          return {
+            installed: true,
+            path: npmPath,
+            version,
+            installMethod: 'npm'
+          }
+        } catch {
+          // 无法获取版本，但已安装
+          return {
+            installed: true,
+            path: npmPath,
+            installMethod: 'npm'
+          }
+        }
+      }
+    } catch {
+      // npm 检测失败，继续检测其他安装方式
+    }
+
+    // 检查 codex 命令是否可用（非 npm 安装方式）
     let command: string
     if (platform === 'win32') {
       command = 'where codex'
@@ -168,6 +238,16 @@ async function fullCheckCodex(): Promise<CodexCheckResult> {
     const path = output.trim().split('\n')[0]
 
     if (path) {
+      // 判断安装方式
+      let installMethod: 'homebrew' | 'unknown' = 'unknown'
+
+      // macOS: 检查是否通过 Homebrew 安装
+      if (platform === 'darwin') {
+        if (path.includes('/opt/homebrew/') || path.includes('/usr/local/Cellar/')) {
+          installMethod = 'homebrew'
+        }
+      }
+
       // 尝试获取版本号
       try {
         const versionOutput = execSync('codex --version', {
@@ -180,12 +260,14 @@ async function fullCheckCodex(): Promise<CodexCheckResult> {
         return {
           installed: true,
           path,
-          version
+          version,
+          installMethod
         }
       } catch {
         return {
           installed: true,
-          path
+          path,
+          installMethod
         }
       }
     }
@@ -279,172 +361,164 @@ export function registerToolHandlers() {
       try {
         const platform = process.platform
 
-        // 先检查 Claude Code 是否已安装
-        let isInstalled = false
-        try {
-          const command = platform === 'win32' ? 'where claude' : 'which claude'
-          execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
-          isInstalled = true
-        } catch {
-          isInstalled = false
-        }
+        // 先检查 Claude Code 是否已安装并获取安装方式
+        const checkResult = await fullCheckClaudeCode()
 
-        if (!isInstalled) {
+        if (!checkResult.installed) {
           return {
             success: false,
             message: 'Claude Code 未安装'
           }
         }
 
-        // macOS: 尝试使用 Homebrew 卸载
-        if (platform === 'darwin') {
+        const installMethod = checkResult.installMethod || 'unknown'
+        console.log(`[卸载] Claude Code 安装方式: ${installMethod}`)
+
+        // 根据安装方式选择卸载方法
+        if (installMethod === 'npm') {
+          // npm 安装 - 使用 npm 卸载
+          try {
+            execSync('npm uninstall -g @anthropic-ai/claude-code', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+              timeout: 30000
+            })
+            toolCacheStore.clearClaudeCodeCache()
+            return {
+              success: true,
+              message: '已通过 npm 成功卸载 Claude Code'
+            }
+          } catch (error) {
+            return {
+              success: false,
+              message: `npm 卸载失败：${error instanceof Error ? error.message : '未知错误'}`
+            }
+          }
+        } else if (installMethod === 'homebrew') {
+          // Homebrew 安装 - 使用 brew 卸载
           try {
             execSync('brew uninstall --cask claude-code', {
               encoding: 'utf-8',
               stdio: ['pipe', 'pipe', 'pipe']
             })
-            // 清除缓存
             toolCacheStore.clearClaudeCodeCache()
             return {
               success: true,
               message: '已通过 Homebrew 成功卸载 Claude Code'
             }
-          } catch {
+          } catch (error) {
             return {
               success: false,
-              message: '卸载失败：请手动运行 "brew uninstall --cask claude-code" 或查看官方文档'
+              message: `Homebrew 卸载失败：${error instanceof Error ? error.message : '未知错误'}`
             }
           }
-        }
-
-        // Windows: 优先检测是否通过 npm 安装，然后尝试其他卸载方式
-        if (platform === 'win32') {
-          // 方式0: 检测是否通过 npm 安装，如果是则直接使用 npm 卸载
-          try {
-            // 直接检查 @anthropic/claude-code 包
-            const npmList = execSync('npm list -g @anthropic/claude-code --depth=0', {
-              encoding: 'utf-8',
-              stdio: ['pipe', 'pipe', 'ignore'],
-              timeout: 10000
-            })
-
-            // 如果检测到通过 npm 安装，直接使用 npm 卸载
-            if (npmList && !npmList.includes('(empty)')) {
-              try {
-                execSync('npm uninstall -g @anthropic/claude-code', {
-                  encoding: 'utf-8',
-                  stdio: ['pipe', 'pipe', 'pipe'],
+        } else if (installMethod === 'script') {
+          // 脚本安装 - 根据平台使用不同的卸载方式
+          if (platform === 'darwin') {
+            // macOS: 提示手动卸载或使用卸载脚本
+            return {
+              success: false,
+              message:
+                'Claude Code 通过脚本安装，请运行官方卸载脚本：\ncurl -fsSL https://claude.ai/uninstall.sh | bash'
+            }
+          } else if (platform === 'win32') {
+            // Windows: 尝试多种卸载方式
+            // 方式1: PowerShell 卸载脚本
+            try {
+              const psUninstall = spawn(
+                'powershell.exe',
+                ['-Command', 'irm https://claude.ai/uninstall.ps1 | iex'],
+                {
+                  stdio: ['ignore', 'pipe', 'pipe'],
                   timeout: 30000
-                })
-                // 清除缓存
+                }
+              )
+
+              const psResult = await new Promise<boolean>((resolve) => {
+                psUninstall.on('close', (code) => resolve(code === 0))
+                psUninstall.on('error', () => resolve(false))
+              })
+
+              if (psResult) {
                 toolCacheStore.clearClaudeCodeCache()
                 return {
                   success: true,
-                  message: '已通过 npm 成功卸载 Claude Code (@anthropic/claude-code)'
+                  message: '已通过 PowerShell 脚本成功卸载 Claude Code'
                 }
-              } catch (npmError) {
-                // npm 卸载失败，继续尝试其他方式
               }
+            } catch {
+              // 继续尝试其他方式
             }
-          } catch {
-            // npm 检测失败，继续尝试其他方式
-          }
 
-          // 方式1: 尝试使用 PowerShell 卸载脚本
-          try {
-            const psUninstall = spawn(
-              'powershell.exe',
-              ['-Command', 'irm https://claude.ai/uninstall.ps1 | iex'],
-              {
-                stdio: ['ignore', 'pipe', 'pipe'],
+            // 方式2: winget 卸载
+            try {
+              execSync('winget uninstall "Claude Code"', {
+                encoding: 'utf-8',
+                stdio: ['pipe', 'pipe', 'pipe'],
                 timeout: 30000
-              }
-            )
-
-            const psResult = await new Promise<boolean>((resolve) => {
-              psUninstall.on('close', (code) => resolve(code === 0))
-              psUninstall.on('error', () => resolve(false))
-            })
-
-            if (psResult) {
-              // 清除缓存
+              })
               toolCacheStore.clearClaudeCodeCache()
               return {
                 success: true,
-                message: '已通过 PowerShell 脚本成功卸载 Claude Code'
+                message: '已通过 winget 成功卸载 Claude Code'
               }
+            } catch {
+              // 继续尝试其他方式
             }
-          } catch {
-            // PowerShell 卸载失败，继续尝试其他方式
-          }
 
-          // 方式2: 尝试使用 winget 卸载
-          try {
-            execSync('winget uninstall "Claude Code"', {
-              encoding: 'utf-8',
-              stdio: ['pipe', 'pipe', 'pipe'],
-              timeout: 30000
-            })
-            // 清除缓存
-            toolCacheStore.clearClaudeCodeCache()
-            return {
-              success: true,
-              message: '已通过 winget 成功卸载 Claude Code'
-            }
-          } catch {
-            // winget 卸载失败，继续尝试其他方式
-          }
+            // 方式3: 查找卸载程序
+            try {
+              const uninstallPaths = [
+                join(
+                  process.env.LOCALAPPDATA || '',
+                  'Programs',
+                  'claude-code',
+                  'Uninstall Claude Code.exe'
+                ),
+                join(process.env.PROGRAMFILES || '', 'Claude Code', 'Uninstall.exe'),
+                join(process.env['PROGRAMFILES(X86)'] || '', 'Claude Code', 'Uninstall.exe')
+              ]
 
-          // 方式3: 尝试查找并执行卸载程序
-          try {
-            // 常见的卸载路径
-            const uninstallPaths = [
-              join(
-                process.env.LOCALAPPDATA || '',
-                'Programs',
-                'claude-code',
-                'Uninstall Claude Code.exe'
-              ),
-              join(process.env.PROGRAMFILES || '', 'Claude Code', 'Uninstall.exe'),
-              join(process.env['PROGRAMFILES(X86)'] || '', 'Claude Code', 'Uninstall.exe')
-            ]
-
-            for (const uninstallPath of uninstallPaths) {
-              try {
-                const { existsSync } = await import('fs')
-                if (existsSync(uninstallPath)) {
-                  execSync(`"${uninstallPath}" /S`, {
-                    encoding: 'utf-8',
-                    stdio: ['pipe', 'pipe', 'pipe'],
-                    timeout: 30000
-                  })
-                  // 清除缓存
-                  toolCacheStore.clearClaudeCodeCache()
-                  return {
-                    success: true,
-                    message: '已通过卸载程序成功卸载 Claude Code'
+              for (const uninstallPath of uninstallPaths) {
+                try {
+                  const { existsSync } = await import('fs')
+                  if (existsSync(uninstallPath)) {
+                    execSync(`"${uninstallPath}" /S`, {
+                      encoding: 'utf-8',
+                      stdio: ['pipe', 'pipe', 'pipe'],
+                      timeout: 30000
+                    })
+                    toolCacheStore.clearClaudeCodeCache()
+                    return {
+                      success: true,
+                      message: '已通过卸载程序成功卸载 Claude Code'
+                    }
                   }
+                } catch {
+                  continue
                 }
-              } catch {
-                continue
               }
+            } catch {
+              // 所有方式都失败
             }
-          } catch {
-            // 查找卸载程序失败
-          }
 
-          // 所有自动卸载方式都失败，提示用户手动卸载
-          return {
-            success: false,
-            message:
-              '自动卸载失败。请通过以下方式手动卸载：\n1. Windows 设置 > 应用 > 已安装的应用\n2. 搜索 "Claude Code" 并点击卸载'
+            // 所有自动卸载方式都失败
+            return {
+              success: false,
+              message:
+                '自动卸载失败。请通过以下方式手动卸载：\n1. Windows 设置 > 应用 > 已安装的应用\n2. 搜索 "Claude Code" 并点击卸载'
+            }
           }
         }
 
-        // Linux: 提示用户手动卸载
+        // 未知安装方式 - 提供通用卸载建议
         return {
           success: false,
-          message: '请参考官方文档手动卸载 Claude Code'
+          message:
+            '无法确定安装方式。请尝试以下方法卸载：\n' +
+            '1. 如果通过 npm 安装: npm uninstall -g @anthropic-ai/claude-code\n' +
+            '2. 如果通过 Homebrew 安装: brew uninstall --cask claude-code\n' +
+            '3. 如果通过脚本安装: 参考官方文档'
         }
       } catch (error) {
         return {
@@ -550,63 +624,67 @@ export function registerToolHandlers() {
     TOOL_CHANNELS.UNINSTALL_CODEX,
     async (): Promise<{ success: boolean; message: string }> => {
       try {
-        const platform = process.platform
+        // 先检查 Codex 是否已安装并获取安装方式
+        const checkResult = await fullCheckCodex()
 
-        // 先检查 Codex 是否已安装
-        let isInstalled = false
-        try {
-          const command = platform === 'win32' ? 'where codex' : 'which codex'
-          execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
-          isInstalled = true
-        } catch {
-          isInstalled = false
-        }
-
-        if (!isInstalled) {
+        if (!checkResult.installed) {
           return {
             success: false,
             message: 'Codex 未安装'
           }
         }
 
-        // 尝试使用 npm 卸载
-        try {
-          execSync('npm uninstall -g @openai/codex', {
-            encoding: 'utf-8',
-            stdio: ['pipe', 'pipe', 'pipe']
-          })
-          // 清除缓存
-          toolCacheStore.clearCodexCache()
-          return {
-            success: true,
-            message: '已通过 npm 成功卸载 Codex'
-          }
-        } catch (npmError) {
-          // npm 卸载失败，尝试 homebrew (仅 macOS)
-          if (platform === 'darwin') {
-            try {
-              execSync('brew uninstall codex', {
-                encoding: 'utf-8',
-                stdio: ['pipe', 'pipe', 'pipe']
-              })
-              // 清除缓存
-              toolCacheStore.clearCodexCache()
-              return {
-                success: true,
-                message: '已通过 Homebrew 成功卸载 Codex'
-              }
-            } catch (brewError) {
-              return {
-                success: false,
-                message: '卸载失败：无法通过 npm 或 Homebrew 卸载 Codex'
-              }
+        const installMethod = checkResult.installMethod || 'unknown'
+        console.log(`[卸载] Codex 安装方式: ${installMethod}`)
+
+        // 根据安装方式选择卸载方法
+        if (installMethod === 'npm') {
+          // npm 安装 - 使用 npm 卸载
+          try {
+            execSync('npm uninstall -g @openai/codex', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+              timeout: 30000
+            })
+            toolCacheStore.clearCodexCache()
+            return {
+              success: true,
+              message: '已通过 npm 成功卸载 Codex'
+            }
+          } catch (error) {
+            return {
+              success: false,
+              message: `npm 卸载失败：${error instanceof Error ? error.message : '未知错误'}`
             }
           }
-
-          return {
-            success: false,
-            message: '卸载失败：npm uninstall 命令执行失败'
+        } else if (installMethod === 'homebrew') {
+          // Homebrew 安装 - 使用 brew 卸载
+          try {
+            execSync('brew uninstall codex', {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+              timeout: 30000
+            })
+            toolCacheStore.clearCodexCache()
+            return {
+              success: true,
+              message: '已通过 Homebrew 成功卸载 Codex'
+            }
+          } catch (error) {
+            return {
+              success: false,
+              message: `Homebrew 卸载失败：${error instanceof Error ? error.message : '未知错误'}`
+            }
           }
+        }
+
+        // 未知安装方式 - 提供通用卸载建议
+        return {
+          success: false,
+          message:
+            '无法确定安装方式。请尝试以下方法卸载：\n' +
+            '1. 如果通过 npm 安装: npm uninstall -g @openai/codex\n' +
+            '2. 如果通过 Homebrew 安装: brew uninstall codex'
         }
       } catch (error) {
         return {
