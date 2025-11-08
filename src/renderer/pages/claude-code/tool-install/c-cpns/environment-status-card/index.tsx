@@ -6,6 +6,8 @@ type Platform = 'macos' | 'windows' | 'unsupported'
 
 interface EnvironmentStatus {
   homebrew: { installed: boolean; version?: string; path?: string }
+  node: { installed: boolean; version?: string; path?: string; majorVersion?: number }
+  nvm: { installed: boolean; version?: string; path?: string }
 }
 
 interface EnvironmentStatusCardProps {
@@ -33,6 +35,38 @@ const EnvironmentStatusCard = ({ platform, environment }: EnvironmentStatusCardP
               color="success"
               size="small"
             />
+          </Box>
+
+          {/* Node.js 检测 */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FontAwesomeIcon
+                icon={environment.node.installed ? faCheckCircle : faInfoCircle}
+                style={{ color: environment.node.installed ? '#4caf50' : '#ff9800' }}
+              />
+              <Typography variant="body1">Node.js</Typography>
+            </Box>
+            {environment.node.installed ? (
+              <Chip label={environment.node.version || '已安装'} color="success" size="small" />
+            ) : (
+              <Chip label="未安装" color="warning" size="small" />
+            )}
+          </Box>
+
+          {/* NVM 检测 */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FontAwesomeIcon
+                icon={environment.nvm.installed ? faCheckCircle : faInfoCircle}
+                style={{ color: environment.nvm.installed ? '#4caf50' : '#9e9e9e' }}
+              />
+              <Typography variant="body1">NVM</Typography>
+            </Box>
+            {environment.nvm.installed ? (
+              <Chip label={environment.nvm.version || '已安装'} color="success" size="small" />
+            ) : (
+              <Chip label="未安装" color="default" size="small" />
+            )}
           </Box>
 
           {/* Homebrew 检测 (仅 macOS) */}

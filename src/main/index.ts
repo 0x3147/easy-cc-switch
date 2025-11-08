@@ -3,6 +3,10 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerAllHandlers } from './ipc-handler'
+import { fixPathEnv } from './utils/fix-path'
+
+// 修复 macOS 打包后的 PATH 环境变量问题
+fixPathEnv()
 
 // 设置应用名称（macOS 程序坞和系统中显示）
 app.name = 'EasyCCSwitch'

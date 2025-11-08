@@ -51,6 +51,8 @@ const api = {
     ipcRenderer.invoke(TOOL_CHANNELS.CHECK_CLAUDE_CODE_CACHED),
   uninstallClaudeCode: (): Promise<{ success: boolean; message: string }> =>
     ipcRenderer.invoke(TOOL_CHANNELS.UNINSTALL_CLAUDE_CODE),
+  installClaudeCodeNpm: (): Promise<InstallResult> =>
+    ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_NPM),
   installClaudeCodeHomebrew: (): Promise<InstallResult> =>
     ipcRenderer.invoke(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_HOMEBREW),
   installClaudeCodeCurl: (): Promise<InstallResult> =>

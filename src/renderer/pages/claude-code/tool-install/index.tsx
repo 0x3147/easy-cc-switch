@@ -22,6 +22,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimesCircle, faDownload, faTerminal, faCoffee } from '@fortawesome/free-solid-svg-icons'
 import InstalledStatus from './c-cpns/installed-status'
 import EnvironmentStatusCard from './c-cpns/environment-status-card'
+import NpmInstallPanel from './c-cpns/npm-install-panel'
 import HomebrewInstallPanel from './c-cpns/homebrew-install-panel'
 import CurlInstallPanel from './c-cpns/curl-install-panel'
 import PowershellInstallPanel from './c-cpns/powershell-install-panel'
@@ -34,6 +35,8 @@ type Platform = 'macos' | 'windows' | 'unsupported'
 
 interface EnvironmentStatus {
   homebrew: { installed: boolean; version?: string; path?: string }
+  node: { installed: boolean; version?: string; path?: string; majorVersion?: number }
+  nvm: { installed: boolean; version?: string; path?: string }
 }
 
 const ToolInstall = () => {
@@ -43,7 +46,9 @@ const ToolInstall = () => {
   const [installMethod, setInstallMethod] = useState<InstallMethod>('native')
   const [nativeMethod, setNativeMethod] = useState<NativeMethod>('homebrew')
   const [environment, setEnvironment] = useState<EnvironmentStatus>({
-    homebrew: { installed: false }
+    homebrew: { installed: false },
+    node: { installed: false },
+    nvm: { installed: false }
   })
   const [installPath, setInstallPath] = useState('')
 
@@ -68,15 +73,40 @@ const ToolInstall = () => {
         detectedPlatform = 'macos'
         setNativeMethod('homebrew')
 
-        // 检测 Homebrew 是否安装
-        const homebrewResult = await window.api.checkHomebrew()
+        // 检测 Homebrew、Node.js 和 NVM 是否安装
+        const [homebrewResult, nodeResult, nvmResult] = await Promise.all([
+          window.api.checkHomebrew(),
+          window.api.checkNodejs(),
+          window.api.checkNvm()
+        ])
+
         console.log('Homebrew check result:', homebrewResult)
+        console.log('Node.js check result:', nodeResult)
+        console.log('NVM check result:', nvmResult)
+
         setEnvironment({
-          homebrew: homebrewResult
+          homebrew: homebrewResult,
+          node: nodeResult,
+          nvm: nvmResult
         })
       } else if (platformInfo.platform === 'win32') {
         detectedPlatform = 'windows'
         setNativeMethod('powershell')
+
+        // Windows 下也检测 Node.js 和 NVM
+        const [nodeResult, nvmResult] = await Promise.all([
+          window.api.checkNodejs(),
+          window.api.checkNvm()
+        ])
+
+        console.log('Node.js check result:', nodeResult)
+        console.log('NVM check result:', nvmResult)
+
+        setEnvironment({
+          homebrew: { installed: false },
+          node: nodeResult,
+          nvm: nvmResult
+        })
       }
 
       setPlatform(detectedPlatform)
@@ -249,14 +279,13 @@ const ToolInstall = () => {
                     label={
                       <Box>
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {t('toolInstall.npmInstall')} ({t('toolInstall.comingSoon')})
+                          {t('toolInstall.npmInstall')}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           {t('toolInstall.npmInstallDesc')}
                         </Typography>
                       </Box>
                     }
-                    disabled
                   />
                 </RadioGroup>
               </Box>
@@ -399,32 +428,42 @@ const ToolInstall = () => {
               <Divider sx={{ my: 2 }} />
 
               <Stack spacing={2}>
-                {/* macOS 安装面板 */}
-                {platform === 'macos' && (
-                  <>
-                    <HomebrewInstallPanel
-                      environment={environment}
-                      isSelected={nativeMethod === 'homebrew'}
-                      onInstallSuccess={detectPlatformAndStatus}
-                    />
-                    <CurlInstallPanel
-                      isSelected={nativeMethod === 'curl'}
-                      onInstallSuccess={detectPlatformAndStatus}
-                    />
-                  </>
+                {/* npm 安装面板（跨平台） */}
+                {installMethod === 'npm' && (
+                  <NpmInstallPanel isSelected={true} onInstallSuccess={detectPlatformAndStatus} />
                 )}
 
-                {/* Windows 安装面板 */}
-                {platform === 'windows' && (
+                {/* Native 安装面板 */}
+                {installMethod === 'native' && (
                   <>
-                    <PowershellInstallPanel
-                      isSelected={nativeMethod === 'powershell'}
-                      onInstallSuccess={detectPlatformAndStatus}
-                    />
-                    <CmdInstallPanel
-                      isSelected={nativeMethod === 'cmd'}
-                      onInstallSuccess={detectPlatformAndStatus}
-                    />
+                    {/* macOS 安装面板 */}
+                    {platform === 'macos' && (
+                      <>
+                        <HomebrewInstallPanel
+                          environment={environment}
+                          isSelected={nativeMethod === 'homebrew'}
+                          onInstallSuccess={detectPlatformAndStatus}
+                        />
+                        <CurlInstallPanel
+                          isSelected={nativeMethod === 'curl'}
+                          onInstallSuccess={detectPlatformAndStatus}
+                        />
+                      </>
+                    )}
+
+                    {/* Windows 安装面板 */}
+                    {platform === 'windows' && (
+                      <>
+                        <PowershellInstallPanel
+                          isSelected={nativeMethod === 'powershell'}
+                          onInstallSuccess={detectPlatformAndStatus}
+                        />
+                        <CmdInstallPanel
+                          isSelected={nativeMethod === 'cmd'}
+                          onInstallSuccess={detectPlatformAndStatus}
+                        />
+                      </>
+                    )}
                   </>
                 )}
 

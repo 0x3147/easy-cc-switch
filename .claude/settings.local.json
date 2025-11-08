@@ -4,7 +4,9 @@
       "Bash(powershell:*)",
       "Bash(tasklist:*)",
       "Bash(findstr:*)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(git checkout:*)",
+      "Bash(npm run typecheck:*)"
     ],
     "deny": [],
     "ask": []

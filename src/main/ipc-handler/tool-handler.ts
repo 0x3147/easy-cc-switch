@@ -1180,6 +1180,97 @@ export function registerToolHandlers() {
     }
   })
 
+  // 通过 npm 安装 Claude Code
+  ipcMain.handle(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_NPM, async (): Promise<InstallResult> => {
+    try {
+      const platform = process.platform
+
+      // 1. 检查 Node.js 是否已安装且版本 >= 18
+      let nodeInstalled = false
+      let nodeMajorVersion = 0
+
+      try {
+        const command = platform === 'win32' ? 'where node' : 'which node'
+        execSync(command, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] })
+        nodeInstalled = true
+
+        // 获取版本
+        const versionOutput = execSync('node --version', {
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'ignore']
+        })
+        const version = versionOutput.trim()
+        nodeMajorVersion = parseInt(version.replace('v', '').split('.')[0], 10)
+      } catch {
+        nodeInstalled = false
+      }
+
+      if (!nodeInstalled) {
+        return {
+          success: false,
+          message: '未检测到 Node.js，请先安装 Node.js (≥ v18)'
+        }
+      }
+
+      if (nodeMajorVersion < 18) {
+        return {
+          success: false,
+          message: `当前 Node.js 版本过低 (v${nodeMajorVersion})，需要 v18 或更高版本`
+        }
+      }
+
+      // 2. 执行 npm 安装
+      return new Promise<InstallResult>((resolve) => {
+        const npmCommand = platform === 'win32' ? 'npm.cmd' : 'npm'
+        const child = spawn(npmCommand, ['install', '-g', '@anthropic-ai/claude-code'], {
+          shell: true,
+          stdio: ['ignore', 'pipe', 'pipe']
+        })
+
+        let output = ''
+
+        child.stdout?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.stderr?.on('data', (data) => {
+          output += data.toString()
+        })
+
+        child.on('close', (code) => {
+          if (code === 0) {
+            // 清除缓存，确保下次检测能识别到新安装的工具
+            toolCacheStore.clearClaudeCodeCache()
+            resolve({
+              success: true,
+              message: '已成功通过 npm 安装 Claude Code',
+              output
+            })
+          } else {
+            resolve({
+              success: false,
+              message: `安装失败（退出码: ${code}），请检查网络连接或权限`,
+              output
+            })
+          }
+        })
+
+        child.on('error', (error) => {
+          resolve({
+            success: false,
+            message: `安装失败：${error.message}`,
+            output
+          })
+        })
+      })
+    } catch (error) {
+      return {
+        success: false,
+        message: `安装失败：${error instanceof Error ? error.message : '未知错误'}`
+      }
+    }
+  })
+
   // 通过 Homebrew 安装 Claude Code (仅 macOS)
   ipcMain.handle(TOOL_CHANNELS.INSTALL_CLAUDE_CODE_HOMEBREW, async (): Promise<InstallResult> => {
     try {
