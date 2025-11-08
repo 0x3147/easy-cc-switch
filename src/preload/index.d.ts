@@ -64,6 +64,8 @@ interface API {
   getAllSettings: () => Promise<{ themeMode: 'light' | 'dark' | 'system'; language: string }>
   getClaudeMd: () => Promise<string>
   saveClaudeMd: (content: string) => Promise<boolean>
+  checkClaudeMdExists: () => Promise<boolean>
+  createClaudeMd: () => Promise<boolean>
   getAllProjects: () => Promise<ClaudeProjectConfig[]>
   updateProject: (request: UpdateProjectConfigRequest) => Promise<void>
   deleteProject: (path: string) => Promise<void>

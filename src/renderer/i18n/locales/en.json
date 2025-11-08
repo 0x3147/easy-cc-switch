@@ -232,7 +232,13 @@
     "loadFailed": "Failed to load document",
     "unsavedChanges": "You have unsaved changes, please click the Save button to save your edits",
     "editorPlaceholder": "Start editing your Claude documentation...",
-    "emptyContent": "No content yet, please switch to edit mode to start editing"
+    "emptyContent": "No content yet, please switch to edit mode to start editing",
+    "noFile": "Global Rules File Not Created Yet",
+    "noFileDesc": "The CLAUDE.md file does not exist yet. This file is used to store Claude Code's global rules, which will apply to all projects. You can create a new file with example content right away.",
+    "createFile": "Create Global Rules File",
+    "creating": "Creating...",
+    "createSuccess": "Global rules file created successfully!",
+    "createFailed": "Failed to create file, please try again"
   },
   "mcp": {
     "title": "Global MCP Configuration",

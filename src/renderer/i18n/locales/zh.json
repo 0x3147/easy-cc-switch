@@ -232,7 +232,13 @@
     "loadFailed": "加载文档失败",
     "unsavedChanges": "您有未保存的更改，请点击保存按钮以保存您的编辑",
     "editorPlaceholder": "开始编辑您的 Claude 文档...",
-    "emptyContent": "暂无内容，请切换到编辑模式开始编辑"
+    "emptyContent": "暂无内容，请切换到编辑模式开始编辑",
+    "noFile": "全局规则文件尚未创建",
+    "noFileDesc": "CLAUDE.md 文件还不存在。此文件用于存储 Claude Code 的全局规则，将对所有项目生效。您可以立即创建一个带有示例内容的新文件。",
+    "createFile": "创建全局规则文件",
+    "creating": "创建中...",
+    "createSuccess": "全局规则文件创建成功！",
+    "createFailed": "创建文件失败，请重试"
   },
   "mcp": {
     "title": "全局 MCP 配置",

@@ -145,7 +145,11 @@ export const MARKDOWN_CHANNELS = {
   /** 读取 CLAUDE.md 文件 */
   GET_CLAUDE_MD: 'markdown-get-claude-md',
   /** 保存 CLAUDE.md 文件 */
-  SAVE_CLAUDE_MD: 'markdown-save-claude-md'
+  SAVE_CLAUDE_MD: 'markdown-save-claude-md',
+  /** 检查 CLAUDE.md 文件是否存在 */
+  CHECK_CLAUDE_MD_EXISTS: 'markdown-check-claude-md-exists',
+  /** 创建 CLAUDE.md 文件 */
+  CREATE_CLAUDE_MD: 'markdown-create-claude-md'
 } as const
 
 /**

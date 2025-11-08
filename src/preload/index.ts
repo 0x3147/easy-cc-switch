@@ -106,6 +106,9 @@ const api = {
   getClaudeMd: (): Promise<string> => ipcRenderer.invoke(MARKDOWN_CHANNELS.GET_CLAUDE_MD),
   saveClaudeMd: (content: string): Promise<boolean> =>
     ipcRenderer.invoke(MARKDOWN_CHANNELS.SAVE_CLAUDE_MD, content),
+  checkClaudeMdExists: (): Promise<boolean> =>
+    ipcRenderer.invoke(MARKDOWN_CHANNELS.CHECK_CLAUDE_MD_EXISTS),
+  createClaudeMd: (): Promise<boolean> => ipcRenderer.invoke(MARKDOWN_CHANNELS.CREATE_CLAUDE_MD),
   // Claude 项目配置
   getAllProjects: (): Promise<ClaudeProjectConfig[]> =>
     ipcRenderer.invoke(CLAUDE_PROJECT_CHANNELS.GET_ALL_PROJECTS),

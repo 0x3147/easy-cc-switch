@@ -29,7 +29,9 @@ import {
   faListOl,
   faLink,
   faImage,
-  faCode
+  faCode,
+  faFileAlt,
+  faPlus
 } from '@fortawesome/free-solid-svg-icons'
 import SimpleMDE from 'react-simplemde-editor'
 import ReactMarkdown from 'react-markdown'
@@ -46,6 +48,8 @@ const ClaudeDocsPage = () => {
   const [originalContent, setOriginalContent] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [fileExists, setFileExists] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('edit')
   const [editorInstance, setEditorInstance] = useState<any>(null)
   const [snackbar, setSnackbar] = useState({
@@ -62,9 +66,16 @@ const ClaudeDocsPage = () => {
   const loadContent = async () => {
     setLoading(true)
     try {
-      const mdContent = await window.api.getClaudeMd()
-      setContent(mdContent)
-      setOriginalContent(mdContent)
+      // 先检查文件是否存在
+      const exists = await window.api.checkClaudeMdExists()
+      setFileExists(exists)
+
+      if (exists) {
+        // 文件存在，加载内容
+        const mdContent = await window.api.getClaudeMd()
+        setContent(mdContent)
+        setOriginalContent(mdContent)
+      }
     } catch (error) {
       console.error('加载 CLAUDE.md 失败:', error)
       setSnackbar({
@@ -84,6 +95,7 @@ const ClaudeDocsPage = () => {
       const success = await window.api.saveClaudeMd(content)
       if (success) {
         setOriginalContent(content)
+        setFileExists(true)
         setSnackbar({
           open: true,
           message: t('claudeDocs.saveSuccess'),
@@ -105,6 +117,38 @@ const ClaudeDocsPage = () => {
       })
     } finally {
       setSaving(false)
+    }
+  }
+
+  // 创建新文件
+  const handleCreateFile = async () => {
+    setCreating(true)
+    try {
+      const success = await window.api.createClaudeMd()
+      if (success) {
+        setSnackbar({
+          open: true,
+          message: t('claudeDocs.createSuccess'),
+          severity: 'success'
+        })
+        // 重新加载内容
+        await loadContent()
+      } else {
+        setSnackbar({
+          open: true,
+          message: t('claudeDocs.createFailed'),
+          severity: 'error'
+        })
+      }
+    } catch (error) {
+      console.error('创建 CLAUDE.md 失败:', error)
+      setSnackbar({
+        open: true,
+        message: t('claudeDocs.createFailed'),
+        severity: 'error'
+      })
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -150,6 +194,79 @@ const ClaudeDocsPage = () => {
         }}
       >
         <CircularProgress />
+      </Box>
+    )
+  }
+
+  // 文件不存在时的空状态
+  if (!fileExists) {
+    return (
+      <Box>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
+            {t('claudeDocs.title')}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {t('claudeDocs.description')}
+          </Typography>
+        </Box>
+
+        <Paper
+          sx={{
+            p: 8,
+            textAlign: 'center',
+            backgroundColor: 'background.paper',
+            borderRadius: 2,
+            border: '2px dashed',
+            borderColor: 'divider'
+          }}
+        >
+          <Box sx={{ mb: 3 }}>
+            <FontAwesomeIcon
+              icon={faFileAlt}
+              style={{ fontSize: '80px', color: '#bdbdbd', opacity: 0.6 }}
+            />
+          </Box>
+          <Typography variant="h5" color="text.primary" gutterBottom sx={{ fontWeight: 500 }}>
+            {t('claudeDocs.noFile')}
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}
+          >
+            {t('claudeDocs.noFileDesc')}
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            color="primary"
+            onClick={handleCreateFile}
+            disabled={creating}
+            startIcon={
+              creating ? <CircularProgress size={20} /> : <FontAwesomeIcon icon={faPlus} />
+            }
+            sx={{ px: 4 }}
+          >
+            {creating ? t('claudeDocs.creating') : t('claudeDocs.createFile')}
+          </Button>
+        </Paper>
+
+        {/* 提示消息 */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </Box>
     )
   }
