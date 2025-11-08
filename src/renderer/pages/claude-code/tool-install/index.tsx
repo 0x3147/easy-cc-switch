@@ -51,6 +51,7 @@ const ToolInstall = () => {
     nvm: { installed: false }
   })
   const [installPath, setInstallPath] = useState('')
+  const [activeStep, setActiveStep] = useState(0) // 当前步骤：0=检测环境, 1=选择方式, 2=执行安装
 
   // 检测平台和 Claude Code 安装状态
   useEffect(() => {
@@ -59,6 +60,7 @@ const ToolInstall = () => {
 
   const detectPlatformAndStatus = async (forceRefresh = false) => {
     setInstallStatus('checking')
+    setActiveStep(0) // 重置到环境检测步骤
     try {
       // 如果需要强制刷新,先清除缓存
       if (forceRefresh) {
@@ -143,6 +145,20 @@ const ToolInstall = () => {
     }
   }
 
+  // 步骤控制函数
+  const handleNext = () => {
+    setActiveStep((prevStep) => prevStep + 1)
+  }
+
+  const handleBack = () => {
+    setActiveStep((prevStep) => prevStep - 1)
+  }
+
+  const handleInstallSuccess = () => {
+    // 安装成功后重新检测
+    detectPlatformAndStatus(true)
+  }
+
   const steps = [
     t('toolInstall.steps.detectEnv'),
     t('toolInstall.steps.selectMethod'),
@@ -220,7 +236,7 @@ const ToolInstall = () => {
           {/* 进度条 */}
           <Card sx={{ mb: 3 }}>
             <CardContent>
-              <Stepper activeStep={0} alternativeLabel>
+              <Stepper activeStep={activeStep} alternativeLabel>
                 {steps.map((label) => (
                   <Step key={label}>
                     <StepLabel>{label}</StepLabel>
@@ -230,263 +246,310 @@ const ToolInstall = () => {
             </CardContent>
           </Card>
 
-          {/* 环境检测卡片 */}
-          <EnvironmentStatusCard platform={platform} environment={environment} />
-
-          {/* 步骤 2: 选择安装方式 */}
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                gutterBottom
-                sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <FontAwesomeIcon icon={faDownload} />
-                {t('toolInstall.steps.selectMethod')}
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-
-              {/* 安装类型选择 */}
-              <Box sx={{ mb: 3 }}>
+          {/* 步骤 0: 环境检测结果 */}
+          {activeStep === 0 && (
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
                 <Typography
-                  variant="body2"
-                  color="text.secondary"
+                  variant="h6"
                   gutterBottom
-                  sx={{ fontWeight: 500 }}
+                  sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
                 >
-                  {t('toolInstall.installType')}
+                  <FontAwesomeIcon icon={faDownload} />
+                  {t('toolInstall.steps.detectEnv')}
                 </Typography>
-                <RadioGroup
-                  value={installMethod}
-                  onChange={(e) => setInstallMethod(e.target.value as InstallMethod)}
-                >
-                  <FormControlLabel
-                    value="native"
-                    control={<Radio />}
-                    label={
-                      <Box>
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {t('toolInstall.nativeInstall')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {t('toolInstall.nativeInstallDesc')}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <FormControlLabel
-                    value="npm"
-                    control={<Radio />}
-                    label={
-                      <Box>
-                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                          {t('toolInstall.npmInstall')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {t('toolInstall.npmInstallDesc')}
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                </RadioGroup>
-              </Box>
+                <Divider sx={{ my: 2 }} />
 
-              {/* Native 安装方式 */}
-              {installMethod === 'native' && (
-                <Box>
+                <EnvironmentStatusCard platform={platform} environment={environment} />
+
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
+                  <Button variant="outlined" onClick={() => detectPlatformAndStatus(true)}>
+                    重新检测
+                  </Button>
+                  <Button variant="contained" onClick={handleNext}>
+                    下一步
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 步骤 1: 选择安装方式 */}
+          {activeStep === 1 && (
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
+                >
+                  <FontAwesomeIcon icon={faDownload} />
+                  {t('toolInstall.steps.selectMethod')}
+                </Typography>
+                <Divider sx={{ my: 2 }} />
+
+                {/* 安装类型选择 */}
+                <Box sx={{ mb: 3 }}>
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     gutterBottom
                     sx={{ fontWeight: 500 }}
                   >
-                    {t('toolInstall.installMethod')}
+                    {t('toolInstall.installType')}
                   </Typography>
-
-                  {platform === 'macos' && (
-                    <RadioGroup
-                      value={nativeMethod}
-                      onChange={(e) => setNativeMethod(e.target.value as NativeMethod)}
-                    >
-                      <FormControlLabel
-                        value="homebrew"
-                        control={<Radio />}
-                        label={
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
-                              }}
-                            >
-                              <FontAwesomeIcon icon={faCoffee} />
-                              {t('toolInstall.homebrew')}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {t('toolInstall.homebrewDesc')}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                      <FormControlLabel
-                        value="curl"
-                        control={<Radio />}
-                        label={
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
-                              }}
-                            >
-                              <FontAwesomeIcon icon={faTerminal} />
-                              {t('toolInstall.curlScript')}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {t('toolInstall.curlScriptDesc')}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                    </RadioGroup>
-                  )}
-
-                  {platform === 'windows' && (
-                    <RadioGroup
-                      value={nativeMethod}
-                      onChange={(e) => setNativeMethod(e.target.value as NativeMethod)}
-                    >
-                      <FormControlLabel
-                        value="powershell"
-                        control={<Radio />}
-                        label={
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
-                              }}
-                            >
-                              <FontAwesomeIcon icon={faTerminal} />
-                              {t('toolInstall.powershellScript')}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {t('toolInstall.powershellScriptDesc')}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                      <FormControlLabel
-                        value="cmd"
-                        control={<Radio />}
-                        label={
-                          <Box>
-                            <Typography
-                              variant="body1"
-                              sx={{
-                                fontWeight: 500,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1
-                              }}
-                            >
-                              <FontAwesomeIcon icon={faTerminal} />
-                              {t('toolInstall.cmdScript')}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {t('toolInstall.cmdScriptDesc')}
-                            </Typography>
-                          </Box>
-                        }
-                      />
-                    </RadioGroup>
-                  )}
+                  <RadioGroup
+                    value={installMethod}
+                    onChange={(e) => setInstallMethod(e.target.value as InstallMethod)}
+                  >
+                    <FormControlLabel
+                      value="native"
+                      control={<Radio />}
+                      label={
+                        <Box>
+                          <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                            {t('toolInstall.nativeInstall')}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {t('toolInstall.nativeInstallDesc')}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <FormControlLabel
+                      value="npm"
+                      control={<Radio />}
+                      label={
+                        <Box>
+                          <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                            {t('toolInstall.npmInstall')}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {t('toolInstall.npmInstallDesc')}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </RadioGroup>
                 </Box>
-              )}
-            </CardContent>
-          </Card>
 
-          {/* 步骤 3: 安装指引 */}
-          <Card>
-            <CardContent>
-              <Typography
-                variant="h6"
-                gutterBottom
-                sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <FontAwesomeIcon icon={faTerminal} />
-                {t('toolInstall.steps.install')}
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-
-              <Stack spacing={2}>
-                {/* npm 安装面板（跨平台） */}
-                {installMethod === 'npm' && (
-                  <NpmInstallPanel isSelected={true} onInstallSuccess={detectPlatformAndStatus} />
-                )}
-
-                {/* Native 安装面板 */}
+                {/* Native 安装方式 */}
                 {installMethod === 'native' && (
-                  <>
-                    {/* macOS 安装面板 */}
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      gutterBottom
+                      sx={{ fontWeight: 500 }}
+                    >
+                      {t('toolInstall.installMethod')}
+                    </Typography>
+
                     {platform === 'macos' && (
-                      <>
-                        <HomebrewInstallPanel
-                          environment={environment}
-                          isSelected={nativeMethod === 'homebrew'}
-                          onInstallSuccess={detectPlatformAndStatus}
+                      <RadioGroup
+                        value={nativeMethod}
+                        onChange={(e) => setNativeMethod(e.target.value as NativeMethod)}
+                      >
+                        <FormControlLabel
+                          value="homebrew"
+                          control={<Radio />}
+                          label={
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: 500,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 1
+                                }}
+                              >
+                                <FontAwesomeIcon icon={faCoffee} />
+                                {t('toolInstall.homebrew')}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {t('toolInstall.homebrewDesc')}
+                              </Typography>
+                            </Box>
+                          }
                         />
-                        <CurlInstallPanel
-                          isSelected={nativeMethod === 'curl'}
-                          onInstallSuccess={detectPlatformAndStatus}
+                        <FormControlLabel
+                          value="curl"
+                          control={<Radio />}
+                          label={
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: 500,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 1
+                                }}
+                              >
+                                <FontAwesomeIcon icon={faTerminal} />
+                                {t('toolInstall.curlScript')}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {t('toolInstall.curlScriptDesc')}
+                              </Typography>
+                            </Box>
+                          }
                         />
-                      </>
+                      </RadioGroup>
                     )}
 
-                    {/* Windows 安装面板 */}
                     {platform === 'windows' && (
-                      <>
-                        <PowershellInstallPanel
-                          isSelected={nativeMethod === 'powershell'}
-                          onInstallSuccess={detectPlatformAndStatus}
+                      <RadioGroup
+                        value={nativeMethod}
+                        onChange={(e) => setNativeMethod(e.target.value as NativeMethod)}
+                      >
+                        <FormControlLabel
+                          value="powershell"
+                          control={<Radio />}
+                          label={
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: 500,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 1
+                                }}
+                              >
+                                <FontAwesomeIcon icon={faTerminal} />
+                                {t('toolInstall.powershellScript')}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {t('toolInstall.powershellScriptDesc')}
+                              </Typography>
+                            </Box>
+                          }
                         />
-                        <CmdInstallPanel
-                          isSelected={nativeMethod === 'cmd'}
-                          onInstallSuccess={detectPlatformAndStatus}
+                        <FormControlLabel
+                          value="cmd"
+                          control={<Radio />}
+                          label={
+                            <Box>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: 500,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 1
+                                }}
+                              >
+                                <FontAwesomeIcon icon={faTerminal} />
+                                {t('toolInstall.cmdScript')}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {t('toolInstall.cmdScriptDesc')}
+                              </Typography>
+                            </Box>
+                          }
                         />
-                      </>
+                      </RadioGroup>
                     )}
-                  </>
+                  </Box>
                 )}
 
-                <Box sx={{ display: 'flex', gap: 2, pt: 2 }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    onClick={() => detectPlatformAndStatus(true)}
-                  >
-                    重新检测
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+                  <Button variant="outlined" onClick={handleBack}>
+                    上一步
                   </Button>
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    onClick={() => window.open('https://claude.ai/docs/installation', '_blank')}
-                  >
-                    查看官方文档
+                  <Button variant="contained" onClick={handleNext}>
+                    下一步
                   </Button>
                 </Box>
-              </Stack>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 步骤 2: 执行安装 */}
+          {activeStep === 2 && (
+            <Card>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}
+                >
+                  <FontAwesomeIcon icon={faTerminal} />
+                  {t('toolInstall.steps.install')}
+                </Typography>
+                <Divider sx={{ my: 2 }} />
+
+                <Stack spacing={2}>
+                  {/* npm 安装面板（跨平台） */}
+                  {installMethod === 'npm' && (
+                    <NpmInstallPanel isSelected={true} onInstallSuccess={handleInstallSuccess} />
+                  )}
+
+                  {/* Native 安装面板 */}
+                  {installMethod === 'native' && (
+                    <>
+                      {/* macOS 安装面板 */}
+                      {platform === 'macos' && (
+                        <>
+                          <HomebrewInstallPanel
+                            environment={environment}
+                            isSelected={nativeMethod === 'homebrew'}
+                            onInstallSuccess={handleInstallSuccess}
+                          />
+                          <CurlInstallPanel
+                            isSelected={nativeMethod === 'curl'}
+                            onInstallSuccess={handleInstallSuccess}
+                          />
+                        </>
+                      )}
+
+                      {/* Windows 安装面板 */}
+                      {platform === 'windows' && (
+                        <>
+                          <PowershellInstallPanel
+                            isSelected={nativeMethod === 'powershell'}
+                            onInstallSuccess={handleInstallSuccess}
+                          />
+                          <CmdInstallPanel
+                            isSelected={nativeMethod === 'cmd'}
+                            onInstallSuccess={handleInstallSuccess}
+                          />
+                        </>
+                      )}
+                    </>
+                  )}
+
+                  <Alert severity="info" sx={{ mt: 2 }}>
+                    <Typography variant="body2">
+                      安装完成后，应用将自动检测并刷新状态。你也可以手动点击下方按钮重新检测。
+                    </Typography>
+                  </Alert>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 2 }}>
+                    <Button variant="outlined" onClick={handleBack}>
+                      上一步
+                    </Button>
+                    <Stack direction="row" spacing={2}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => detectPlatformAndStatus(true)}
+                      >
+                        重新检测
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => window.open('https://claude.ai/docs/installation', '_blank')}
+                      >
+                        查看官方文档
+                      </Button>
+                    </Stack>
+                  </Box>
+                </Stack>
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
     </Box>
