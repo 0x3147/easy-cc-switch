@@ -42,7 +42,7 @@ const PRESET_VENDORS = {
   zhipu: {
     name: '智谱',
     logo: zhipuLogo,
-    baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
+    baseUrl: 'https://open.bigmodel.cn/api/anthropic',
     opusModel: 'glm-4.6',
     sonnetModel: 'glm-4.6',
     haikuModel: 'glm-4.5-air'
