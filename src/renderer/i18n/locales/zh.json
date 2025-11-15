@@ -122,7 +122,8 @@
       "moonshot": "月之暗面(KIMI)",
       "minimax": "MINIMAX",
       "idealab": "idealab",
-      "deepseek": "DeepSeek"
+      "deepseek": "DeepSeek",
+      "doubao": "豆包"
     },
     "dialog": {
       "addTitle": "添加供应商配置",
@@ -176,11 +177,13 @@
         "zhipuOpus": "智谱 Opus 模型配置",
         "zhipuSonnet": "智谱 Sonnet 模型配置",
         "zhipuHaiku": "智谱 Haiku 模型配置",
+        "zhipuTimeout": "智谱 API 超时配置（3000秒）",
         "moonshotModel": "月之暗面默认模型配置",
         "moonshotSmallFast": "月之暗面快速小模型配置",
         "moonshotOpus": "月之暗面 Opus 模型配置",
         "moonshotSonnet": "月之暗面 Sonnet 模型配置",
         "moonshotHaiku": "月之暗面 Haiku 模型配置",
+        "moonshotTimeout": "月之暗面 API 超时配置（3000秒）",
         "moonshotDefault": "月之暗面默认模型配置",
         "moonshotFast": "月之暗面快速模型配置",
         "minimaxModel": "MINIMAX 默认模型配置",
@@ -194,11 +197,19 @@
         "idealabOpus": "IdealAB Opus 模型配置",
         "idealabSonnet": "IdealAB Sonnet 模型配置",
         "idealabHaiku": "IdealAB Haiku 模型配置",
+        "idealabTimeout": "IdealAB API 超时配置（3000秒）",
         "deepseekModel": "DeepSeek 默认模型配置",
         "deepseekSmallFast": "DeepSeek 快速小模型配置",
         "deepseekOpus": "DeepSeek Opus 模型配置",
         "deepseekSonnet": "DeepSeek Sonnet 模型配置",
-        "deepseekHaiku": "DeepSeek Haiku 模型配置"
+        "deepseekHaiku": "DeepSeek Haiku 模型配置",
+        "deepseekTimeout": "DeepSeek API 超时配置（3000秒）",
+        "doubaoModel": "豆包默认模型配置",
+        "doubaoSmallFast": "豆包快速小模型配置",
+        "doubaoOpus": "豆包 Opus 模型配置",
+        "doubaoSonnet": "豆包 Sonnet 模型配置",
+        "doubaoHaiku": "豆包 Haiku 模型配置",
+        "doubaoTimeout": "豆包 API 超时配置（3000秒）"
       }
     }
   },

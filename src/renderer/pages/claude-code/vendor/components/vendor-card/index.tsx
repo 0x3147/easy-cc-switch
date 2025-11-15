@@ -11,6 +11,7 @@ import moonshotLogo from '@renderer/assets/images/moonshot.svg'
 import minimaxLogo from '@renderer/assets/images/minimax-color.svg'
 import alibabaLogo from '@renderer/assets/images/alibaba-color.svg'
 import deepseekLogo from '@renderer/assets/images/deepseek-color.svg'
+import doubaoLogo from '@renderer/assets/images/doubao-color.svg'
 
 interface VendorCardProps {
   vendor: VendorConfig
@@ -47,6 +48,8 @@ const VendorCard = ({ vendor, isActive, onEdit, onSetActive, onDelete }: VendorC
         return alibabaLogo
       case 'deepseek':
         return deepseekLogo
+      case 'doubao':
+        return doubaoLogo
       default:
         return claudeLogo // 手动配置默认使用 Claude logo
     }

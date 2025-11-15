@@ -30,6 +30,7 @@ import moonshotLogo from '@renderer/assets/images/moonshot.svg'
 import minimaxLogo from '@renderer/assets/images/minimax-color.svg'
 import alibabaLogo from '@renderer/assets/images/alibaba-color.svg'
 import deepseekLogo from '@renderer/assets/images/deepseek-color.svg'
+import doubaoLogo from '@renderer/assets/images/doubao-color.svg'
 
 interface AddVendorDialogProps {
   open: boolean
@@ -102,6 +103,16 @@ const PRESET_VENDORS: Record<string, PresetVendorConfig> = {
     opusModel: 'deepseek-chat',
     sonnetModel: 'deepseek-chat',
     haikuModel: 'deepseek-chat'
+  },
+  doubao: {
+    name: '豆包',
+    logo: doubaoLogo,
+    baseUrl: 'https://ark.cn-beijing.volces.com/api/coding',
+    model: 'doubao-seed-code-preview-latest',
+    smallFastModel: 'doubao-seed-code-preview-latest',
+    opusModel: 'doubao-seed-code-preview-latest',
+    sonnetModel: 'doubao-seed-code-preview-latest',
+    haikuModel: 'doubao-seed-code-preview-latest'
   }
 }
 
@@ -138,7 +149,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
           name: quickConfigName || preset.name,
           token: quickToken,
           baseUrl: preset.baseUrl,
-          vendorKey: quickVendor as 'zhipu' | 'moonshot' | 'minimax' | 'idealab' | 'deepseek',
+          vendorKey: quickVendor as 'zhipu' | 'moonshot' | 'minimax' | 'idealab' | 'deepseek' | 'doubao',
           ...(preset.apiTimeout && { apiTimeout: preset.apiTimeout }),
           ...(preset.model && { model: preset.model }),
           ...(preset.smallFastModel && { smallFastModel: preset.smallFastModel }),
@@ -277,6 +288,16 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                     <span>{t('vendor.presetVendors.deepseek')}</span>
                   </Box>
                 </MenuItem>
+                <MenuItem value="doubao">
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Box
+                      component="img"
+                      src={doubaoLogo}
+                      sx={{ width: 20, height: 20, objectFit: 'contain' }}
+                    />
+                    <span>{t('vendor.presetVendors.doubao')}</span>
+                  </Box>
+                </MenuItem>
               </Select>
             </FormControl>
 
@@ -350,7 +371,7 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   {t('vendor.dialog.howToGetToken')}
                 </Typography>
                 <Link
-                  href="https://platform.minimaxi.com/user-center/basic-information"
+                  href="https://platform.minimaxi.com/subscribe/coding-plan"
                   target="_blank"
                   rel="noopener noreferrer"
                   underline="hover"
@@ -397,7 +418,25 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
               </Box>
             )}
 
-            {/* API Base URL（只读，自动填入） */}
+            {/* 豆包官方文档链接 */}
+            {quickVendor === 'doubao' && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: -1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('vendor.dialog.howToGetToken')}
+                </Typography>
+                <Link
+                  href="https://www.volcengine.com/activity/codingplan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  underline="hover"
+                  variant="body2"
+                >
+                  {t('vendor.dialog.viewDocs', { vendor: '豆包' })}
+                </Link>
+              </Box>
+            )}
+
+            {/* API Base URL（只读,自动填入） */}
             <TextField
               label={t('vendor.dialog.apiBaseUrl')}
               value={quickVendor ? PRESET_VENDORS[quickVendor].baseUrl : ''}
@@ -444,6 +483,13 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   disabled
                   helperText={t('vendor.dialog.modelConfig.zhipuHaiku')}
                 />
+                <TextField
+                  label="API_TIMEOUT_MS"
+                  value="3000000"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.zhipuTimeout')}
+                />
               </>
             )}
 
@@ -484,6 +530,13 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   fullWidth
                   disabled
                   helperText={t('vendor.dialog.modelConfig.moonshotHaiku')}
+                />
+                <TextField
+                  label="API_TIMEOUT_MS"
+                  value="3000000"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.moonshotTimeout')}
                 />
               </>
             )}
@@ -574,6 +627,13 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   disabled
                   helperText={t('vendor.dialog.modelConfig.idealabHaiku')}
                 />
+                <TextField
+                  label="API_TIMEOUT_MS"
+                  value="3000000"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.idealabTimeout')}
+                />
               </>
             )}
 
@@ -614,6 +674,61 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   fullWidth
                   disabled
                   helperText={t('vendor.dialog.modelConfig.deepseekHaiku')}
+                />
+                <TextField
+                  label="API_TIMEOUT_MS"
+                  value="3000000"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.deepseekTimeout')}
+                />
+              </>
+            )}
+
+            {/* 豆包特有的模型配置 */}
+            {quickVendor === 'doubao' && (
+              <>
+                <TextField
+                  label="ANTHROPIC_MODEL"
+                  value="doubao-seed-code-preview-latest"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.doubaoModel')}
+                />
+                <TextField
+                  label="ANTHROPIC_SMALL_FAST_MODEL"
+                  value="doubao-seed-code-preview-latest"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.doubaoSmallFast')}
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
+                  value="doubao-seed-code-preview-latest"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.doubaoOpus')}
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
+                  value="doubao-seed-code-preview-latest"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.doubaoSonnet')}
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
+                  value="doubao-seed-code-preview-latest"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.doubaoHaiku')}
+                />
+                <TextField
+                  label="API_TIMEOUT_MS"
+                  value="3000000"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.doubaoTimeout')}
                 />
               </>
             )}

@@ -63,7 +63,7 @@ export interface VendorConfig {
   /** 是否为默认配置（从 .claude/settings.json 读取） */
   isDefault?: boolean
   /** 预设供应商标识（可选，用于显示对应的 logo） */
-  vendorKey?: 'zhipu' | 'moonshot' | 'minimax' | 'idealab' | 'deepseek'
+  vendorKey?: 'zhipu' | 'moonshot' | 'minimax' | 'idealab' | 'deepseek' | 'doubao'
 }
 
 /**
