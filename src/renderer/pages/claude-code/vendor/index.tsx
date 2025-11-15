@@ -18,6 +18,21 @@ import {
 } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faInbox } from '@fortawesome/free-solid-svg-icons'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
 import VendorCard from './components/vendor-card'
 import VendorConfigDialog from './components/vendor-config-dialog'
 import AddVendorDialog from './components/add-vendor-dialog'
@@ -40,6 +55,28 @@ const VendorPage = () => {
     isProcessing: false,
     pendingAction: null as (() => Promise<void>) | null
   })
+
+  // 配置拖拽传感器
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates
+    })
+  )
+
+  // 处理拖拽结束
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      setVendors((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id)
+        const newIndex = items.findIndex((item) => item.id === over.id)
+
+        return arrayMove(items, oldIndex, newIndex)
+      })
+    }
+  }
 
   // 初始化加载数据
   useEffect(() => {
@@ -292,16 +329,20 @@ const VendorPage = () => {
       <Stack spacing={2}>
         {/* 供应商卡片列表 */}
         {vendors.length > 0 ? (
-          vendors.map((vendor) => (
-            <VendorCard
-              key={vendor.id}
-              vendor={vendor}
-              isActive={activeVendorId === vendor.id}
-              onEdit={() => handleEdit(vendor)}
-              onSetActive={() => handleActivate(vendor.id)}
-              onDelete={() => handleDelete(vendor.id)}
-            />
-          ))
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={vendors.map((v) => v.id)} strategy={verticalListSortingStrategy}>
+              {vendors.map((vendor) => (
+                <VendorCard
+                  key={vendor.id}
+                  vendor={vendor}
+                  isActive={activeVendorId === vendor.id}
+                  onEdit={() => handleEdit(vendor)}
+                  onSetActive={() => handleActivate(vendor.id)}
+                  onDelete={() => handleDelete(vendor.id)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         ) : (
           // 空状态显示
           <Paper

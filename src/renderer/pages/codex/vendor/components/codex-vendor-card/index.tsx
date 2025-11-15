@@ -1,7 +1,9 @@
 import { Card, CardContent, Box, Typography, Button, Chip, Stack, IconButton } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPencil, faCheck, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faPencil, faCheck, faTrash, faGripVertical } from '@fortawesome/free-solid-svg-icons'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import type { CodexVendorConfig } from '@/shared/types/codex'
 
 interface CodexVendorCardProps {
@@ -21,8 +23,21 @@ const CodexVendorCard = ({
 }: CodexVendorCardProps) => {
   const { t } = useTranslation()
 
+  // 使用 useSortable hook
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: vendor.id
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1
+  }
+
   return (
     <Card
+      ref={setNodeRef}
+      style={style}
       elevation={0}
       sx={{
         border: '1px solid',
@@ -37,6 +52,23 @@ const CodexVendorCard = ({
     >
       <CardContent sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          {/* 拖拽手柄 */}
+          <Box
+            {...attributes}
+            {...listeners}
+            sx={{
+              cursor: isDragging ? 'grabbing' : 'grab',
+              color: 'text.secondary',
+              display: 'flex',
+              alignItems: 'center',
+              '&:hover': {
+                color: 'primary.main'
+              }
+            }}
+          >
+            <FontAwesomeIcon icon={faGripVertical} />
+          </Box>
+
           {/* 信息区域 */}
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
