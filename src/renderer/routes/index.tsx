@@ -5,6 +5,7 @@ import ClaudeCodeVendor from '../pages/claude-code/vendor'
 import ClaudeCodeDocs from '../pages/claude-code/claude-docs'
 import ClaudeCodeProjectConfig from '../pages/claude-code/project-config'
 import GlobalMcp from '../pages/claude-code/global-mcp'
+import McpMarketplace from '../pages/claude-code/mcp-marketplace'
 import CodexToolInstall from '../pages/codex/tool-install'
 import CodexVendor from '../pages/codex/vendor'
 import Settings from '../pages/settings'
@@ -37,6 +38,10 @@ const routes: RouteObject[] = [
       {
         path: 'claude-code/global-mcp',
         element: <GlobalMcp />
+      },
+      {
+        path: 'claude-code/mcp-marketplace',
+        element: <McpMarketplace />
       },
       {
         path: 'codex/tool-install',

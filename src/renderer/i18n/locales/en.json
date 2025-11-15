@@ -13,7 +13,14 @@
     "claudeDocs": "Global Rules Configuration",
     "projectConfig": "Project Configuration",
     "globalMcp": "Global MCP",
+    "mcpMarketplace": "MCP Marketplace",
     "settings": "Settings"
+  },
+  "mcpMarketplace": {
+    "title": "MCP Marketplace",
+    "description": "Explore and install popular Model Context Protocol servers",
+    "searchPlaceholder": "Search MCP servers...",
+    "noResults": "No MCP servers found matching your search"
   },
   "settings": {
     "title": "Settings",

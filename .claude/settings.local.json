@@ -10,7 +10,8 @@
       "WebSearch",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:scottspence.com)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

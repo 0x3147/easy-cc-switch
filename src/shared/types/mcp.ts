@@ -65,3 +65,37 @@ export interface McpServerItem {
   /** 服务器配置 */
   config: McpServerConfig
 }
+
+/**
+ * MCP 市场项目
+ */
+export interface McpMarketplaceItem {
+  /** 唯一标识 */
+  id: string
+  /** MCP 名称 */
+  name: string
+  /** 作者 */
+  author: string
+  /** 简短描述 */
+  description: string
+  /** 详细描述 */
+  longDescription?: string
+  /** 图标 URL 或图标名称 */
+  icon?: string
+  /** 类别标签 */
+  tags: string[]
+  /** GitHub 仓库 URL */
+  repository?: string
+  /** 官方网站 */
+  website?: string
+  /** NPM 包名 */
+  npmPackage?: string
+  /** 安装数量 */
+  installs?: number
+  /** 星标数 */
+  stars?: number
+  /** 服务器类型 */
+  serverType: McpServerType
+  /** 预设配置模板 */
+  configTemplate: McpServerConfig
+}

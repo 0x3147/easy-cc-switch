@@ -13,7 +13,14 @@
     "claudeDocs": "全局规则文件配置",
     "projectConfig": "项目配置",
     "globalMcp": "全局 MCP",
+    "mcpMarketplace": "MCP 市场",
     "settings": "设置"
+  },
+  "mcpMarketplace": {
+    "title": "MCP 市场",
+    "description": "探索和安装热门的 Model Context Protocol 服务器",
+    "searchPlaceholder": "搜索 MCP 服务器...",
+    "noResults": "未找到匹配的 MCP 服务器"
   },
   "settings": {
     "title": "设置",

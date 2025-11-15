@@ -23,7 +23,8 @@ import {
   faFolderOpen,
   faChevronLeft,
   faChevronRight,
-  faServer
+  faServer,
+  faStore
 } from '@fortawesome/free-solid-svg-icons'
 import TitleBar from '../../components/title-bar'
 import claudeLogo from '../../assets/images/claude-logo.svg'
@@ -73,6 +74,11 @@ const menuItems: MenuItem[] = [
         key: 'globalMcp',
         icon: faServer,
         path: '/claude-code/global-mcp'
+      },
+      {
+        key: 'mcpMarketplace',
+        icon: faStore,
+        path: '/claude-code/mcp-marketplace'
       }
     ]
   },

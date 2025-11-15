@@ -24,6 +24,8 @@ import {
   CheckCircle as CheckCircleIcon
 } from '@mui/icons-material'
 import type { ClaudeProjectConfig } from '@/shared/types/claude-project'
+import type { McpServerConfig } from '@/shared/types/mcp'
+import McpEditDialog from './components/mcp-edit-dialog'
 
 export default function ProjectConfig() {
   const [projects, setProjects] = useState<ClaudeProjectConfig[]>([])
@@ -31,7 +33,6 @@ export default function ProjectConfig() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [mcpDialogOpen, setMcpDialogOpen] = useState(false)
-  const [mcpJson, setMcpJson] = useState('')
   const [mcpExpanded, setMcpExpanded] = useState(false)
   const [editingMcp, setEditingMcp] = useState<{ name: string; config: any } | null>(null)
 
@@ -99,39 +100,106 @@ export default function ProjectConfig() {
     if (!selectedProject) return
     const newMcpServers = { ...selectedProject.mcpServers }
     delete newMcpServers[name]
-    setSelectedProject({ ...selectedProject, mcpServers: newMcpServers })
+
+    // 从 enabledMcpjsonServers 和 disabledMcpjsonServers 中移除
+    const newEnabledMcpjsonServers = (selectedProject.enabledMcpjsonServers || []).filter(
+      (serverName) => serverName !== name
+    )
+    const newDisabledMcpjsonServers = (selectedProject.disabledMcpjsonServers || []).filter(
+      (serverName) => serverName !== name
+    )
+
+    setSelectedProject({
+      ...selectedProject,
+      mcpServers: newMcpServers,
+      enabledMcpjsonServers: newEnabledMcpjsonServers,
+      disabledMcpjsonServers: newDisabledMcpjsonServers
+    })
   }
 
-  const handleAddMcp = () => {
-    if (!selectedProject || !mcpJson.trim()) return
-    try {
-      const parsed = JSON.parse(mcpJson)
-      if (editingMcp) {
-        // 编辑模式：删除旧的，添加新的
-        const newMcpServers = { ...selectedProject.mcpServers }
-        delete newMcpServers[editingMcp.name]
-        setSelectedProject({
-          ...selectedProject,
-          mcpServers: { ...newMcpServers, ...parsed }
-        })
-        setEditingMcp(null)
-      } else {
-        // 添加模式
-        setSelectedProject({
-          ...selectedProject,
-          mcpServers: { ...selectedProject.mcpServers, ...parsed }
-        })
-      }
-      setMcpJson('')
-      setMcpDialogOpen(false)
-    } catch (error) {
-      alert('JSON 格式错误，请检查后重试')
+  const handleToggleMcpStatus = (name: string) => {
+    if (!selectedProject) return
+
+    const enabledServers = selectedProject.enabledMcpjsonServers || []
+    const disabledServers = selectedProject.disabledMcpjsonServers || []
+    const isEnabled = enabledServers.includes(name)
+
+    if (isEnabled) {
+      // 禁用：从 enabled 移到 disabled
+      setSelectedProject({
+        ...selectedProject,
+        enabledMcpjsonServers: enabledServers.filter((n) => n !== name),
+        disabledMcpjsonServers: [...disabledServers, name]
+      })
+    } else {
+      // 启用：从 disabled 移到 enabled
+      setSelectedProject({
+        ...selectedProject,
+        enabledMcpjsonServers: [...enabledServers, name],
+        disabledMcpjsonServers: disabledServers.filter((n) => n !== name)
+      })
     }
+  }
+
+  const handleSaveMcp = (name: string, config: McpServerConfig, enableImmediately: boolean) => {
+    if (!selectedProject) return
+
+    // 如果是编辑模式且名称发生了变化，删除旧的配置
+    if (editingMcp && editingMcp.name !== name) {
+      const newMcpServers = { ...selectedProject.mcpServers }
+      delete newMcpServers[editingMcp.name]
+
+      // 从 enabledMcpjsonServers 和 disabledMcpjsonServers 中移除旧名称
+      let newEnabledMcpjsonServers = (selectedProject.enabledMcpjsonServers || []).filter(
+        (serverName) => serverName !== editingMcp.name
+      )
+      let newDisabledMcpjsonServers = (selectedProject.disabledMcpjsonServers || []).filter(
+        (serverName) => serverName !== editingMcp.name
+      )
+
+      // 根据 enableImmediately 决定添加到哪个数组
+      if (enableImmediately) {
+        newEnabledMcpjsonServers = [...newEnabledMcpjsonServers, name]
+      } else {
+        newDisabledMcpjsonServers = [...newDisabledMcpjsonServers, name]
+      }
+
+      setSelectedProject({
+        ...selectedProject,
+        mcpServers: { ...newMcpServers, [name]: config },
+        enabledMcpjsonServers: newEnabledMcpjsonServers,
+        disabledMcpjsonServers: newDisabledMcpjsonServers
+      })
+    } else {
+      // 添加或更新配置
+      let newEnabledMcpjsonServers = (selectedProject.enabledMcpjsonServers || []).filter(
+        (serverName) => serverName !== name
+      )
+      let newDisabledMcpjsonServers = (selectedProject.disabledMcpjsonServers || []).filter(
+        (serverName) => serverName !== name
+      )
+
+      // 根据 enableImmediately 决定添加到哪个数组
+      if (enableImmediately) {
+        newEnabledMcpjsonServers = [...newEnabledMcpjsonServers, name]
+      } else {
+        newDisabledMcpjsonServers = [...newDisabledMcpjsonServers, name]
+      }
+
+      setSelectedProject({
+        ...selectedProject,
+        mcpServers: { ...selectedProject.mcpServers, [name]: config },
+        enabledMcpjsonServers: newEnabledMcpjsonServers,
+        disabledMcpjsonServers: newDisabledMcpjsonServers
+      })
+    }
+
+    setEditingMcp(null)
+    setMcpDialogOpen(false)
   }
 
   const handleEditMcp = (name: string, config: any) => {
     setEditingMcp({ name, config })
-    setMcpJson(JSON.stringify({ [name]: config }, null, 2))
     setMcpDialogOpen(true)
   }
 
@@ -261,7 +329,6 @@ export default function ProjectConfig() {
                   size="small"
                   onClick={() => {
                     setEditingMcp(null)
-                    setMcpJson('')
                     setMcpDialogOpen(true)
                   }}
                 >
@@ -277,42 +344,63 @@ export default function ProjectConfig() {
                   <>
                     {Object.entries(selectedProject.mcpServers)
                       .slice(0, mcpExpanded ? undefined : 3)
-                      .map(([name, config]) => (
-                        <Box
-                          key={name}
-                          sx={{
-                            p: 1.5,
-                            mb: 1,
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 1,
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}
-                        >
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="body2" fontWeight={600}>
-                              {name}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {config.command || config.url}
-                            </Typography>
+                      .map(([name, config]) => {
+                        const isEnabled = selectedProject.enabledMcpjsonServers?.includes(name) ?? false
+                        return (
+                          <Box
+                            key={name}
+                            sx={{
+                              p: 1.5,
+                              mb: 1,
+                              border: 1,
+                              borderColor: 'divider',
+                              borderRadius: 1,
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              opacity: isEnabled ? 1 : 0.6,
+                              transition: 'opacity 0.3s'
+                            }}
+                          >
+                            <Box sx={{ flex: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="body2" fontWeight={600}>
+                                  {name}
+                                </Typography>
+                                <Chip
+                                  label={isEnabled ? '已启用' : '已禁用'}
+                                  size="small"
+                                  color={isEnabled ? 'success' : 'default'}
+                                  variant="outlined"
+                                  sx={{ height: 20, fontSize: '0.7rem' }}
+                                />
+                              </Box>
+                              <Typography variant="caption" color="text.secondary">
+                                {config.command || config.url}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleToggleMcpStatus(name)}
+                                title={isEnabled ? '禁用' : '启用'}
+                              >
+                                <Switch checked={isEnabled} size="small" />
+                              </IconButton>
+                              <IconButton size="small" onClick={() => handleEditMcp(name, config)}>
+                                <SettingsIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDeleteMcp(name)}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
                           </Box>
-                          <Box sx={{ display: 'flex', gap: 0.5 }}>
-                            <IconButton size="small" onClick={() => handleEditMcp(name, config)}>
-                              <SettingsIcon fontSize="small" />
-                            </IconButton>
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => handleDeleteMcp(name)}
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Box>
-                        </Box>
-                      ))}
+                        )
+                      })}
                     {Object.keys(selectedProject.mcpServers).length > 3 && (
                       <Button
                         size="small"
@@ -339,70 +427,15 @@ export default function ProjectConfig() {
         </DialogActions>
       </Dialog>
 
-      <Dialog
+      <McpEditDialog
         open={mcpDialogOpen}
+        editingMcp={editingMcp}
         onClose={() => {
           setMcpDialogOpen(false)
           setEditingMcp(null)
-          setMcpJson('')
         }}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>{editingMcp ? '编辑 MCP 服务器' : '添加 MCP 服务器'}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            粘贴 MCP 服务器的 JSON 配置，例如：
-          </Typography>
-          <Box
-            component="pre"
-            sx={{
-              p: 2,
-              mb: 2,
-              bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'grey.800' : 'grey.100'),
-              borderRadius: 1,
-              overflow: 'auto',
-              fontSize: '0.8125rem',
-              lineHeight: 1.6,
-              color: 'text.primary',
-              fontFamily: '"Consolas", "Monaco", "Courier New", monospace',
-              whiteSpace: 'pre',
-              margin: 0
-            }}
-          >
-            {`{
-  "playwright": {
-    "type": "stdio",
-    "command": "npx",
-    "args": ["@playwright/mcp@latest"]
-  }
-}`}
-          </Box>
-          <TextField
-            fullWidth
-            multiline
-            rows={8}
-            value={mcpJson}
-            onChange={(e) => setMcpJson(e.target.value)}
-            placeholder="粘贴 JSON 配置..."
-            sx={{ fontFamily: 'monospace' }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setMcpDialogOpen(false)
-              setEditingMcp(null)
-              setMcpJson('')
-            }}
-          >
-            取消
-          </Button>
-          <Button onClick={handleAddMcp} variant="contained">
-            {editingMcp ? '保存' : '添加'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onSave={handleSaveMcp}
+      />
     </Box>
   )
 }
