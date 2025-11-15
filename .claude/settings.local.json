@@ -11,7 +11,10 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:scottspence.com)",
       "Bash(npm run dev:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(if not exist \"C:\\Users\\radeo\\Desktop\\easy-cc-switch\\src\\renderer\\pages\\claude-code\\mcp-marketplace\\components\" mkdir \"C:\\Users\\radeo\\Desktop\\easy-cc-switch\\src\\renderer\\pages\\claude-code\\mcp-marketplace\\components\")",
+      "Bash(npm run typecheck:web:*)",
+      "Bash(timeout 10 echo:*)"
     ],
     "deny": [],
     "ask": []

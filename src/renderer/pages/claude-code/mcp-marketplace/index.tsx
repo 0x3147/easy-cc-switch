@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, Typography, TextField, InputAdornment, Paper } from '@mui/material'
+import { Box, Typography, TextField, InputAdornment, Paper, Chip, Stack, Snackbar, Alert } from '@mui/material'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import MarketplaceCard from '../global-mcp/components/marketplace-card'
+import InstallMcpDialog from './components/install-mcp-dialog'
 import type { McpMarketplaceItem } from '@/shared/types/mcp'
 
 // 模拟 MCP 市场数据
@@ -519,18 +520,98 @@ const MARKETPLACE_ITEMS: McpMarketplaceItem[] = [
 const McpMarketplacePage = () => {
   const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  const [installDialogOpen, setInstallDialogOpen] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<McpMarketplaceItem | null>(null)
+  const [showAllTags, setShowAllTags] = useState(false)
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error'
+  })
+
+  // 获取所有唯一的标签
+  const allTags = Array.from(new Set(MARKETPLACE_ITEMS.flatMap((item) => item.tags)))
+
+  // 默认显示的标签数量
+  const DEFAULT_TAG_LIMIT = 8
+  const displayedTags = showAllTags ? allTags : allTags.slice(0, DEFAULT_TAG_LIMIT)
 
   // 过滤 MCP 项目
-  const filteredItems = MARKETPLACE_ITEMS.filter(
-    (item) =>
+  const filteredItems = MARKETPLACE_ITEMS.filter((item) => {
+    // 搜索过滤
+    const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
 
-  const handleInstall = async (item: McpMarketplaceItem) => {
-    console.log('Installing MCP:', item)
-    // TODO: 实现安装逻辑 - 打开添加 MCP 对话框并预填充配置
+    // 标签过滤
+    const matchesTag = !selectedTag || item.tags.includes(selectedTag)
+
+    return matchesSearch && matchesTag
+  })
+
+  const handleInstall = (item: McpMarketplaceItem) => {
+    setSelectedItem(item)
+    setInstallDialogOpen(true)
+  }
+
+  const handleInstallConfirm = async (installType: 'global' | 'project', projectPath?: string) => {
+    if (!selectedItem) return
+
+    try {
+      if (installType === 'global') {
+        // 全局安装
+        const success = await window.api.addMcpServer(selectedItem.id, selectedItem.configTemplate)
+        if (success) {
+          setSnackbar({
+            open: true,
+            message: `已成功安装 ${selectedItem.name} 到全局配置`,
+            severity: 'success'
+          })
+        } else {
+          throw new Error('安装失败')
+        }
+      } else if (projectPath) {
+        // 项目安装 - 获取所有项目，找到对应的项目
+        const allProjects = await window.api.getAllProjects()
+        const project = allProjects.find((p) => p.path === projectPath)
+
+        if (project) {
+          const updatedMcpServers = {
+            ...project.mcpServers,
+            [selectedItem.id]: selectedItem.configTemplate
+          }
+
+          // 添加到启用列表
+          const enabledServers = [...(project.enabledMcpjsonServers || []), selectedItem.id]
+
+          await window.api.updateProject({
+            path: projectPath,
+            config: {
+              ...project,
+              mcpServers: updatedMcpServers,
+              enabledMcpjsonServers: enabledServers
+            }
+          })
+
+          setSnackbar({
+            open: true,
+            message: `已成功安装 ${selectedItem.name} 到项目配置`,
+            severity: 'success'
+          })
+        } else {
+          throw new Error('找不到项目')
+        }
+      }
+    } catch (error) {
+      console.error('安装 MCP 失败:', error)
+      setSnackbar({
+        open: true,
+        message: `安装 ${selectedItem.name} 失败`,
+        severity: 'error'
+      })
+    }
   }
 
   return (
@@ -566,6 +647,46 @@ const McpMarketplacePage = () => {
             }
           }}
         />
+      </Box>
+
+      {/* 标签过滤 */}
+      <Box sx={{ mb: 3 }}>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Chip
+            label="全部"
+            onClick={() => setSelectedTag(null)}
+            color={selectedTag === null ? 'primary' : 'default'}
+            variant={selectedTag === null ? 'filled' : 'outlined'}
+            sx={{ mb: 1 }}
+          />
+          {displayedTags.map((tag) => (
+            <Chip
+              key={tag}
+              label={tag}
+              onClick={() => setSelectedTag(tag)}
+              color={selectedTag === tag ? 'primary' : 'default'}
+              variant={selectedTag === tag ? 'filled' : 'outlined'}
+              sx={{ mb: 1 }}
+            />
+          ))}
+          {allTags.length > DEFAULT_TAG_LIMIT && (
+            <Chip
+              label={showAllTags ? '收起' : `更多 (${allTags.length - DEFAULT_TAG_LIMIT})`}
+              onClick={() => setShowAllTags(!showAllTags)}
+              variant="outlined"
+              sx={{
+                mb: 1,
+                borderStyle: 'dashed',
+                color: 'text.secondary',
+                '&:hover': {
+                  borderStyle: 'solid',
+                  color: 'primary.main',
+                  borderColor: 'primary.main'
+                }
+              }}
+            />
+          )}
+        </Stack>
       </Box>
 
       {/* MCP 卡片网格布局 */}
@@ -604,6 +725,30 @@ const McpMarketplacePage = () => {
           </Paper>
         )}
       </Box>
+
+      {/* 安装对话框 */}
+      <InstallMcpDialog
+        open={installDialogOpen}
+        item={selectedItem}
+        onClose={() => setInstallDialogOpen(false)}
+        onInstall={handleInstallConfirm}
+      />
+
+      {/* 提示消息 */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }

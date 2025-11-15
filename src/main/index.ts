@@ -14,8 +14,8 @@ app.name = 'EasyCCSwitch'
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1280,
+    height: 960,
     show: false,
     autoHideMenuBar: true,
     frame: false, // 无边框窗口
