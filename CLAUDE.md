@@ -74,8 +74,10 @@ EasyCCSwitch 是一个基于 Electron 的桌面应用，用于管理 Claude Code
 
 **Claude Code 配置** (`src/main/ipc-handler/vendor-handler.ts`):
 - 配置文件: `~/.claude/settings.json`
-- **完全覆盖策略**: `saveClaudeConfig` 函数会完全重建配置对象，确保不同供应商配置之间不会相互干扰
-- 关键字段: `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, 可选字段仅在配置中明确提供时才写入
+- **合并策略**: `saveClaudeConfig` 函数会读取现有配置，只更新供应商相关的环境变量，保留所有其他配置字段
+- 保留的字段: `mcpServers`（MCP 服务器配置）、`enabledPlugins`（插件配置）、`hooks`、`commands` 等
+- 更新的字段: `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL`, 以及可选的模型配置字段
+- 这确保了切换供应商时，用户安装的插件、MCP 服务器等不会丢失
 
 **Codex 配置** (`src/main/ipc-handler/codex-handler.ts`):
 - 配置文件: `~/.codex/config.toml` 和 `~/.codex/auth.json`

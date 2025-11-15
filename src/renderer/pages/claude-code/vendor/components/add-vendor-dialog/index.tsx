@@ -37,8 +37,21 @@ interface AddVendorDialogProps {
   onAdd: (config: VendorConfig, applyImmediately: boolean) => Promise<void>
 }
 
+// 预设供应商配置接口
+interface PresetVendorConfig {
+  name: string
+  logo: string
+  baseUrl: string
+  apiTimeout?: number
+  model?: string
+  smallFastModel?: string
+  opusModel?: string
+  sonnetModel?: string
+  haikuModel?: string
+}
+
 // 预定义的供应商配置
-const PRESET_VENDORS = {
+const PRESET_VENDORS: Record<string, PresetVendorConfig> = {
   zhipu: {
     name: '智谱',
     logo: zhipuLogo,
@@ -59,9 +72,12 @@ const PRESET_VENDORS = {
     name: 'MINIMAX',
     logo: minimaxLogo,
     baseUrl: 'https://api.minimaxi.com/anthropic',
+    model: 'MiniMax-M2',
+    smallFastModel: 'MiniMax-M2',
     opusModel: 'MiniMax-M2',
     sonnetModel: 'MiniMax-M2',
-    haikuModel: 'MiniMax-M2'
+    haikuModel: 'MiniMax-M2',
+    apiTimeout: 3000000
   },
   idealab: {
     name: 'IdealAB',
@@ -79,7 +95,7 @@ const PRESET_VENDORS = {
     sonnetModel: 'deepseek-chat',
     haikuModel: 'deepseek-chat'
   }
-} as const
+}
 
 type PresetVendorKey = keyof typeof PRESET_VENDORS
 
@@ -114,7 +130,10 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
           name: quickConfigName || preset.name,
           token: quickToken,
           baseUrl: preset.baseUrl,
-          vendorKey: quickVendor,
+          vendorKey: quickVendor as 'zhipu' | 'moonshot' | 'minimax' | 'idealab' | 'deepseek',
+          ...(preset.apiTimeout && { apiTimeout: preset.apiTimeout }),
+          ...(preset.model && { model: preset.model }),
+          ...(preset.smallFastModel && { smallFastModel: preset.smallFastModel }),
           ...(preset.opusModel && { opusModel: preset.opusModel }),
           ...(preset.sonnetModel && { sonnetModel: preset.sonnetModel }),
           ...(preset.haikuModel && { haikuModel: preset.haikuModel })
@@ -430,6 +449,20 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {quickVendor === 'minimax' && (
               <>
                 <TextField
+                  label="ANTHROPIC_MODEL"
+                  value="MiniMax-M2"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.minimaxModel')}
+                />
+                <TextField
+                  label="ANTHROPIC_SMALL_FAST_MODEL"
+                  value="MiniMax-M2"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.minimaxSmallFast')}
+                />
+                <TextField
                   label="ANTHROPIC_DEFAULT_OPUS_MODEL"
                   value="MiniMax-M2"
                   fullWidth
@@ -449,6 +482,13 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   fullWidth
                   disabled
                   helperText={t('vendor.dialog.modelConfig.minimaxHaiku')}
+                />
+                <TextField
+                  label="API_TIMEOUT_MS"
+                  value="3000000"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.minimaxTimeout')}
                 />
               </>
             )}

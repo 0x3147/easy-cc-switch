@@ -82,7 +82,9 @@ const VendorConfigDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('vendor.dialog.editTitle', { name: vendorName })}</DialogTitle>
+      <DialogTitle>
+        {t('vendor.dialog.editTitle', { name: formData.name || vendorName || '配置' })}
+      </DialogTitle>
       <DialogContent>
         <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {/* 基础配置 */}
@@ -148,6 +150,24 @@ const VendorConfigDialog = ({
                   type="number"
                   placeholder={t('vendor.dialog.apiTimeoutPlaceholder')}
                   helperText={t('vendor.dialog.apiTimeoutHelper')}
+                />
+
+                <TextField
+                  label="ANTHROPIC_MODEL"
+                  value={formData.model || ''}
+                  onChange={handleChange('model')}
+                  fullWidth
+                  placeholder={t('vendor.dialog.modelPlaceholder')}
+                  helperText={t('vendor.dialog.modelHelper')}
+                />
+
+                <TextField
+                  label="ANTHROPIC_SMALL_FAST_MODEL"
+                  value={formData.smallFastModel || ''}
+                  onChange={handleChange('smallFastModel')}
+                  fullWidth
+                  placeholder={t('vendor.dialog.smallFastModelPlaceholder')}
+                  helperText={t('vendor.dialog.smallFastModelHelper')}
                 />
 
                 <TextField

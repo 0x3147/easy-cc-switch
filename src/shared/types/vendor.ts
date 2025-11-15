@@ -15,13 +15,25 @@ export interface ClaudeSettings {
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: number
     /** API 超时时间（可选） */
     API_TIMEOUT_MS?: number
+    /** 默认模型（可选） */
+    ANTHROPIC_MODEL?: string
+    /** 默认快速小模型（可选） */
+    ANTHROPIC_SMALL_FAST_MODEL?: string
     /** 默认 Opus 模型（可选） */
     ANTHROPIC_DEFAULT_OPUS_MODEL?: string
     /** 默认 Sonnet 模型（可选） */
     ANTHROPIC_DEFAULT_SONNET_MODEL?: string
     /** 默认 Haiku 模型（可选） */
     ANTHROPIC_DEFAULT_HAIKU_MODEL?: string
+    /** 其他可能的环境变量 */
+    [key: string]: string | number | undefined
   }
+  /** MCP 服务器配置（保留用户的 MCP 配置） */
+  mcpServers?: Record<string, unknown>
+  /** 启用的插件列表（保留用户的插件配置） */
+  enabledPlugins?: Record<string, boolean>
+  /** 其他可能的配置字段（hooks、commands 等） */
+  [key: string]: unknown
 }
 
 /**
@@ -38,6 +50,10 @@ export interface VendorConfig {
   baseUrl: string
   /** API 超时时间（可选，单位：毫秒） */
   apiTimeout?: number
+  /** 默认模型（可选） */
+  model?: string
+  /** 默认快速小模型（可选） */
+  smallFastModel?: string
   /** 默认 Opus 模型（可选） */
   opusModel?: string
   /** 默认 Sonnet 模型（可选） */

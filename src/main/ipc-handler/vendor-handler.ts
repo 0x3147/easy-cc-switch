@@ -37,6 +37,8 @@ async function readClaudeConfig(): Promise<VendorConfig | null> {
       token: settings.env.ANTHROPIC_AUTH_TOKEN || '',
       baseUrl: settings.env.ANTHROPIC_BASE_URL || '',
       apiTimeout: settings.env.API_TIMEOUT_MS,
+      model: settings.env.ANTHROPIC_MODEL,
+      smallFastModel: settings.env.ANTHROPIC_SMALL_FAST_MODEL,
       opusModel: settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL,
       sonnetModel: settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL,
       haikuModel: settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL,
@@ -50,7 +52,7 @@ async function readClaudeConfig(): Promise<VendorConfig | null> {
 
 /**
  * 保存 Claude 配置
- * 注意：此函数会完全覆盖现有配置，确保不同供应商配置之间不会相互干扰
+ * 注意：此函数使用合并策略，只更新供应商相关的环境变量，保留其他所有配置（MCP、插件等）
  */
 async function saveClaudeConfig(config: VendorConfig): Promise<boolean> {
   try {
@@ -62,32 +64,67 @@ async function saveClaudeConfig(config: VendorConfig): Promise<boolean> {
       await mkdir(claudeDir, { recursive: true })
     }
 
-    // 构建全新的配置对象（完全覆盖模式）
-    const settings: ClaudeSettings = {
-      env: {
-        ANTHROPIC_AUTH_TOKEN: config.token,
-        ANTHROPIC_BASE_URL: config.baseUrl,
-        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: 1
+    // 读取现有配置（如果存在），以保留其他字段（MCP、插件等）
+    let existingSettings: ClaudeSettings = { env: {} as ClaudeSettings['env'] }
+
+    if (existsSync(settingsPath)) {
+      try {
+        const content = await readFile(settingsPath, 'utf-8')
+        existingSettings = JSON.parse(content)
+      } catch (error) {
+        console.warn('读取现有配置失败，将创建新配置:', error)
       }
     }
 
-    // 只有当配置中明确提供了可选字段时，才添加到 settings 中
-    // 这样可以确保切换供应商时，旧的字段不会残留
-    if (config.apiTimeout !== undefined) {
-      settings.env.API_TIMEOUT_MS = config.apiTimeout
-    }
-    if (config.opusModel !== undefined) {
-      settings.env.ANTHROPIC_DEFAULT_OPUS_MODEL = config.opusModel
-    }
-    if (config.sonnetModel !== undefined) {
-      settings.env.ANTHROPIC_DEFAULT_SONNET_MODEL = config.sonnetModel
-    }
-    if (config.haikuModel !== undefined) {
-      settings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = config.haikuModel
+    // 确保 env 对象存在
+    if (!existingSettings.env || typeof existingSettings.env !== 'object') {
+      existingSettings.env = {} as ClaudeSettings['env']
     }
 
-    // 写入文件（完全覆盖）
-    await writeFile(settingsPath, JSON.stringify(settings, null, 2), 'utf-8')
+    // 更新供应商相关的环境变量（合并策略）
+    existingSettings.env.ANTHROPIC_AUTH_TOKEN = config.token
+    existingSettings.env.ANTHROPIC_BASE_URL = config.baseUrl
+    existingSettings.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = 1
+
+    // 处理可选字段：如果配置中提供了值则更新，否则删除旧值（避免不同供应商配置残留）
+    if (config.apiTimeout !== undefined) {
+      existingSettings.env.API_TIMEOUT_MS = config.apiTimeout
+    } else {
+      delete existingSettings.env.API_TIMEOUT_MS
+    }
+
+    if (config.model !== undefined) {
+      existingSettings.env.ANTHROPIC_MODEL = config.model
+    } else {
+      delete existingSettings.env.ANTHROPIC_MODEL
+    }
+
+    if (config.smallFastModel !== undefined) {
+      existingSettings.env.ANTHROPIC_SMALL_FAST_MODEL = config.smallFastModel
+    } else {
+      delete existingSettings.env.ANTHROPIC_SMALL_FAST_MODEL
+    }
+
+    if (config.opusModel !== undefined) {
+      existingSettings.env.ANTHROPIC_DEFAULT_OPUS_MODEL = config.opusModel
+    } else {
+      delete existingSettings.env.ANTHROPIC_DEFAULT_OPUS_MODEL
+    }
+
+    if (config.sonnetModel !== undefined) {
+      existingSettings.env.ANTHROPIC_DEFAULT_SONNET_MODEL = config.sonnetModel
+    } else {
+      delete existingSettings.env.ANTHROPIC_DEFAULT_SONNET_MODEL
+    }
+
+    if (config.haikuModel !== undefined) {
+      existingSettings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL = config.haikuModel
+    } else {
+      delete existingSettings.env.ANTHROPIC_DEFAULT_HAIKU_MODEL
+    }
+
+    // 写入文件（保留 mcpServers、enabledPlugins 等其他所有字段）
+    await writeFile(settingsPath, JSON.stringify(existingSettings, null, 2), 'utf-8')
 
     return true
   } catch (error) {
