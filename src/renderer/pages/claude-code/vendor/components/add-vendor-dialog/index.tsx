@@ -56,6 +56,8 @@ const PRESET_VENDORS: Record<string, PresetVendorConfig> = {
     name: '智谱',
     logo: zhipuLogo,
     baseUrl: 'https://open.bigmodel.cn/api/anthropic',
+    model: 'glm-4.6',
+    smallFastModel: 'glm-4.6',
     opusModel: 'glm-4.6',
     sonnetModel: 'glm-4.6',
     haikuModel: 'glm-4.5-air'
@@ -64,9 +66,11 @@ const PRESET_VENDORS: Record<string, PresetVendorConfig> = {
     name: '月之暗面',
     logo: moonshotLogo,
     baseUrl: 'https://api.kimi.com/coding',
+    model: 'kimi-for-coding',
+    smallFastModel: 'kimi-for-coding',
     opusModel: 'kimi-for-coding',
     sonnetModel: 'kimi-for-coding',
-    haikuModel: undefined
+    haikuModel: 'kimi-for-coding'
   },
   minimax: {
     name: 'MINIMAX',
@@ -83,6 +87,8 @@ const PRESET_VENDORS: Record<string, PresetVendorConfig> = {
     name: 'IdealAB',
     logo: alibabaLogo,
     baseUrl: ' https://idealab.alibaba-inc.com/api/openai/v1/chat/completions',
+    model: 'qwen3-coder-plus',
+    smallFastModel: 'qwen3-coder-plus',
     opusModel: 'qwen3-coder-plus',
     sonnetModel: 'qwen3-coder-plus',
     haikuModel: 'qwen3-coder-plus'
@@ -91,6 +97,8 @@ const PRESET_VENDORS: Record<string, PresetVendorConfig> = {
     name: 'DeepSeek',
     logo: deepseekLogo,
     baseUrl: 'https://api.deepseek.com/anthropic',
+    model: 'deepseek-chat',
+    smallFastModel: 'deepseek-chat',
     opusModel: 'deepseek-chat',
     sonnetModel: 'deepseek-chat',
     haikuModel: 'deepseek-chat'
@@ -402,6 +410,20 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {quickVendor === 'zhipu' && (
               <>
                 <TextField
+                  label="ANTHROPIC_MODEL"
+                  value="glm-4.6"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.zhipuModel')}
+                />
+                <TextField
+                  label="ANTHROPIC_SMALL_FAST_MODEL"
+                  value="glm-4.6"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.zhipuSmallFast')}
+                />
+                <TextField
                   label="ANTHROPIC_DEFAULT_OPUS_MODEL"
                   value="glm-4.6"
                   fullWidth
@@ -433,14 +455,35 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
                   value="kimi-for-coding"
                   fullWidth
                   disabled
-                  helperText={t('vendor.dialog.modelConfig.moonshotDefault')}
+                  helperText={t('vendor.dialog.modelConfig.moonshotModel')}
                 />
                 <TextField
                   label="ANTHROPIC_SMALL_FAST_MODEL"
                   value="kimi-for-coding"
                   fullWidth
                   disabled
-                  helperText={t('vendor.dialog.modelConfig.moonshotFast')}
+                  helperText={t('vendor.dialog.modelConfig.moonshotSmallFast')}
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_OPUS_MODEL"
+                  value="kimi-for-coding"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.moonshotOpus')}
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_SONNET_MODEL"
+                  value="kimi-for-coding"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.moonshotSonnet')}
+                />
+                <TextField
+                  label="ANTHROPIC_DEFAULT_HAIKU_MODEL"
+                  value="kimi-for-coding"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.moonshotHaiku')}
                 />
               </>
             )}
@@ -497,6 +540,20 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {quickVendor === 'idealab' && (
               <>
                 <TextField
+                  label="ANTHROPIC_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.idealabModel')}
+                />
+                <TextField
+                  label="ANTHROPIC_SMALL_FAST_MODEL"
+                  value="qwen3-coder-plus"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.idealabSmallFast')}
+                />
+                <TextField
                   label="ANTHROPIC_DEFAULT_OPUS_MODEL"
                   value="qwen3-coder-plus"
                   fullWidth
@@ -523,6 +580,20 @@ const AddVendorDialog = ({ open, onClose, onAdd }: AddVendorDialogProps) => {
             {/* DeepSeek 特有的模型配置 */}
             {quickVendor === 'deepseek' && (
               <>
+                <TextField
+                  label="ANTHROPIC_MODEL"
+                  value="deepseek-chat"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.deepseekModel')}
+                />
+                <TextField
+                  label="ANTHROPIC_SMALL_FAST_MODEL"
+                  value="deepseek-chat"
+                  fullWidth
+                  disabled
+                  helperText={t('vendor.dialog.modelConfig.deepseekSmallFast')}
+                />
                 <TextField
                   label="ANTHROPIC_DEFAULT_OPUS_MODEL"
                   value="deepseek-chat"
